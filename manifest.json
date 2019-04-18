@@ -1,0 +1,35 @@
+{
+
+  "manifest_version": 2,
+  "name": "Almonit",
+  "version": "0.01",
+
+	"description": "Add Almonit action icon to toolbar",
+  "homepage_url": "https://almonit.eth",
+  "icons": {
+    "48": "icons/almonit-48.png"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+	"permissions": [
+    "webRequest", "webRequestBlocking", "activeTab", "http://*.eth/*", "theme"
+  ],
+
+	"content_scripts": [
+    {
+      "matches": ["*://*/ipfs/*"],
+      "js": ["frontend.js"]
+    }
+  ],
+
+	"browser_action": {
+    "default_icon": "icons/almonit-32.png",
+    "default_title": "Almonit",
+    "default_popup": "popup/almonit_popup.html"
+  }
+
+
+}
