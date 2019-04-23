@@ -1,0 +1,93 @@
+.almonit-bar {
+	width: 60px;
+	height: 50px;
+	background: #555;
+	position: fixed;
+	top: 0;
+	box-sizing: border-box;
+	opacity: 0.8;
+	transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.almonit-bar__content {
+	width: 100%;
+	height: 50px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	color: #f1f1f1;
+	padding: 5px 16px;
+	box-sizing: border-box;
+}
+
+.almonit-bar.active {
+	opacity: 1;
+	width: 715px;
+}
+
+.almonit-bar img {
+	flex: 0 0 30px;
+	margin-right: 20px;
+	cursor: pointer;
+}
+
+.almonit-bar span {
+	font-size: 14pt;
+	line-height: 26px;
+}
+
+.urlbar {
+	display: none;
+	width: 625px;
+	left: 60px;
+	top: 10px;
+	position: fixed;
+	border-radius: 5px;
+	outline: 0;
+	padding: 0 5px;
+	border: 1px solid #555;
+	background: #777;
+	line-height: 28px;
+	font-size: 14pt;
+	color: #f1f1f1;
+	z-index: 99999999999 !important;
+	pointer-events:all;
+	transition: opacity 0.2s ease;
+}
+
+/* GOOEY EEFECT */
+
+.group {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 99999999 !important;
+	filter: url('#fancy-goo');
+	pointer-events: none;
+}
+
+.rect {
+	background: black;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	pointer-events:all;
+}
+
+.rect2 {
+	position: fixed;
+	left: -17px;
+	right: -17px;
+	top: -17px;
+	bottom: -17px;
+	height: calc(100% + 34px);
+	width: calc(100% + 34px);
+	border: 15px solid black;
+	box-sizing: border-box;
+}
