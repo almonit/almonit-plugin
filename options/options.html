@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
+            integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
+            crossorigin="anonymous"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Montserrat"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="options.css" />
+    </head>
+
+    <body>
+        <div class="header">
+            <img src="../theme/lion_header.png" alt="Almonit" />
+            <div class="header_name">
+                <h3>Almonit</h3>
+                <small class="app-version">(v0.0.2)</small>
+            </div>
+            <img src="../theme/lion_header.png" alt="Almonit" style="transform: scaleX(-1);" />
+        </div>
+        <form id="settingsForm" class="panel">
+            <header>
+                <h3>General</h3>
+                <p>Control what Almonit serves for you.</p>
+            </header>
+            <div class="pure-form pure-form-aligned scrollable">
+                <section>
+                    <h3 class="settings__label">Metrics</h3>
+                    <div>
+                        <label for="option-one" class="pure-checkbox">
+                            <input id="option-one" type="checkbox" value="" />
+                            I would like to share my metrics anonymously.
+                        </label>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="settings__label">Local Ethereum & IPFS</h3>
+                    <div>
+                        <div class="pure-control-group">
+                            <label for="name">Local Geth</label>
+                            <input id="name" type="text" />
+                        </div>
+                        <div class="pure-control-group">
+                            <label for="name">Local IPFS</label>
+                            <input id="name" type="text" />
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="settings__label">Blacklisted URLs</h3>
+                    <div>
+                        <fieldset class="pure-control-group">
+                            <label for="name">Add URL</label>
+                            <input id="name" type="text" />
+                            <button class="pure-button pure-button-primary">
+                                Add
+                            </button>
+                        </fieldset>
+                        <ul class="blacklist">
+                            <li>fakepepesza.eth</li>
+                            <li>almonitairdrop.eth</li>
+                            <li>mdtunofficial.eth</li>
+                            <li>free-eth.eth</li>
+                            <li>lambonow.eth</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+            <div>
+                <button
+                    class="pure-button pure-button-primary button-submit"
+                    type="submit"
+                >
+                    Save
+                </button>
+            </div>
+        </form>
+
+        <script src="options.js"></script>
+    </body>
+</html>
