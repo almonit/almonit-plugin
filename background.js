@@ -5,6 +5,11 @@ document.getElementsByTagName('head')[0].appendChild(imported);
 var imported = document.createElement('script');
 imported.src = 'npm/dist/main.js';
 document.getElementsByTagName('head')[0].appendChild(imported);
+var imported = document.createElement('script');
+imported.src = 'js/normalize-url.js';
+document.getElementsByTagName('head')[0].appendChild(imported);
+
+const PAGE_404 = browser.runtime.getURL('error_page/almonit-error.html');
 
 // global variables
 var local_ENS = {}; // a local ENS of all names we discovered
@@ -48,35 +53,40 @@ function ipfsAddressfromHex(hex) {
 	var ipfshash = Multihashes.toB58String(ipfs_buffer);
 	local_ENS[ipfshash] = ens_domain;
 	var ipfsaddress = ipfs_gateway + ipfshash;
-	console.log(ipfsaddress);
 	return {
 		redirectUrl: ipfsaddress
 	};
 }
 
 function err(msg) {
-	console.log(msg);
+	console.warning(msg);
 }
 
 // redirect .eth request to ipfs address from ENS
 function listener(details) {
 	ens_domain = urlDomain(details.url);
-	return WEB3ENS.getContenthash(ens_domain).then(
-		getENSContenthash,
-		getENSContent
-	);
+	return WEB3ENS.getContenthash(ens_domain)
+		.then(getENSContenthash, getENSContent)
+		.catch(err => {
+			return { redirectUrl: PAGE_404 };
+		});
 }
 
 //// listen to messages from content script
 browser.runtime.onMessage.addListener(passEnsName);
 
 function passEnsName(request, sender, sendResponse) {
-	if (request.greeting == 'set_original_theme') {
+	if (!!request.normalizeURL) {
+		const normalizedUrl = normalizeUrl(request.normalizeURL, {
+			forceHttp: true
+		});
+		sendResponse({ response: normalizedUrl });
+	} else if (request.theme == 'set_original_theme') {
 		browser.theme.reset(window.id);
-	} else if (request.greeting == 'set_almonit_theme') {
+	} else if (request.theme == 'set_almonit_theme') {
 		browser.theme.update(window.id, almonittheme);
-	} else if (local_ENS[request.greeting]) {
-		sendResponse({ response: local_ENS[request.greeting] });
+	} else if (local_ENS[request.ipfsAddress]) {
+		sendResponse({ response: local_ENS[request.ipfsAddress] });
 		browser.theme.update(window.id, almonittheme);
 	}
 }
