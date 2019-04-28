@@ -228,7 +228,7 @@ function lerp(start, end, amt) {
  * @param {[Object]} message [Callback data from ipfs function]
  */
 function setENSurl(message) {
-    const urlBar = document.getElementById('ENS_url');
+   	const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
 
     urlBar.addEventListener('keyup', function(event) {

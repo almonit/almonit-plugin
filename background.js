@@ -4,6 +4,7 @@ importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
 
+/**** settings ****/
 var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
 var ipfs_gateway = 'https://ipfs.io/ipfs/';
