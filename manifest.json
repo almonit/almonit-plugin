@@ -14,7 +14,7 @@
   },
 
   "permissions": [
-    "webRequest"
+    "webRequest",
     "webRequestBlocking",
     "activeTab",
     "http://*.eth/*",
@@ -30,7 +30,7 @@
     }
   ],
 
-  "web_accessible_resources": ["theme/*.png", "error_page/*"],
+  "web_accessible_resources": ["theme/*.png", "pages/*"],
 
   "options_ui": {
     "page": "options/options.html",
