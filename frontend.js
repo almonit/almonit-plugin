@@ -172,7 +172,7 @@ function lerp(start, end, amt) {
 }
 
 function setENSurl(message) {
-    const urlBar = document.getElementById('ENS_url');
+   	const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
 
     urlBar.addEventListener('keyup', function(event) {
@@ -186,9 +186,15 @@ function setENSurl(message) {
                     active: dragElm.classList.contains('active')
                 })
             );
-            window.location.replace(
-                `http://${document.getElementById('ENS_url').value}`
-            );
+					  let url = document.getElementById('ENS_url').value;
+            //browser.runtime
+            //	.sendMessage({
+            //  	normalizeURL: url
+            //	})
+            // 	.then(
+            //  		data => window.location.replace(data.response),
+            //  		handleError
+          	//	);
         }
     });
 }
@@ -202,7 +208,7 @@ function sendmsg() {
     let ipfs_location = url.lastIndexOf('ipfs');
     let ipfsaddress = url.substring(ipfs_location + 5, url.length - 1); //TODO: remove constants
     let sending = browser.runtime.sendMessage({
-        greeting: ipfsaddress
+    	ipfsAddress: ipfsaddress 
     });
     sending.then(setENSurl, handleError);
 }
@@ -214,13 +220,13 @@ window.onfocus = setAlmonitTheme;
 
 function setAlmonitTheme() {
     let sending = browser.runtime.sendMessage({
-        greeting: 'set_almonit_theme'
+    	theme: 'set_almonit_theme' 
     });
 }
 
 function setOriginalTheme() {
     console.info('setting original theme');
     let sending = browser.runtime.sendMessage({
-        greeting: 'set_original_theme'
+    	theme: 'set_original_theme'
     });
 }
