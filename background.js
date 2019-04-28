@@ -8,6 +8,7 @@ var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
 var ipfs_gateway = 'https://ipfs.io/ipfs/';
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
+const PAGE_OPTIONS = browser.runtime.getURL('options/options.html');
 
 const almonittheme = {
 	images: {
@@ -132,6 +133,10 @@ function MessagefromFrontend(request, sender, sendResponse) {
 			request.first_site.length
 		);
 		metrics.add(local_ENS[ipfsaddress]);
+	} else if (!!request.options) {
+		var optionsTab = browser.tabs.create({
+	    	url: PAGE_OPTIONS
+	  	})
 	}
 }
 

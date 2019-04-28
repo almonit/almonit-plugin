@@ -19,5 +19,15 @@ function restoreOptions() {
   getting.then(setCurrentChoice, onError);
 }
 
+function hotkeyListener(e) {
+  console.log(String.fromCharCode(e.which));
+}
+
 // document.addEventListener("DOMContentLoaded", restoreOptions);
 document.getElementById('settingsForm').addEventListener('submit', saveOptions);
+document
+  .getElementById('hotkeyBarInput')
+  .addEventListener('keyup', hotkeyListener);
+document
+  .getElementById('hotkeySettingsInput')
+  .addEventListener('keyup', hotkeyListener);

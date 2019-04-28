@@ -29,11 +29,15 @@ document.body.innerHTML =
 
 initListener();
 
+/**
+ * [initListener - itializes all listeners and restore functions]
+ */
 function initListener() {
     const dragElm = document.getElementById('drag');
     const expandBarElm = document.getElementById('expandBar');
     const urlBar = document.getElementById('ENS_url');
 
+    hotkeyEvents(expandBarElm, urlBar);
     restoreDragPosition(dragElm, urlBar);
 
     dragElement(dragElm);
@@ -59,6 +63,44 @@ function initListener() {
     });
 }
 
+/**
+ * [hotkeyEvents - binds keyup event for address bar]
+ * @param  {[DOM]} elm    [Address Bar DOM]
+ * @param  {[DOM]} urlBar [Address input DOM]
+ */
+function hotkeyEvents(elm, urlBar) {
+    document.onkeyup = function(e) {
+        if (e.ctrlKey && e.shiftKey && e.which == 84) {
+            // TODO CHANGE HARDCODED HOTKEY AS DYNAMIC
+            console.info('Address bar toggled.');
+            const targetClass = elm.parentNode.parentNode.classList;
+            if (targetClass.contains('noclick')) {
+                targetClass.remove('noclick');
+            } else {
+                targetClass.toggle('active');
+                if (!targetClass.contains('active')) {
+                    urlBar.style.display = 'none';
+                } else {
+                    setTimeout(() => {
+                        urlBar.focus();
+                        urlBar.select();
+                    }, 500);
+                }
+            }
+        } else if (e.ctrlKey && e.shiftKey && e.which == 79) {
+            // TODO CHANGE HARDCODED HOTKEY AS DYNAMIC
+            browser.runtime.sendMessage({
+                options: true
+            });
+        }
+    };
+}
+
+/**
+ * [restoreDragPosition - reads last position of address bar to keep it's position persistent]
+ * @param  {[DOM]}  elm    [Address Bar DOM]
+ * @param  {[DOM]}  urlBar [Address input DOM]
+ */
 function restoreDragPosition(elm, urlBar) {
     const storageItem = localStorage.getItem('almonit__bar');
     if (storageItem) {
@@ -74,7 +116,11 @@ function restoreDragPosition(elm, urlBar) {
     }
 }
 
-function dragElement(elmnt) {
+/**
+ * [dragElement - binds Drag & Drop events for the address bar]
+ * @param  {[DOM]}  elm    [Address Bar DOM]
+ */
+function dragElement(elm) {
     const urlBar = document.getElementById('ENS_url');
 
     const DRAG_RESISTANCE = 3;
@@ -83,12 +129,12 @@ function dragElement(elmnt) {
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
-    if (document.getElementById(elmnt.id)) {
+    if (document.getElementById(elm.id)) {
         // if present, the header is where you move the DIV from:
-        document.getElementById(elmnt.id).onmousedown = dragMouseDown;
+        document.getElementById(elm.id).onmousedown = dragMouseDown;
     } else {
         // otherwise, move the DIV from anywhere inside the DIV:
-        elmnt.onmousedown = dragMouseDown;
+        elm.onmousedown = dragMouseDown;
     }
 
     function dragMouseDown(e) {
@@ -109,11 +155,11 @@ function dragElement(elmnt) {
         //this will prevent triggering click while dragging
 
         if (
-            !elmnt.classList.contains('noclick') &&
+            !elm.classList.contains('noclick') &&
             (Math.abs(pos3 - e.clientX) > DRAG_RESISTANCE ||
                 Math.abs(pos4 - e.clientY) > DRAG_RESISTANCE)
         ) {
-            elmnt.classList.add('noclick');
+            elm.classList.add('noclick');
         }
 
         if (
@@ -133,27 +179,27 @@ function dragElement(elmnt) {
             pos4 = e.clientY;
         }
 
-        let top = elmnt.offsetTop - pos2;
+        let top = elm.offsetTop - pos2;
         let topLimit =
             top >= 0
-                ? top + elmnt.offsetHeight <= window.innerHeight
+                ? top + elm.offsetHeight <= window.innerHeight
                     ? top
-                    : window.innerHeight - elmnt.offsetHeight
+                    : window.innerHeight - elm.offsetHeight
                 : 0;
 
-        let left = elmnt.offsetLeft - pos1;
+        let left = elm.offsetLeft - pos1;
         let leftLimit =
             left >= 0
-                ? left + elmnt.offsetWidth <= window.innerWidth
+                ? left + elm.offsetWidth <= window.innerWidth
                     ? left
-                    : window.innerWidth - elmnt.offsetWidth
+                    : window.innerWidth - elm.offsetWidth
                 : 0;
 
         let topPx = lerp(topLimit, e.clientY, 0.001);
         let leftPx = lerp(leftLimit, e.clientX, 0.001);
         // set the element's new position:
-        elmnt.style.top = topPx + 'px';
-        elmnt.style.left = leftPx + 'px';
+        elm.style.top = topPx + 'px';
+        elm.style.left = leftPx + 'px';
 
         urlBar.style.top = topPx + 10 + 'px';
         urlBar.style.left = leftPx + 60 + 'px';
@@ -166,11 +212,21 @@ function dragElement(elmnt) {
     }
 }
 
-/*Linear interpolation*/
+/**
+ * [lerp - Linear interpolation function]
+ * @param  {[Float]}    start   [Starting point]
+ * @param  {[Float]}    end     [Ending point]
+ * @param  {[Float]}    amt     [Interval]
+ * @return {[Float]}            [Interpolation]
+ */
 function lerp(start, end, amt) {
     return (1 - amt) * start + amt * end;
 }
 
+/**
+ * [setENSurl - sets ens url on address bar]
+ * @param {[Object]} message [Callback data from ipfs function]
+ */
 function setENSurl(message) {
     const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
@@ -200,10 +256,18 @@ function setENSurl(message) {
     });
 }
 
+/**
+ * [handleError - error callback]
+ * @param  {[Object]} error [error callback data]
+ */
 function handleError(error) {
     console.error(`Error: ${error}`);
 }
 
+/**
+ * [sendmsg - sends given url to the browsers address bar to resolve its' ipfs address]
+ * @return {[type]} [description]
+ */
 function sendmsg() {
     const url = window.location.href;
     let ipfs_location = url.lastIndexOf('ipfs');
