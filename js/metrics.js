@@ -3,7 +3,7 @@ var server = "http://127.0.0.1:1981";
 class Metrics {
 	constructor() {
 		this.permission = false;
-		this.reportThreshold = 3; //report every reportThreshold visits
+		this.reportThreshold = 5; //report every reportThreshold visits
 		this.loadConfig();
 	}
 		
