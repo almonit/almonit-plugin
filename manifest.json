@@ -30,10 +30,7 @@
     }
   ],
 
-  "web_accessible_resources": [
-		"theme/*.png",
-		"pages/*"
-	],
+  "web_accessible_resources": ["theme/*.png", "pages/*", "options/*"],
 
   "options_ui": {
     "page": "options/options.html",

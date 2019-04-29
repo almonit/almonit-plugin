@@ -23,7 +23,11 @@
                 <h3>Almonit</h3>
                 <small class="app-version">(v0.0.2)</small>
             </div>
-            <img src="../theme/lion_header.png" alt="Almonit" style="transform: scaleX(-1);" />
+            <img
+                src="../theme/lion_header.png"
+                alt="Almonit"
+                style="transform: scaleX(-1);"
+            />
         </div>
         <form id="settingsForm" class="panel">
             <header>
@@ -44,12 +48,12 @@
                     <h3 class="settings__label">Local Ethereum & IPFS</h3>
                     <div>
                         <div class="pure-control-group">
-                            <label for="name">Local Geth</label>
-                            <input id="name" type="text" />
+                            <label for="gethInput">Local Geth</label>
+                            <input id="gethInput" type="text" />
                         </div>
                         <div class="pure-control-group">
-                            <label for="name">Local IPFS</label>
-                            <input id="name" type="text" />
+                            <label for="ipfsInput">Local IPFS</label>
+                            <input id="ipfsInput" type="text" />
                         </div>
                     </div>
                 </section>
@@ -57,8 +61,8 @@
                     <h3 class="settings__label">Blacklisted URLs</h3>
                     <div>
                         <fieldset class="pure-control-group">
-                            <label for="name">Add URL</label>
-                            <input id="name" type="text" />
+                            <label for="urlInput">Add URL</label>
+                            <input id="urlInput" type="text" />
                             <button class="pure-button pure-button-primary">
                                 Add
                             </button>
@@ -72,8 +76,21 @@
                         </ul>
                     </div>
                 </section>
+                <section>
+                    <h3 class="settings__label">Hotkeys</h3>
+                    <div>
+                        <fieldset class="pure-control-group">
+                            <label for="hotkeyBarInput">Toggle Address Bar</label>
+                            <input id="hotkeyBarInput" type="text" value="Ctrl + Shift + T" readonly/>
+                        </fieldset>
+                        <fieldset class="pure-control-group">
+                            <label for="hotkeySettingsInput">Open Settings</label>
+                            <input id="hotkeySettingsInput" type="text" value="Ctrl + Shift + O" readonly/>
+                        </fieldset>
+                    </div>
+                </section>
             </div>
-            <div>
+            <div class="panel__action">
                 <button
                     class="pure-button pure-button-primary button-submit"
                     type="submit"
