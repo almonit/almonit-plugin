@@ -40,68 +40,134 @@
                     <div>
                         <label for="option-one" class="pure-checkbox">
                             <input id="option-one" type="checkbox" value="" />
-                            I would like to share my metrics anonymously. (<a href="almonit.club">details</a>)
+                            I would like to share my metrics anonymously. (<a
+                                href="almonit.club"
+                                >details</a
+                            >)
                         </label>
                     </div>
                 </section>
                 <section>
                     <h3 class="settings__label">Ethereum</h3>
                     <div>
-                        <div class="pure-control-group">
-												 <form>
-													  <input type="radio" name="ethereum" value="infura" checked> Infura<br>
-													  <input type="radio" name="ethereum" value="local"> Local: http://localhost:8545 (<a href="http://almonit.club/">help</a>) <br>
-													  <input type="radio" name="ethereum" value="other"> Other
-														<input id="urlInput" type="text" />
-													</form> 
-                        </div>
+                        <label for="ethereum-one" class="pure-checkbox">
+                            <input
+                                id="ethereum-one"
+                                type="radio"
+                                name="optionsRadios"
+                                name="ethereum"
+                                value="infura"
+                                checked
+                            />
+                            Infura
+                        </label>
+                        <label for="ethereum-two" class="pure-checkbox">
+                            <input
+                                id="ethereum-two"
+                                type="radio"
+                                name="optionsRadios"
+                                name="ethereum"
+                                value="local"
+                                checked
+                            />
+                            Local: http://localhost:8545 (<a
+                                href="http://almonit.club/"
+                                >help</a
+                            >)
+                        </label>
+                        <label for="ethereum-three" class="pure-checkbox">
+                            <input
+                                id="ethereum-three"
+                                type="radio"
+                                name="optionsRadios"
+                                name="ethereum"
+                                value="other"
+                                checked
+                            />
+                            Other
+                            <br/><br/>
+                            <input id="urlInput" type="text" disabled/>
+                        </label>
                     </div>
                 </section>
                 <section>
                     <h3 class="settings__label">IPFS</h3>
                     <div>
-											Gateways:
-											<select>
-												<option value="ipfs">ipfs</option>
-												<option value="eternum">Eternum</option>
-												<option value="infura">Infura</option>
-												<option value="cloudflare">Cloudflare</option>
-											</select> 
                         <fieldset class="pure-control-group">
-                            <label for="urlInput">Add Gateawy</label>
-                            <input id="urlInput" type="text" />
+                            <label for="gateways">Gateways:</label>
+                            <select id="gateways">
+                                <option value="ipfs">ipfs</option>
+                                <option value="eternum">Eternum</option>
+                                <option value="infura">Infura</option>
+                                <option value="cloudflare">Cloudflare</option>
+                            </select>
+                        </fieldset>
+                        <fieldset class="pure-control-group">
+                            <label for="gatewayInput">Add Gateway</label>
+                            <input id="gatewayInput" type="text" />
                             <button class="pure-button pure-button-primary">
                                 Add
                             </button>
                         </fieldset>
-												<form>
-													  <input type="radio" name="gateway_selection" value="random_gateway" checked> Use random gateway (decentrazliation via randomization)<br>
-													  <input type="radio" name="gateway_selection" value="force_gateway"> Force gateway
-														 <select>
-														  <option value="ipfs">ipfs</option>
-														  <option value="eternum">Eternum</option>
-														  <option value="infura">Infura</option>
-														  <option value="cloudflare">Cloudflare</option>
-														</select> 
-												</form> 
-										<br>
-										<input type="checkbox" id="scales" name="scales"checked>	
-										<label for="local_ipfs">Always use local ipfs if available</label>
-										<br><br>
-													</form> 
-									
+                        <label for="gateway-one" class="pure-checkbox">
+                            <input
+                                id="gateway-one"
+                                type="radio"
+                                name="optionsRadios"
+                                name="ethereum"
+                                value="other"
+                                checked
+                            />
+                            Use random gateway (decentrazliation via randomization)
+                        </label>
+                        <label for="gateway-two" class="pure-checkbox">
+                            <input
+                                id="gateway-two"
+                                type="radio"
+                                name="optionsRadios"
+                                name="ethereum"
+                                value="other"
+                                checked
+                            />
+                            Force gateway
+                            <select>
+                                <option value="ipfs">ipfs</option>
+                                <option value="eternum">Eternum</option>
+                                <option value="infura">Infura</option>
+                                <option value="cloudflare">Cloudflare</option>
+                            </select>
+                        </label>
+                        <br/>
+                        <label for="option-one" class="pure-checkbox">
+                            <input id="option-one" type="checkbox" value="" />
+                            Always use local ipfs if available
+                        </label>
                     </div>
                 </section>
                 <section>
                     <h3 class="settings__label">Hotkeys</h3>
                     <div>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeyBarInput">Toggle Address Bar</label>
-                            <input id="hotkeyBarInput" type="text" value="Ctrl + Shift + T" readonly/>
+                            <label for="hotkeyBarInput"
+                                >Toggle Address Bar</label
+                            >
+                            <input
+                                id="hotkeyBarInput"
+                                type="text"
+                                value="Ctrl + Shift + T"
+                                readonly
+                            />
                         </fieldset>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeySettingsInput">Open Settings</label>
-                            <input id="hotkeySettingsInput" type="text" value="Ctrl + Shift + O" readonly/>
+                            <label for="hotkeySettingsInput"
+                                >Open Settings</label
+                            >
+                            <input
+                                id="hotkeySettingsInput"
+                                type="text"
+                                value="Ctrl + Shift + O"
+                                readonly
+                            />
                         </fieldset>
                     </div>
                 </section>
