@@ -1,0 +1,19 @@
+{
+  "gates": {
+    "Ipfs": "ipfs.io",
+    "Siderus": "siderus.io",
+    "Eternum": "ipfs.eternum.io",
+    "Infura": "ipfs.infura.io",
+    "Ninetailed": "ninetailed.ninja",
+    "James_stanley": "ipfs.jes.xxx",
+    "Hardbin": "hardbin.com",
+    "Wahlers": "ipfs.wa.hle.rs",
+    "Cloudflare": "cloudflare-ipfs.com",
+    "Pinata": "gateway.pinata.cloud",
+    "Sloppy_taco": "ipfs.sloppyta.co",
+    "Busy": "ipfs.busy.org",
+    "fooock": "ipfs.fooock.com",
+    "Temporal": "gateway.temporal.cloud",
+    "serph": "gateway.serph.network"
+  }
+}

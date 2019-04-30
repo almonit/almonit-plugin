@@ -7,9 +7,15 @@ importJS('js/normalize-url');
 /**** settings ****/
 var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
-var ipfs_gateway = 'https://ipfs.io/ipfs/';
+//var ipfs_gateway = 'https://ipfs.io/ipfs/';
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_OPTIONS = browser.runtime.getURL('options/options.html');
+
+// load a random gateway
+browser.storage.local.get('gateways').then(function(item) {
+	var keys = Object.keys(item.gateways)
+	ipfs_gateway = "https://" + item.gateways[keys[ keys.length * Math.random() << 0]] + "/ipfs/";	
+}, err)
 
 const almonittheme = {
 	images: {
@@ -141,6 +147,26 @@ function MessagefromFrontend(request, sender, sendResponse) {
 	}
 }
 
+/**** installation ****/
+browser.runtime.onInstalled.addListener(handleInstalled);
+function handleInstalled(details) {
+
+	// TOOD: gateways as a global variable, loading once when the browser is opened
+	var gateways = {
+    "Ipfs": "ipfs.io",
+    "Siderus": "siderus.io",
+    "Eternum": "ipfs.eternum.io",
+    "Infura": "ipfs.infura.io",
+    "Hardbin": "hardbin.com",
+    "Wahlers": "ipfs.wa.hle.rs",
+    "Cloudflare": "cloudflare-ipfs.com",
+    "Temporal": "gateway.temporal.cloud",
+    "serph": "gateway.serph.network"
+	} 
+
+	browser.storage.local.set({gateways});
+}
+
 /**** auxillary functions ****/
 function hextoIPFS(hex) {
 	var dig = Multihashes.fromHexString(hex);
@@ -164,7 +190,8 @@ function importJS(file) {
 	document.getElementsByTagName('head')[0].appendChild(imported);
 }
 
-function notFound() {
+function notFound(e) {
+	console.log("err: " + e);
 	return { redirectUrl: PAGE_404 };
 }
 

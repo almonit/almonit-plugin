@@ -155,4 +155,3 @@ const normalizeUrl = (urlString, options) => {
 	return urlString;
 };
 
-//module.exports = normalizeUrl;
