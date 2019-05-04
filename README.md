@@ -13,6 +13,7 @@ Navigate to ENS+IPFS websites such as:
 - almonit.eth
 - pepesza.eth
 - portalnetwork.eth
+- monkybrain.eth
 
 ## enable metrics
 The plugin asks permission for taking privacy preserving metrics when it's first activated. If permission is given, metrics are sent every `reportThreshold` times, (parameter is set in `js/metrics.js`). 
