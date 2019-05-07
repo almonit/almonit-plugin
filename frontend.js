@@ -279,19 +279,3 @@ function sendmsg() {
 }
 
 sendmsg();
-
-window.onblur = setOriginalTheme;
-window.onfocus = setAlmonitTheme;
-
-function setAlmonitTheme() {
-    let sending = browser.runtime.sendMessage({
-        theme: 'set_almonit_theme'
-    });
-}
-
-function setOriginalTheme() {
-    console.info('setting original theme');
-    let sending = browser.runtime.sendMessage({
-        theme: 'set_original_theme'
-    });
-}

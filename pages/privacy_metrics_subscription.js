@@ -4,15 +4,15 @@ document.getElementById("deny").addEventListener("click", metricsDeny)
 function metricsAuthorize() { 
 	browser.storage.local.get('ENS_redirect_url')
 		.then(function(item) {
+			console.log(item);
 			browser.storage.local.remove('ENS_redirect_url');
-			browser.storage.local.set({'metrics_permission': true});
 			var sending = browser.runtime.sendMessage({
-      	permission: "permission_true",
-				first_site: item.ENS_redirect_url.url
+      	permission: "true",
+				first_site: item.ENS_redirect_url
 				
     	});
-			sending.then(function(msg) {console.log(msg)}, err);
-			window.location.replace(item.ENS_redirect_url.url);
+			sending;
+			window.location.replace(item.ENS_redirect_url);
 		}, err);
 }
 
@@ -20,8 +20,11 @@ function metricsDeny() {
 	browser.storage.local.get('ENS_redirect_url')
 		.then(function(item) {
 			browser.storage.local.remove('ENS_redirect_url');
-			browser.storage.local.set({'metrics_permission': false});
-			window.location.replace(item.ENS_redirect_url.url);
+			var sending = browser.runtime.sendMessage({
+      	permission: "false"
+    	});
+			sending;
+			window.location.replace(item.ENS_redirect_url);
 		}, err);
 }
 

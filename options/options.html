@@ -39,8 +39,8 @@
                     <h3 class="settings__label">Metrics</h3>
                     <div>
                         <label for="option-one" class="pure-checkbox">
-                            <input id="option-one" type="checkbox" value="" />
-                            I would like to share my metrics anonymously. (<a
+                            <input id="metricCheckbox" type="checkbox" value="" />
+                            I would like to share my metrics privately. (<a
                                 href="almonit.club"
                                 >details</a
                             >)
@@ -54,7 +54,6 @@
                             <input
                                 id="ethereum-one"
                                 type="radio"
-                                name="optionsRadios"
                                 name="ethereum"
                                 value="infura"
                                 checked
@@ -65,7 +64,6 @@
                             <input
                                 id="ethereum-two"
                                 type="radio"
-                                name="optionsRadios"
                                 name="ethereum"
                                 value="local"
                                 checked
@@ -79,7 +77,6 @@
                             <input
                                 id="ethereum-three"
                                 type="radio"
-                                name="optionsRadios"
                                 name="ethereum"
                                 value="other"
                                 checked
@@ -95,16 +92,13 @@
                     <div>
                         <fieldset class="pure-control-group">
                             <label for="gateways">Gateways:</label>
-                            <select id="gateways">
-                                <option value="ipfs">ipfs</option>
-                                <option value="eternum">Eternum</option>
-                                <option value="infura">Infura</option>
-                                <option value="cloudflare">Cloudflare</option>
+                            <select id="ipfs_gateways1">
                             </select>
                         </fieldset>
                         <fieldset class="pure-control-group">
                             <label for="gatewayInput">Add Gateway</label>
-                            <input id="gatewayInput" type="text" />
+                            name: <input id="gatewayInputName" type="text" />
+                            url:  <input id="gatewayInputUrl" type="text" />
                             <button class="pure-button pure-button-primary">
                                 Add
                             </button>
@@ -113,9 +107,8 @@
                             <input
                                 id="gateway-one"
                                 type="radio"
-                                name="optionsRadios"
-                                name="ethereum"
-                                value="other"
+                                name="gateway"
+                                value="random"
                                 checked
                             />
                             Use random gateway (decentrazliation via randomization)
@@ -124,24 +117,15 @@
                             <input
                                 id="gateway-two"
                                 type="radio"
-                                name="optionsRadios"
-                                name="ethereum"
-                                value="other"
+                                name="gateway"
+                                value="force_gateway"
                                 checked
                             />
                             Force gateway
-                            <select>
-                                <option value="ipfs">ipfs</option>
-                                <option value="eternum">Eternum</option>
-                                <option value="infura">Infura</option>
-                                <option value="cloudflare">Cloudflare</option>
+                            <select id="ipfs_gateways2">
                             </select>
                         </label>
                         <br/>
-                        <label for="option-one" class="pure-checkbox">
-                            <input id="option-one" type="checkbox" value="" />
-                            Always use local ipfs if available
-                        </label>
                     </div>
                 </section>
                 <section>
@@ -176,12 +160,12 @@
                 <button
                     class="pure-button pure-button-primary button-submit"
                     type="submit"
+                    id="saveSettings"
                 >
                     Save
                 </button>
             </div>
         </form>
-
         <script src="options.js"></script>
     </body>
 </html>

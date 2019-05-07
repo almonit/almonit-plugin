@@ -2,60 +2,40 @@ var server = "http://127.0.0.1:1981";
 
 class Metrics {
 	constructor() {
-		this.permission = false;
 		this.reportThreshold = 5; //report every reportThreshold visits
-		this.loadConfig();
-	}
-		
-	loadConfig() {
-		browser.storage.local.get('metrics_permission')
-			.then(this.setPermission, err);
 	}
 
 	add(site) {
-		browser.storage.local.get(site)
-			.then(item => this.addSitetoMetric(item, site)); 
+		browser.storage.local.get("saved_metrics")
+			.then(item => this.addSitetoMetrics(item, site)); 
 	}
 }
 
-Metrics.prototype.addSitetoMetric = function(item, site) {
-	if (Object.entries(item).length !== 0) {
-		browser.storage.local.set({[site]: item[site] + 1});
-		browser.storage.local.get('usage_counter').then(item => this.isReportNeeded(item));
+Metrics.prototype.addSitetoMetrics = function(item, site) {
+	var saved_metrics = item.saved_metrics;	
+
+	if (saved_metrics.hasOwnProperty(site)) {
+		saved_metrics[site] = saved_metrics[site] + 1;
 	} else {
-		browser.storage.local.set({[site]: 1});
+		saved_metrics[site] = 1;
 	}
+	
+	browser.storage.local.set({saved_metrics});
+	browser.storage.local.get('usage_counter').then(item => this.isReportNeeded(item));
 }
 
 Metrics.prototype.isReportNeeded = function(item) {
-	if ( (Object.entries(item).length != 0) && (item.usage_counter % this.reportThreshold == 0) 
-																				&& (item.usage_counter > 0) ) {
-		//report metrics to server
-		browser.storage.local.get().then(reportMetrics, err);
+	if ( (item.usage_counter % this.reportThreshold == 0) &&
+			 (item.usage_counter > 0) ) {
+		browser.storage.local.get("saved_metrics}").then(reportMetrics, err);
 	}
 }
 
-Metrics.prototype.setPermission = function(item) {
-	if (item.metrics_permission !== true) 
-		this.permission = false;
-	else 
-		this.permission = true;
-}
-
 function reportMetrics(item) {
-	console.log("start reporting metrics");
-	// delete all old data, and rewrite the settings variables
-	browser.storage.local.clear();
-	browser.storage.local.set({"usage_counter": item.usage_counter});
-	browser.storage.local.set({"metrics_permission": item.metrics_permission});
-
-	// prepare item: remove settings variables
-	delete item.usage_counter;
-	delete item.metrics_permission;
+	browser.storage.local.clear("saved_metrics");
 	
 	var socket = io.connect(server);				
-	socket.emit("metrics",JSON.stringify(item));
-	console.log("end reporting metrics");
+	socket.emit("metrics",JSON.stringify(item.saved_metrics));
 }
 
 // This is here instead of in background.js, since code in background.js is evaluated before metrics.js is loaded
