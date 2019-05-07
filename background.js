@@ -4,7 +4,9 @@ importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
 
-/**** settings ****/
+/**
+ * settings
+ */
 var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
 //var ipfs_gateway = 'https://ipfs.io/ipfs/';
@@ -12,22 +14,11 @@ const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_OPTIONS = browser.runtime.getURL('options/options.html');
 
 // load a random gateway
-browser.storage.local.get('gateways').then(function(item) {
-	var keys = Object.keys(item.gateways)
-	ipfs_gateway = "https://" + item.gateways[keys[ keys.length * Math.random() << 0]] + "/ipfs/";	
-}, err)
+browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
 
-const almonittheme = {
-	images: {
-		theme_frame: 'theme/lion_header.png'
-	},
-	colors: {
-		frame: '#adb09f',
-		tab_background_text: '#000'
-	}
-};
-
-/**** Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS ****/
+/**
+ * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
+ */
 browser.webRequest.onBeforeRequest.addListener(
 	listener,
 	{ urls: ['http://*.eth/*'], types: ['main_frame'] },
@@ -84,18 +75,25 @@ function redirectENStoIPFS(hex, ens_domain) {
 	// update metrics and redirect to ipfs
 	return browser.storage.local.get('usage_counter').then(function(item) {
 		if (Object.entries(item).length != 0) {
+			
+			// increate counter
 			browser.storage.local.set({
 				usage_counter: item.usage_counter + 1
 			});
+
+			// update metrics (if permissioned)
 			if (metrics.permission) metrics.add(ens_domain);
 			return {
 				redirectUrl: ipfsaddress
 			};
 		} else {
+	
+			// init counter
 			browser.storage.local.set({ usage_counter: 1 });
-			browser.storage.local.set({
-				ENS_redirect_url: { url: ipfsaddress, ens_domain: ens_domain }
-			});
+
+			// forward to "subscribe to metrics page" upon first usage
+			// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
+			browser.storage.local.set({ENS_redirect_url: ipfsaddress });
 			return {
 				redirectUrl: browser.extension.getURL(
 					'pages/privacy_metrics_subscription.html'
@@ -116,7 +114,9 @@ function ipfsAddressfromHex(hex) {
 	};
 }
 
-/**** communicating with frontend scripts ****/
+/**
+ * communicating with frontend scripts 
+ */
 browser.runtime.onMessage.addListener(MessagefromFrontend);
 
 function MessagefromFrontend(request, sender, sendResponse) {
@@ -125,21 +125,22 @@ function MessagefromFrontend(request, sender, sendResponse) {
 			forceHttp: true
 		});
 		sendResponse({ response: normalizedUrl });
-	} else if (request.theme == 'set_original_theme') {
-		browser.theme.reset(window.id);
-	} else if (request.theme == 'set_almonit_theme') {
-		browser.theme.update(window.id, almonittheme);
 	} else if (local_ENS[request.ipfsAddress]) {
 		sendResponse({ response: local_ENS[request.ipfsAddress] });
-		browser.theme.update(window.id, almonittheme);
-	} else if (request.permission == 'permission_true') {
-		metrics.permission = true;
+	} else if (!!request.permission) {
 		let ipfs_location = request.first_site.lastIndexOf('ipfs');
-		let ipfsaddress = request.first_site.substring(
-			ipfs_location + 5,
-			request.first_site.length
-		);
+		let ipfsaddress = request.first_site.substring(ipfs_location + 5, request.first_site.length);
 		metrics.add(local_ENS[ipfsaddress]);
+
+		//update local settings
+		permission = request.permission; 
+
+		//update stored settings
+		browser.storage.local.get("settings").then(function(item) {
+			var settings = item.settings; 
+			settings.metrics_permission = request.permission;
+			browser.storage.local.set({settings});
+		},err);
 	} else if (!!request.options) {
 		var optionsTab = browser.tabs.create({
 	    	url: PAGE_OPTIONS
@@ -147,27 +148,76 @@ function MessagefromFrontend(request, sender, sendResponse) {
 	}
 }
 
-/**** installation ****/
-browser.runtime.onInstalled.addListener(handleInstalled);
-function handleInstalled(details) {
+/**
+ * load and set settings and session parameters
+ */
+browser.runtime.onInstalled.addListener(initSettings);
+function initSettings(details) {
 
-	// TOOD: gateways as a global variable, loading once when the browser is opened
-	var gateways = {
-    "Ipfs": "ipfs.io",
-    "Siderus": "siderus.io",
-    "Eternum": "ipfs.eternum.io",
-    "Infura": "ipfs.infura.io",
-    "Hardbin": "hardbin.com",
-    "Wahlers": "ipfs.wa.hle.rs",
-    "Cloudflare": "cloudflare-ipfs.com",
-    "Temporal": "gateway.temporal.cloud",
-    "serph": "gateway.serph.network"
-	} 
 
-	browser.storage.local.set({gateways});
+	if (details.reason == "install") { //TODO or settings is not defined..
+		let gateways = {
+	    "Ipfs": "ipfs.io",
+	    "Siderus": "siderus.io",
+	    "Eternum": "ipfs.eternum.io",
+	    "Infura": "ipfs.infura.io",
+	    "Hardbin": "hardbin.com",
+	    "Wahlers": "ipfs.wa.hle.rs",
+	    "Cloudflare": "cloudflare-ipfs.com",
+	    "Temporal": "gateway.temporal.cloud",
+	    "serph": "gateway.serph.network"
+		}
+	
+		let shortcuts = {
+				"addressbar": "Ctrl + Shift + T",
+				"settings": "Ctrl + Shift + O"
+				}
+	
+		let settings = {
+			"metrics_permission": "uninitialized",
+			"ethereum": "infura",
+			"gateways": gateways,
+			"ipfs": "random",
+			"shortcuts": shortcuts
+		}
+	
+		browser.storage.local.set({settings});
+
+		// save empty metrics
+		let saved_metrics = {}
+		browser.storage.local.set({saved_metrics});
+
+		}
 }
 
-/**** auxillary functions ****/
+
+function LoadSettingsSetSession(storage) {
+	// load settings
+	ethrerum = storage.settings.ethereum;	
+	permission = storage.settings.metrics_permission;
+	force_local_ipfs = storage.settings.force_local_ipfs;
+	
+	// set ipfs gateway
+	if (storage.settings.ipfs == "random") {
+		var keys = Object.keys(storage.settings.gateways)
+		ipfs_gateway = storage.settings.gateways[keys[ keys.length * Math.random() << 0]];	
+	} else {
+		ipfs_gateway = storage.settings.ipfs ;
+	}
+
+	// save session info
+	var session = {
+		"ipfs_gateway": ipfs_gateway,
+	}
+	browser.storage.local.set({session});
+
+	//set gateway in full url format
+	ipfs_gateway = "https://" + ipfs_gateway + "/ipfs/";
+}
+
+/**
+ * auxillary functions
+ */
 function hextoIPFS(hex) {
 	var dig = Multihashes.fromHexString(hex);
 	var ipfs_buffer = Multihashes.encode(dig, 18, 32);
