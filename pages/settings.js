@@ -1,4 +1,3 @@
-// restoreOptions();
 var ipfs_gateways = new Object();
 
 
@@ -21,7 +20,7 @@ function restoreSettings() {
 				addIpfsGate(key,result.settings.gateways[key], index);
 			});
 
-      // ipfs gateway option
+      // ipfs gateway settings
 			document.forms['settingsForm'].gateway[ipfs_options[settings.ipfs]].checked=true;
     
       // set session paramters

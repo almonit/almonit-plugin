@@ -11,7 +11,7 @@ var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
 //var ipfs_gateway = 'https://ipfs.io/ipfs/';
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
-const PAGE_OPTIONS = browser.runtime.getURL('options/options.html');
+const PAGE_OPTIONS = browser.runtime.getURL('pages/options.html');
 
 // load a random gateway
 browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
