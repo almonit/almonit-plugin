@@ -39,7 +39,11 @@
                     <h3 class="settings__label">Metrics</h3>
                     <div>
                         <label for="option-one" class="pure-checkbox">
-                            <input id="metricCheckbox" type="checkbox" value="" />
+                            <input
+                                id="metricCheckbox"
+                                type="checkbox"
+                                value=""
+                            />
                             I would like to share my metrics privately. (<a
                                 href="almonit.club"
                                 >details</a
@@ -82,8 +86,8 @@
                                 checked
                             />
                             Other
-                            <br/><br/>
-                            <input id="urlInput" type="text" disabled/>
+                            <br /><br />
+                            <input id="urlInput" type="text" disabled />
                         </label>
                     </div>
                 </section>
@@ -91,18 +95,17 @@
                     <h3 class="settings__label">IPFS</h3>
                     <div>
                         <fieldset class="pure-control-group">
-                            <label for="gateways">Gateways:</label>
-                            <select id="ipfs_gateways1">
-                            </select>
+                            <label for="gateways">Current Gateway:</label>
+                            <pre>Current gateway placeholder</pre>
                         </fieldset>
-                        <fieldset class="pure-control-group">
-                            <label for="gatewayInput">Add Gateway</label>
-                            name: <input id="gatewayInputName" type="text" />
-                            url:  <input id="gatewayInputUrl" type="text" />
-                            <button class="pure-button pure-button-primary">
-                                Add
-                            </button>
-                        </fieldset>
+                        <button
+                            class="pure-button pure-button-primary"
+                            type="button"
+                            id="manageGatewaysButton"
+                        >
+                            Manage Gateways
+                        </button>
+                        <br /><br />
                         <label for="gateway-one" class="pure-checkbox">
                             <input
                                 id="gateway-one"
@@ -111,7 +114,8 @@
                                 value="random"
                                 checked
                             />
-                            Use random gateway (decentrazliation via randomization)
+                            Use random gateway (decentrazliation via
+                            randomization)
                         </label>
                         <label for="gateway-two" class="pure-checkbox">
                             <input
@@ -122,19 +126,19 @@
                                 checked
                             />
                             Force gateway
-                            <select id="ipfs_gateways2">
-                            </select>
+                            <br/><br/>
+                            <select id="ipfs_gateways2" disabled></select>
                         </label>
-                        <br/>
+                        <br />
                     </div>
                 </section>
                 <section>
                     <h3 class="settings__label">Hotkeys</h3>
                     <div>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeyBarInput"
-                                >Toggle Address Bar</label
-                            >
+                            <label for="hotkeyBarInput" class="label__hotkey">
+                                Toggle Address Bar
+                            </label>
                             <input
                                 id="hotkeyBarInput"
                                 type="text"
@@ -143,9 +147,9 @@
                             />
                         </fieldset>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeySettingsInput"
-                                >Open Settings</label
-                            >
+                            <label for="hotkeySettingsInput" class="label__hotkey">
+                                Open Settings
+                            </label>
                             <input
                                 id="hotkeySettingsInput"
                                 type="text"
@@ -156,7 +160,7 @@
                     </div>
                 </section>
             </div>
-            <div class="panel__action">
+            <footer class="panel__action">
                 <button
                     class="pure-button pure-button-primary button-submit"
                     type="submit"
@@ -164,7 +168,7 @@
                 >
                     Save
                 </button>
-            </div>
+            </footer>
         </form>
         <script src="settings.js"></script>
     </body>
