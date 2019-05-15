@@ -1,0 +1,24 @@
+:root {
+  --panel-height: 700px;
+  --color-border: #cdcdcd;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: #4a4a4a;
+	background-color: #f3f3f3;
+	font-family: "Montserrat", sans-serif;
+}
+
+.panel__action {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.pure-button{
+	margin: 0 10px;
+}

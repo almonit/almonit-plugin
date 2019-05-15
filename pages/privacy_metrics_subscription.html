@@ -1,29 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
-<head>
-  <meta charset="utf-8">
+	<head>
+		<meta charset="utf-8" />
 
-  <title>The HTML5 Herald</title>
-  <meta name="description" content="Privacy preserving metrics">
-  <meta name="author" content="Almonit">
+		<title>Almonit</title>
+		<meta name="description" content="Privacy preserving metrics" />
+		<meta name="author" content="Almonit" />
+		<link
+            rel="stylesheet"
+            href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
+            integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
+            crossorigin="anonymous"
+        />
+		<link rel="stylesheet" href="privacy_metrics_subscription.css" />
+	</head>
 
-</head>
+	<body>
+		<h1>You'll be redirected to your page in a second..</h1>
+		<div>
+			<center>Please help Almonit improve!</center>
+		</div>
+		###
+		<div>
+			Authorize us to have your privacy
+			preserving metrics. Your statistics will be sent to us (technical
+			details).
+		</div>
+		<ul>
+			<li>
+				promise not to keep any logs connected to those transmissions
+				(IPs etc.).
+			</li>
+			<li>
+				We promise not to keep any identifying or personal information.
+			</li>
+			<li>
+				We promise to delete the user data once it was integrated into
+				the statistics.
+			</li>
+		</ul>
 
-<body>
-<h1>You'll be redirected to your page in a second.. </h1>
-Please help Almonit improve! Authorize us to have your privacy preserving metrics.
+		<div class="panel__action">
+			<button class="pure-button pure-button-primary" id="authorize">I authorize to send and use my metrics</button>
+			<button class="pure-button pure-button-secondary" id="deny">I don't authorise to send my metrics</button>
+		</div>
 
-Your statistics will be sent to us (technical details).
-<ul>
-	<li>promise not to keep any logs connected to those transmissions (IPs etc.).</li>
-	<li>We promise not to keep any identifying or personal information.</li>
-	<li>We promise to delete the user data once it was integrated into the statistics.</li>
-</ul>
-
-<button id="authorize">I authorize to send and use my metrics</button>  
-<button id="deny">I don't authorise to send my metrics</button> 
-
-<script src="privacy_metrics_subscription.js"></script> 
-</body>
+		<script src="privacy_metrics_subscription.js"></script>
+	</body>
 </html>
