@@ -2,10 +2,11 @@ var server = "http://127.0.0.1:1981";
 
 class Metrics {
 	constructor() {
-		this.reportThreshold = 5; //report every reportThreshold visits
+		this.reportThreshold = 3; //report every reportThreshold visits
 	}
 
 	add(site) {
+		console.log("adding site");
 		browser.storage.local.get("saved_metrics")
 			.then(item => this.addSitetoMetrics(item, site)); 
 	}
@@ -14,11 +15,14 @@ class Metrics {
 Metrics.prototype.addSitetoMetrics = function(item, site) {
 	var saved_metrics = item.saved_metrics;	
 
+	console.log("before upated metrics: " + JSON.stringify(saved_metrics));
 	if (saved_metrics.hasOwnProperty(site)) {
 		saved_metrics[site] = saved_metrics[site] + 1;
 	} else {
 		saved_metrics[site] = 1;
 	}
+
+	console.log("upated metrics: " + JSON.stringify(saved_metrics));
 	
 	browser.storage.local.set({saved_metrics});
 	browser.storage.local.get('usage_counter').then(item => this.isReportNeeded(item));
@@ -27,13 +31,14 @@ Metrics.prototype.addSitetoMetrics = function(item, site) {
 Metrics.prototype.isReportNeeded = function(item) {
 	if ( (item.usage_counter % this.reportThreshold == 0) &&
 			 (item.usage_counter > 0) ) {
-		browser.storage.local.get("saved_metrics}").then(reportMetrics, err);
+		browser.storage.local.get("saved_metrics").then(reportMetrics, err);
 	}
 }
 
 function reportMetrics(item) {
-	browser.storage.local.clear("saved_metrics");
-	
+	let saved_metrics = {}
+	browser.storage.local.set({saved_metrics});
+
 	var socket = io.connect(server);				
 	socket.emit("metrics",JSON.stringify(item.saved_metrics));
 }

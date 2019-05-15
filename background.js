@@ -9,11 +9,11 @@ importJS('js/normalize-url');
  */
 var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
-//var ipfs_gateway = 'https://ipfs.io/ipfs/';
+var ipfs_gateway = false;
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
-const PAGE_OPTIONS = browser.runtime.getURL('pages/options.html');
+const PAGE_OPTIONS = browser.runtime.getURL('pages/settings.html');
 
-// load a random gateway
+// load plugin settings
 browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
 
 /**
@@ -68,7 +68,7 @@ function ipfsAddressfromContent(hex) {
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ens_domain) {
 	var ipfshash = hextoIPFS(hex);
-	var ipfsaddress = ipfs_gateway + ipfshash;
+	var ipfsaddress = "https://" + ipfs_gateway + "/ipfs/" + ipfshash;
 
 	local_ENS[ipfshash] = ens_domain;
 
@@ -82,7 +82,8 @@ function redirectENStoIPFS(hex, ens_domain) {
 			});
 
 			// update metrics (if permissioned)
-			if (metrics.permission) metrics.add(ens_domain);
+			console.log("permissions: " + metrics_permission);
+			if (metrics_permission) metrics.add(ens_domain);
 			return {
 				redirectUrl: ipfsaddress
 			};
@@ -133,7 +134,7 @@ function MessagefromFrontend(request, sender, sendResponse) {
 		metrics.add(local_ENS[ipfsaddress]);
 
 		//update local settings
-		permission = request.permission; 
+		metrics_permission = request.permission; 
 
 		//update stored settings
 		browser.storage.local.get("settings").then(function(item) {
@@ -145,6 +146,8 @@ function MessagefromFrontend(request, sender, sendResponse) {
 		var optionsTab = browser.tabs.create({
 	    	url: PAGE_OPTIONS
 	  	})
+	} else if (!!request.reload_settings) {
+		browser.storage.local.get('settings').then(LoadSettingsSetSession, err)  	
 	}
 }
 
@@ -180,6 +183,8 @@ function initSettings(details) {
 			"ipfs": "random",
 			"shortcuts": shortcuts
 		}
+
+		console.log(settings);
 	
 		browser.storage.local.set({settings});
 
@@ -194,13 +199,15 @@ function initSettings(details) {
 function LoadSettingsSetSession(storage) {
 	// load settings
 	ethrerum = storage.settings.ethereum;	
-	permission = storage.settings.metrics_permission;
+	metrics_permission = storage.settings.metrics_permission;
 	force_local_ipfs = storage.settings.force_local_ipfs;
 	
 	// set ipfs gateway
 	if (storage.settings.ipfs == "random") {
-		var keys = Object.keys(storage.settings.gateways)
-		ipfs_gateway = storage.settings.gateways[keys[ keys.length * Math.random() << 0]];	
+		if (!ipfs_gateway) {
+			var keys = Object.keys(storage.settings.gateways)
+			ipfs_gateway = storage.settings.gateways[keys[ keys.length * Math.random() << 0]];	
+		}
 	} else {
 		ipfs_gateway = storage.settings.ipfs ;
 	}
@@ -210,9 +217,6 @@ function LoadSettingsSetSession(storage) {
 		"ipfs_gateway": ipfs_gateway,
 	}
 	browser.storage.local.set({session});
-
-	//set gateway in full url format
-	ipfs_gateway = "https://" + ipfs_gateway + "/ipfs/";
 }
 
 /**

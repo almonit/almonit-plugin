@@ -7,7 +7,7 @@ function metricsAuthorize() {
 			console.log(item);
 			browser.storage.local.remove('ENS_redirect_url');
 			var sending = browser.runtime.sendMessage({
-      	permission: "true",
+      	permission: true,
 				first_site: item.ENS_redirect_url
 				
     	});
@@ -21,7 +21,7 @@ function metricsDeny() {
 		.then(function(item) {
 			browser.storage.local.remove('ENS_redirect_url');
 			var sending = browser.runtime.sendMessage({
-      	permission: "false"
+      	permission: false
     	});
 			sending;
 			window.location.replace(item.ENS_redirect_url);

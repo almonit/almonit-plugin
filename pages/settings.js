@@ -4,7 +4,6 @@ var ipfs_gateways = new Object();
 function restoreSettings() {
     function setCurrentSettings(result) {
 			settings = result.settings;		
-	
       // metric permission
       if (settings.metrics_permission !== true) { 
 				document.querySelector('#metricCheckbox').checked = false;
@@ -76,7 +75,11 @@ function saveSettings(e) {
   }
   browser.storage.local.set({settings});
 
-  // TODO: create and save session settings
+	browser.runtime.sendMessage({
+  	reload_settings: true
+  });
+	
+	
 }
 
 function hotkeyListener(e) {

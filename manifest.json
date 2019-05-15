@@ -33,7 +33,7 @@
   "web_accessible_resources": ["theme/*.png", "pages/*"],
 
   "options_ui": {
-    "page": "pages/options.html",
+    "page": "pages/settings.html",
     "browser_style": true,
     "open_in_tab": true
   },
