@@ -1,5 +1,5 @@
 :root {
-  --panel-height: 600px;
+  --panel-height: 700px;
   --color-border: #cdcdcd;
 }
 
@@ -62,8 +62,20 @@ body {
 	border-top: 1px solid var(--color-border);
 }
 
+.pure-form-aligned .pure-control-group label {
+	width: auto;
+}
+
+.label__hotkey{
+	width: 170px !important;
+	text-align: left !important;
+	margin: 10px 0 !important;
+}
+
 section {
-	display: flex;
+	display: grid;
+	grid-template-columns: 25% auto;
+  	grid-template-rows: auto auto;	
 	justify-content: flex-start;
 	align-items: center;
 	border-bottom: 1px solid var(--color-border);
@@ -80,16 +92,15 @@ section:last-of-type{
 }
 
 .settings__label {
-	width: 100px;
 	font-size: 14pt;
 	font-weight: 900;
 	color: #000;
-	margin-right: 100px;
 }
 
-.pure-checkbox {
-	margin-left: 70px !important;
+#ipfs_gateways2{
+	margin-left: 10px;
 }
+
 
 .pure-form-aligned .pure-control-group {
 	margin-bottom: 0;
