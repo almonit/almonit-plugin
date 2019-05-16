@@ -43,7 +43,8 @@ function randomSuggestion() {
 		'phyrextsai.eth',
 		'mycrypto.dappnode.eth',
 		'myetherwallet.eth',
-		'game.portalnetwork.eth'
+		'game.portalnetwork.eth',
+		'cv.gnelson.eth'
 	];
 
 	return urlList[getRandomInt(urlList.length)];

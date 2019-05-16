@@ -1,1 +1,1 @@
-{"almonit.eth":2,"pepesza.eth":1}
+{"almonit.eth":8,"pepesza.eth":3,"badger.merklework.eth":1}

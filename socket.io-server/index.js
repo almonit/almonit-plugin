@@ -15,8 +15,19 @@ io.on('connection', function (socket) {
 	console.log("connected");
 
 	socket.on("metrics", function (data) {
-		console.log("data received: " + data);
-		fs.writeFile("metrics.txt", data, (err) => {
+		saved_metrics = JSON.parse(fs.readFileSync('metrics.txt', 'utf8'));
+		new_metrics = JSON.parse(data);
+
+		Object.keys(new_metrics).forEach(function(key,index) {
+			if (saved_metrics.hasOwnProperty(key)) {
+		    saved_metrics[key] = saved_metrics[key] + new_metrics[key];
+		  } else {
+		    saved_metrics[key] = new_metrics[key];
+		  }
+
+		});
+
+		fs.writeFile("metrics.txt", JSON.stringify(saved_metrics), (err) => {
   		if (err) console.log(err);
   		console.log("Successfully Written to File.");
 			socket.disconnect(socket.id);
