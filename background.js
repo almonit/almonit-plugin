@@ -82,7 +82,6 @@ function redirectENStoIPFS(hex, ens_domain) {
 			});
 
 			// update metrics (if permissioned)
-			console.log("permissions: " + metrics_permission);
 			if (metrics_permission) metrics.add(ens_domain);
 			return {
 				redirectUrl: ipfsaddress
@@ -184,8 +183,6 @@ function initSettings(details) {
 			"shortcuts": shortcuts
 		}
 
-		console.log(settings);
-	
 		browser.storage.local.set({settings});
 
 		// save empty metrics

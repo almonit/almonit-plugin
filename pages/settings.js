@@ -34,14 +34,11 @@ function restoreSettings() {
     }
 
     function setCurrentSession(result) {
-        select = document.getElementById('ipfs_gateways1');
-        current_text = select[ipfs_gateways[result.session.ipfs_gateway]].text;
+        select = document.getElementById('ipfs_gateways2');
+        current_gateway = select[ipfs_gateways[result.session.ipfs_gateway]].text;
+				
+				document.getElementById('current_gateway').innerHTML = current_gateway;
 
-        select[ipfs_gateways[result.session.ipfs_gateway]].text =
-            current_text + ' (current gate)';
-
-        document.getElementById('ipfs_gateways1').selectedIndex =
-            ipfs_gateways[result.session.ipfs_gateway];
     }
 
     var get_settings = browser.storage.local.get('settings');
@@ -56,7 +53,9 @@ function saveSettings(e) {
     let ethereum = document.forms['settingsForm'].ethereum.value;
 
     let gateways = {};
-    let gateways_list = document.getElementById('ipfs_gateways1');
+
+		// TODO: upadte for managed gateways once UI for it exists
+    let gateways_list = document.getElementById('ipfs_gateways2');
     for (i = 0; i < gateways_list.length; i++) {
         let gateway = JSON.parse(gateways_list[i].value);
         gateways[gateway.key] = gateway.value;
@@ -138,11 +137,6 @@ const eth_client = {
 };
 
 const ipfs_options = {
-<<<<<<< HEAD
-  "random": 0,
-  "force_gateway": 1
-}
-=======
     random: 0,
     force_gateway: 1
 };
