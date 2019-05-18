@@ -2,11 +2,10 @@ var server = "http://127.0.0.1:1981";
 
 class Metrics {
 	constructor() {
-		this.reportThreshold = 3; //report every reportThreshold visits
+		this.reportThreshold = 10; //report every reportThreshold visits
 	}
 
 	add(site) {
-		console.log("adding site");
 		browser.storage.local.get("saved_metrics")
 			.then(item => this.addSitetoMetrics(item, site)); 
 	}
@@ -15,14 +14,11 @@ class Metrics {
 Metrics.prototype.addSitetoMetrics = function(item, site) {
 	var saved_metrics = item.saved_metrics;	
 
-	console.log("before upated metrics: " + JSON.stringify(saved_metrics));
 	if (saved_metrics.hasOwnProperty(site)) {
 		saved_metrics[site] = saved_metrics[site] + 1;
 	} else {
 		saved_metrics[site] = 1;
 	}
-
-	console.log("upated metrics: " + JSON.stringify(saved_metrics));
 	
 	browser.storage.local.set({saved_metrics});
 	browser.storage.local.get('usage_counter').then(item => this.isReportNeeded(item));

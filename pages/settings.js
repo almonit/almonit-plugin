@@ -10,9 +10,21 @@ function restoreSettings() {
         } else document.querySelector('#metricCheckbox').checked = true;
 
         // ethereum client
-        document.forms['settingsForm'].ethereum[
-            eth_client[settings.ethereum]
-        ].checked = true;
+				document.getElementById('urlInput').value = "";
+				ethereum_select = document.forms['settingsForm'].ethereum;
+			  switch (settings.ethereum) {
+					case "infura":
+						ethereum_select[0].checked = true;
+						break;	
+					case "local":
+						ethereum_select[1].checked = true;
+						break;	
+					default:
+						ethereum_select[2].checked = true;
+						document.getElementById('urlInput').disabled = false;
+						document.getElementById('urlInput').value = settings.ethereum;	
+				}	
+				
 
         // list of ipfs gateways
         Object.keys(result.settings.gateways).forEach(function(key, index) {
@@ -20,9 +32,12 @@ function restoreSettings() {
         });
 
         // ipfs gateway settings
-        document.forms['settingsForm'].gateway[
-            ipfs_options[settings.ipfs]
-        ].checked = true;
+				if (settings.ipfs == "random")
+	        document.forms['settingsForm'].gateway[0].checked = true;
+				else {
+	        document.forms['settingsForm'].gateway[1].checked = true;
+					document.getElementById('ipfs_gateways').disabled = false;
+				}
 
         // set session paramters
         var get_session = browser.storage.local.get('session');
@@ -34,11 +49,11 @@ function restoreSettings() {
     }
 
     function setCurrentSession(result) {
-        select = document.getElementById('ipfs_gateways2');
-        current_gateway = select[ipfs_gateways[result.session.ipfs_gateway]].text;
-				
+        select = document.getElementById('ipfs_gateways');
+				select.selectedIndex = ipfs_gateways[result.session.ipfs_gateway];
+        
+				current_gateway = select[select.selectedIndex].text;
 				document.getElementById('current_gateway').innerHTML = current_gateway;
-
     }
 
     var get_settings = browser.storage.local.get('settings');
@@ -50,18 +65,24 @@ function saveSettings(e) {
 
     // collect settings data
     let metrics_permission = document.querySelector('#metricCheckbox').checked;
-    let ethereum = document.forms['settingsForm'].ethereum.value;
+    if (document.forms['settingsForm'].ethereum.value !== "other")
+			var ethereum = document.forms['settingsForm'].ethereum.value;
+		else
+			var ethereum = document.getElementById('urlInput').value;
 
     let gateways = {};
 
 		// TODO: upadte for managed gateways once UI for it exists
-    let gateways_list = document.getElementById('ipfs_gateways2');
+    let gateways_list = document.getElementById('ipfs_gateways');
     for (i = 0; i < gateways_list.length; i++) {
         let gateway = JSON.parse(gateways_list[i].value);
         gateways[gateway.key] = gateway.value;
     }
 
-    let ipfs = document.forms['settingsForm'].gateway.value;
+		if (document.forms['settingsForm'].gateway.value == "random") 
+	    var ipfs = "random";
+		else
+			var ipfs = document.getElementById('ipfs_gateways').value;
 
     let shortcuts = {
         addressbar: 'Ctrl + Shift + T',
@@ -105,7 +126,7 @@ function radioGroupListener(e) {
         document.getElementById('urlInput').disabled =
             e.target.value !== 'other';
     } else if (e.target.getAttribute('name') === 'gateway') {
-        document.getElementById('ipfs_gateways2').disabled =
+        document.getElementById('ipfs_gateways').disabled =
             e.target.value !== 'force_gateway';
     }
 }
@@ -115,16 +136,11 @@ document.addEventListener('click', radioGroupListener);
 function addIpfsGate(key, value, index) {
     ipfs_gateways[value] = index;
 
-    var option1 = document.createElement('option');
-    var option2 = document.createElement('option');
-    var gateways1 = document.getElementById('ipfs_gateways1');
-    var gateways2 = document.getElementById('ipfs_gateways2');
-    option1.text = key + ': ' + value;
-    option1.value = JSON.stringify({ key: key, value: value });
-    option2.text = key + ': ' + value;
-    option2.value = JSON.stringify({ key: key, value: value });
-    //gateways1.add(option1);
-    gateways2.add(option2);
+    var option = document.createElement('option');
+    var gateways = document.getElementById('ipfs_gateways');
+    option.text = key + ': ' + value;
+    option.value = JSON.stringify({ key: key, value: value });
+    gateways.add(option);
 }
 
 /**

@@ -16,6 +16,7 @@ const PAGE_OPTIONS = browser.runtime.getURL('pages/settings.html');
 // load plugin settings
 browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
 
+
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
  */
@@ -196,9 +197,13 @@ function initSettings(details) {
 function LoadSettingsSetSession(storage) {
 	// load settings
 	ethrerum = storage.settings.ethereum;	
+	ethereum_node = set_ethereum_node(ethrerum);
+
 	metrics_permission = storage.settings.metrics_permission;
-	force_local_ipfs = storage.settings.force_local_ipfs;
-	
+
+
+	setTimeout(function () {WEB3ENS.connect_web3(ethereum_node);},1000);
+
 	// set ipfs gateway
 	if (storage.settings.ipfs == "random") {
 		if (!ipfs_gateway) {
@@ -206,7 +211,8 @@ function LoadSettingsSetSession(storage) {
 			ipfs_gateway = storage.settings.gateways[keys[ keys.length * Math.random() << 0]];	
 		}
 	} else {
-		ipfs_gateway = storage.settings.ipfs ;
+		let choosen_ipfs_gateway = JSON.parse(storage.settings.ipfs);
+		ipfs_gateway = choosen_ipfs_gateway.value;
 	}
 
 	// save session info
@@ -219,6 +225,20 @@ function LoadSettingsSetSession(storage) {
 /**
  * auxillary functions
  */
+function set_ethereum_node(eth) {
+	switch(eth) {
+		case "infura":
+			var eth_node = "https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
+			break;
+		case "local": 
+			var eth_node = "http://localhost:8545";
+			break;
+		default:
+			var eth_node = eth;
+	}
+	return eth_node;
+}
+
 function hextoIPFS(hex) {
 	var dig = Multihashes.fromHexString(hex);
 	var ipfs_buffer = Multihashes.encode(dig, 18, 32);
