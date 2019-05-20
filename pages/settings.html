@@ -96,7 +96,9 @@
                     <div>
                         <fieldset class="pure-control-group">
                             <label for="gateways">Current Gateway:</label>
-                            <pre id="current_gateway">Current gateway placeholder</pre>
+                            <pre id="current_gateway">
+                                Current gateway placeholder
+                            </pre>
                         </fieldset>
                         <button
                             class="pure-button pure-button-primary"
@@ -126,7 +128,7 @@
                                 checked
                             />
                             Force gateway
-                            <br/><br/>
+                            <br /><br />
                             <select id="ipfs_gateways" disabled></select>
                         </label>
                         <br />
@@ -147,7 +149,10 @@
                             />
                         </fieldset>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeySettingsInput" class="label__hotkey">
+                            <label
+                                for="hotkeySettingsInput"
+                                class="label__hotkey"
+                            >
                                 Open Settings
                             </label>
                             <input
@@ -170,6 +175,24 @@
                 </button>
             </footer>
         </form>
-        <script src="settings.js"></script>
+        <div id="gatewayModal" class="modal-container">
+            <div id="gatewayModalPanel" class="modal">
+                <h4>Manage Gateways</h4>
+                <div class="list-panel">
+                    <div id="addGatewayPanel" class="add-gateway-button">
+                        <span id="addGatewayButton"> + Add new gateway</span>
+                    </div>
+                    <ul id="gatewayList"></ul>
+                </div>
+                <button
+                    class="pure-button pure-button-primary button-submit"
+                    type="submit"
+                    id="saveSettings"
+                >
+                    Save
+                </button>
+            </div>
+        </div>
     </body>
+    <script src="settings.js"></script>
 </html>
