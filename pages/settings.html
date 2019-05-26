@@ -30,6 +30,7 @@
             />
         </div>
         <form id="settingsForm" class="panel">
+					<fieldset id="field_disabel_form">
             <header>
                 <h3>General</h3>
                 <p>Control what Almonit serves for you.</p>
@@ -135,33 +136,50 @@
                     </div>
                 </section>
                 <section>
-                    <h3 class="settings__label">Hotkeys</h3>
+                    <h3 class="settings__label">Shortcuts</h3>
                     <div>
                         <fieldset class="pure-control-group">
-                            <label for="hotkeyBarInput" class="label__hotkey">
+                            <label for="shortcutBarInput" class="label__shortcut">
                                 Toggle Address Bar
                             </label>
                             <input
-                                id="hotkeyBarInput"
+                                id="shortcutBarInput"
                                 type="text"
                                 value="Ctrl + Shift + T"
                                 readonly
                             />
+                        <button
+                            class="pure-button pure-button-primary"
+                            type="button"
+                            id="ModifyShortcutBarInput"
+                        >
+                            Modify
+                        </button>
                         </fieldset>
                         <fieldset class="pure-control-group">
                             <label
-                                for="hotkeySettingsInput"
-                                class="label__hotkey"
+                                for="shortcutSettingsInput"
+                                class="label__shortcut"
                             >
                                 Open Settings
                             </label>
                             <input
-                                id="hotkeySettingsInput"
+                                id="shortcutSettingsInput"
                                 type="text"
                                 value="Ctrl + Shift + O"
                                 readonly
                             />
+                        <button
+                            class="pure-button pure-button-primary"
+                            type="button"
+                            id="ModifyShortcutSettingsInput"
+                        >
+                            Modify
+                        </button>
                         </fieldset>
+
+
+
                     </div>
                 </section>
             </div>
@@ -174,6 +192,7 @@
                     Save
                 </button>
             </footer>
+				</fieldset>
         </form>
         <div id="gatewayModal" class="modal-container">
             <div id="gatewayModalPanel" class="modal">

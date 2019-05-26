@@ -5,11 +5,11 @@ var ipfs_gateways = new Object();
 
 function restoreSettings() {
     /**
-     * [setCurrentSettings function will fetch previous settings from
+     * [restoreCurrentSettings function will fetch previous settings from
      * local storage and will parse them to the proper inputs]
      * @param {Object}      result      [async result of local storage]
      */
-    function setCurrentSettings(result) {
+    function restoreCurrentSettings(result) {
         settings = result.settings;
 
         // metric permission
@@ -45,17 +45,21 @@ function restoreSettings() {
             document.forms['settingsForm'].gateway[1].checked = true;
             document.getElementById('ipfs_gateways').disabled = false;
         }
+				
+				// shortcuts
+        document.getElementById("shortcutBarInput").value = settings.shortcuts.addressbar; 
+        document.getElementById("shortcutSettingsInput").value = settings.shortcuts.settings;
 
         // set session paramters
         var get_session = browser.storage.local.get('session');
-        get_session.then(setCurrentSession, onError);
+        get_session.then(restoreCurrentSession, onError);
     }
 
     function onError(error) {
         console.log(`Error: ${error}`);
     }
 
-    function setCurrentSession(result) {
+    function restoreCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
         select.selectedIndex = ipfs_gateways[result.session.ipfs_gateway];
 
@@ -64,7 +68,7 @@ function restoreSettings() {
     }
 
     var get_settings = browser.storage.local.get('settings');
-    get_settings.then(setCurrentSettings, onError);
+    get_settings.then(restoreCurrentSettings, onError);
 }
 
 /**
@@ -94,8 +98,8 @@ function saveSettings(e) {
     else var ipfs = document.getElementById('ipfs_gateways').value;
 
     let shortcuts = {
-        addressbar: 'Ctrl + Shift + T',
-        settings: 'Ctrl + Shift + O'
+        addressbar: document.getElementById("shortcutBarInput").value,
+        settings: document.getElementById("shortcutSettingsInput").value
     };
 
     // create and save settings
@@ -114,11 +118,40 @@ function saveSettings(e) {
 }
 
 /**
- * [hotkeyListener read key inputs of user on hotkeyInputs to assign new combinations]
+ * [shortcutListener read key inputs of user on shortcutInputs to assign new combinations]
  * @param  {[Object]} e [Event handler]
  */
-function hotkeyListener(e) {
-    console.log(String.fromCharCode(e.which));
+function shortcutListener(shortcut, e) {
+	document.getElementById("field_disabel_form").disabled = true;
+	document.activeElement.blur();
+	document.addEventListener ('keydown', function handleShortcut(e) {
+		if (!["Control", "Shift", "Alt", "Meta"].includes(e.key)) {
+			handleShortcuts(shortcut, e);
+			this.removeEventListener ('keydown', arguments.callee);
+		}
+	});
+}
+
+function handleShortcuts(shortcut, e) {
+  e.stopPropagation ();
+  e.preventDefault ()
+  var keyStr = ["Control", "Shift", "Alt", "Meta"].includes(e.key) ? "" : e.key;
+  var reportStr   =
+      ( e.ctrlKey  ? "Ctrl+" : "" ) +
+      ( e.shiftKey ? "Shift+"   : "" ) +
+      ( e.altKey   ? "Alt+"     : "" ) +
+      ( e.metaKey  ? "Meta+"    : "" ) +
+      keyStr;
+
+    var current_bar_shortcut = document.getElementById("shortcutBarInput").value;
+    var current_settings_shortcut = document.getElementById("shortcutSettingsInput").value;
+    if ( (shortcut == "shortcutBarInput" && current_settings_shortcut == reportStr) ||
+        (shortcut == "shortcutSettingsInput" && current_bar_shortcut == reportStr)) 
+        alert(reportStr + " is already used as another shortcut"); 
+    else
+	   document.getElementById(shortcut).value = reportStr;
+
+	document.getElementById("field_disabel_form").disabled = false;
 }
 
 document.addEventListener('DOMContentLoaded', restoreSettings);
@@ -126,11 +159,11 @@ document
     .getElementById('settingsForm')
     .addEventListener('submit', saveSettings);
 document
-    .getElementById('hotkeyBarInput')
-    .addEventListener('keyup', hotkeyListener);
+    .getElementById('ModifyShortcutBarInput')
+    .addEventListener('click', e => shortcutListener("shortcutBarInput",e));
 document
-    .getElementById('hotkeySettingsInput')
-    .addEventListener('keyup', hotkeyListener);
+    .getElementById('ModifyShortcutSettingsInput')
+    .addEventListener('click', e => shortcutListener("shortcutSettingsInput", e));
 
 // Radio group listeners
 /**

@@ -11,7 +11,7 @@ var local_ENS = {}; // a local ENS of all names we discovered
 var ens_domain = ''; // domain in current call
 var ipfs_gateway = false;
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
-const PAGE_OPTIONS = browser.runtime.getURL('pages/settings.html');
+const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
 browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
@@ -142,9 +142,9 @@ function MessagefromFrontend(request, sender, sendResponse) {
 			settings.metrics_permission = request.permission;
 			browser.storage.local.set({settings});
 		},err);
-	} else if (!!request.options) {
-		var optionsTab = browser.tabs.create({
-	    	url: PAGE_OPTIONS
+	} else if (!!request.settings) {
+		var settingsTab = browser.tabs.create({
+	    	url: PAGE_SETTINGS
 	  	})
 	} else if (!!request.reload_settings) {
 		browser.storage.local.get('settings').then(LoadSettingsSetSession, err)  	
@@ -172,8 +172,8 @@ function initSettings(details) {
 		}
 	
 		let shortcuts = {
-				"addressbar": "Ctrl + Shift + T",
-				"settings": "Ctrl + Shift + O"
+				"addressbar": "Ctrl+Shift+T",
+				"settings": "Ctrl+Shift+O"
 				}
 	
 		let settings = {

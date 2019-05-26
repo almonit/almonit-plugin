@@ -1,3 +1,17 @@
+// load settings
+var get_settings = browser.storage.local.get('settings');
+get_settings.then(restoreCurrentSettings, onError);
+
+// init shortcuts
+var shortcutAddressBar = "";
+var shortcutSettings = "";
+
+function restoreCurrentSettings(result) {
+    settings = result.settings;
+
+    shortcutAddressBar = settings.shortcuts.addressbar;
+    shortcutSettings = settings.shortcuts.settings;
+}
 const lionIcon = browser.runtime.getURL('theme/lion_header.png');
 document.body.innerHTML =
     `
@@ -37,7 +51,7 @@ function initListener() {
     const expandBarElm = document.getElementById('expandBar');
     const urlBar = document.getElementById('ENS_url');
 
-    hotkeyEvents(expandBarElm, urlBar);
+    shortcutEvents(expandBarElm, urlBar);
     restoreDragPosition(dragElm, urlBar);
 
     dragElement(dragElm);
@@ -64,14 +78,22 @@ function initListener() {
 }
 
 /**
- * [hotkeyEvents - binds keyup event for address bar]
+ * [shortcutEvents - binds keyup event for address bar]
  * @param  {[DOM]} elm    [Address Bar DOM]
  * @param  {[DOM]} urlBar [Address input DOM]
  */
-function hotkeyEvents(elm, urlBar) {
-    document.onkeyup = function(e) {
-        if (e.ctrlKey && e.shiftKey && e.which == 84) {
-            // TODO CHANGE HARDCODED HOTKEY AS DYNAMIC
+function shortcutEvents(elm, urlBar) {
+    document.onkeydown = function(e) {
+        // create a string representing the keys which were pressed
+        var keyStr = ["Control", "Shift", "Alt", "Meta"].includes(e.key) ? "" : e.key;
+        var shortcutStr   =
+            ( e.ctrlKey  ? "Ctrl+" : "" ) +
+            ( e.shiftKey ? "Shift+"   : "" ) +
+            ( e.altKey   ? "Alt+"     : "" ) +
+            ( e.metaKey  ? "Meta+"    : "" ) +
+            keyStr;
+
+        if (shortcutStr == shortcutAddressBar) {
             console.info('Address bar toggled.');
             const targetClass = elm.parentNode.parentNode.classList;
             if (targetClass.contains('noclick')) {
@@ -87,10 +109,9 @@ function hotkeyEvents(elm, urlBar) {
                     }, 500);
                 }
             }
-        } else if (e.ctrlKey && e.shiftKey && e.which == 79) {
-            // TODO CHANGE HARDCODED HOTKEY AS DYNAMIC
+        } else if (shortcutStr == shortcutSettings) {
             browser.runtime.sendMessage({
-                options: true
+                settings: true
             });
         }
     };
@@ -250,18 +271,18 @@ function setENSurl(message) {
                 })
                 .then(
                     data => window.location.replace(data.response),
-                    handleError
+                    onError
                 );
         }
     });
 }
 
 /**
- * [handleError - error callback]
+ * [onError - error callback]
  * @param  {[Object]} error [error callback data]
  */
-function handleError(error) {
-    console.error(`Error: ${error}`);
+function onError(error) {
+    console.log(`Error: ${error}`);
 }
 
 /**
