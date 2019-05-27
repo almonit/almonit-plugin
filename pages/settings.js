@@ -1,15 +1,13 @@
 const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton');
 
-var ipfs_gateways = new Object();
-
-function restoreSettings() {
+function loadSettings() {
     /**
-     * [restoreCurrentSettings function will fetch previous settings from
+     * [loadCurrentSettings function will fetch previous settings from
      * local storage and will parse them to the proper inputs]
      * @param {Object}      result      [async result of local storage]
      */
-    function restoreCurrentSettings(result) {
+    function loadCurrentSettings(result) {
         settings = result.settings;
 
         // metric permission
@@ -35,7 +33,7 @@ function restoreSettings() {
 
         // list of ipfs gateways
         Object.keys(result.settings.gateways).forEach(function(key, index) {
-            addIpfsGate(key, result.settings.gateways[key], index);
+            addIpfsGate(key, result.settings.gateways[key]);
         });
 
         // ipfs gateway settings
@@ -46,29 +44,32 @@ function restoreSettings() {
             document.getElementById('ipfs_gateways').disabled = false;
         }
 				
-				// shortcuts
+		// shortcuts
         document.getElementById("shortcutBarInput").value = settings.shortcuts.addressbar; 
         document.getElementById("shortcutSettingsInput").value = settings.shortcuts.settings;
 
-        // set session paramters
+        // load session paramters
         var get_session = browser.storage.local.get('session');
-        get_session.then(restoreCurrentSession, onError);
+        get_session.then(loadCurrentSession, onError);
     }
 
     function onError(error) {
         console.log(`Error: ${error}`);
     }
 
-    function restoreCurrentSession(result) {
+    function loadCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
-        select.selectedIndex = ipfs_gateways[result.session.ipfs_gateway];
-
-        current_gateway = select[select.selectedIndex].text;
-        document.getElementById('current_gateway').innerHTML = current_gateway;
+        select.value = JSON.stringify(result.session.ipfs_gateway);
+        setCurrentIPFSGateway(result.session.ipfs_gateway);
     }
 
     var get_settings = browser.storage.local.get('settings');
-    get_settings.then(restoreCurrentSettings, onError);
+    get_settings.then(loadCurrentSettings, onError);
+}
+
+function setCurrentIPFSGateway(gateway) {
+    var current_gateway = gateway.key + ": " + gateway.value;
+    document.getElementById('current_gateway').innerHTML = current_gateway;
 }
 
 /**
@@ -95,7 +96,10 @@ function saveSettings(e) {
 
     if (document.forms['settingsForm'].gateway.value == 'random')
         var ipfs = 'random';
-    else var ipfs = document.getElementById('ipfs_gateways').value;
+    else {
+        var ipfs = document.getElementById('ipfs_gateways').value;
+        setCurrentIPFSGateway(JSON.parse(ipfs)); //once saved, update current gateway in html        
+    }
 
     let shortcuts = {
         addressbar: document.getElementById("shortcutBarInput").value,
@@ -154,7 +158,7 @@ function handleShortcuts(shortcut, e) {
 	document.getElementById("field_disabel_form").disabled = false;
 }
 
-document.addEventListener('DOMContentLoaded', restoreSettings);
+document.addEventListener('DOMContentLoaded', loadSettings);
 document
     .getElementById('settingsForm')
     .addEventListener('submit', saveSettings);
@@ -213,7 +217,8 @@ function openGatewayModal(e) {
             evtFunc: createGatewayForm.bind(
                 null,
                 JSON.parse(gateways_list[i].value),
-                'Edit'
+                'Edit',
+                editGateway
             )
         };
         gatewayEditButtonSpan.addEventListener(
@@ -221,13 +226,14 @@ function openGatewayModal(e) {
             createGatewayForm.bind(
                 null,
                 JSON.parse(gateways_list[i].value),
-                'Edit'
+                'Edit',
+                editGateway
             )
         );
 
         gatewayRemoveButtonSpan.addEventListener(
             'click',
-            removeGateway.bind(null, JSON.parse(gateways_list[i].value))
+            removeGateway.bind(null, gatewayList.children[i], JSON.parse(gateways_list[i].value))
         );
 
         listenerCollector[i * 2 + 1] = {
@@ -241,7 +247,7 @@ function openGatewayModal(e) {
     addGatewayButton = document.getElementById('addGatewayButton');
     addGatewayButton.addEventListener(
         'click',
-        createGatewayForm.bind(null, null, 'Add')
+        createGatewayForm.bind(null, null, 'Add', addGateway)
     );
 
     gatewayModal.style.display = 'flex';
@@ -250,19 +256,26 @@ function openGatewayModal(e) {
      * [removeListeners will remove whole assigned click listeners for action buttons]
      */
     function removeListeners() {
-        console.log('listenerCollector', listenerCollector);
         listenerCollector.forEach(item => {
-            debugger;
             item.element.removeEventListener('click', item.evtFunc);
         });
 
         addGatewayButton.removeEventListener(
             'click',
-            createGatewayForm.bind(null, null, 'Add')
+            createGatewayForm.bind(null, null, 'Add', addGateway)
         );
 
         addGatewayPanel.innerHTML =
             '<span id="addGatewayButton"> + Add new gateway</span>';
+    }
+
+    function hideGatewayModal() {
+        const gatewayModal = document.getElementById('gatewayModal');
+        const gatewayList = document.getElementById('gatewayList');
+        removeListeners();  
+        gatewayList.innerHTML = '';
+        gatewayModal.style.display = 'none';
+        gatewayModal.removeEventListener('click', closeGatewayModal);
     }
 
     /**
@@ -271,29 +284,23 @@ function openGatewayModal(e) {
      * @param  {[Object]} e [Event handler]
      */
     const closeGatewayModal = function(e) {
-        if (event.target.closest('#gatewayModalPanel')) return;
-        removeListeners();
-        // If user clicks outside the element, hide it!
-        if (gatewayModal.style.display == 'flex') {
-            gatewayList.innerHTML = '';
-            gatewayModal.style.display = 'none';
-            gatewayModal.removeEventListener('click', closeGatewayModal);
-        }
+        if (!event.target.closest('#gatewayModalPanel')) 
+            hideGatewayModal();
     };
     gatewayModal.addEventListener('click', closeGatewayModal);
+    document.getElementById('DoneModifyingGateway').addEventListener('click', hideGatewayModal);
 }
 
 document
     .getElementById('manageGatewaysButton')
     .addEventListener('click', openGatewayModal);
 
-function addIpfsGate(key, value, index, element, id) {
-    ipfs_gateways[value] = index;
-
+function addIpfsGate(key, value) {
     var option = document.createElement('option');
     var gateways = document.getElementById('ipfs_gateways');
     option.text = key + ': ' + value;
     option.value = JSON.stringify({ key: key, value: value });
+    option.id = option.value;
     gateways.add(option);
 }
 
@@ -304,13 +311,15 @@ function addIpfsGate(key, value, index, element, id) {
  * @param  {[String]}       btnName             [Form submit button name/text]
  * @param  {[Object]}       e                   [Event handler]
  */
-function createGatewayForm(item, btnName, e) {
+function createGatewayForm(item, btnName, callback, e) {
     e.stopPropagation();
     addGatewayPanel.innerHTML = '';
     const addGatewayNameInput = document.createElement('input');
     const addGatewayURLInput = document.createElement('input');
     const saveGatewayURLButton = document.createElement('button');
+    addGatewayNameInput.setAttribute('id', 'name_of_gateway');
     addGatewayNameInput.setAttribute('placeholder', 'Name of Gateway');
+    addGatewayURLInput.setAttribute('id', 'URL_of_gateway');
     addGatewayURLInput.setAttribute('placeholder', 'URL of Gateway');
     saveGatewayURLButton.className = 'pure-button pure-button-primary';
     saveGatewayURLButton.appendChild(document.createTextNode(btnName));
@@ -325,6 +334,11 @@ function createGatewayForm(item, btnName, e) {
     addGatewayForm.appendChild(addGatewayURLInput);
     addGatewayForm.appendChild(saveGatewayURLButton);
     addGatewayPanel.appendChild(addGatewayForm);
+    saveGatewayURLButton.setAttribute('type', 'button');
+    if (item) 
+        saveGatewayURLButton.addEventListener('click', e=> callback(e,item));
+    else
+        saveGatewayURLButton.addEventListener('click', callback);
     addGatewayNameInput.focus();
 }
 
@@ -332,9 +346,61 @@ function createGatewayForm(item, btnName, e) {
  * [removeGateway will remove gateway when user clicks remove action button in modal]
  * @param  {[Object]}   item    [Gateway object]
  */
-function removeGateway(item) {
-    console.info(`${item.key} removed!`);
+function removeGateway(child, item, e) {
+    e.stopPropagation();
+
+    if (gatewayList.children.length == 1)
+        alert("Can't remove gateway, list must include at least one gateway.")
+    else if (current_gateway == (item.key + ': ' + item.value)) 
+        alert(item.key + " is the current gateway. Please first change the" + 
+                                " current gateway and then try this action again.");
+    else {
+        // remove from gateway modal
+        gatewayList.removeChild(child);
+
+        // remove from gateway select option
+        let gateways_select = document.getElementById('ipfs_gateways')
+        let gateway_to_remove = document.getElementById(JSON.stringify(item));
+        gateways_select.removeChild(gateway_to_remove);
+    }
 }
+
+/**
+ * [editGateway will modify a gateway when user clicks edit action button in modal]
+ * @param  {[Object]}   item    [Gateway object]
+ */
+function editGateway(e, item) {
+    let gateways_select = document.getElementById('ipfs_gateways')
+
+    // remove old version
+    let gateway_to_edit = document.getElementById(JSON.stringify(item));
+    gateways_select.removeChild(gateway_to_edit);
+
+    //add gateway with new version
+    name = document.getElementById("name_of_gateway").value;
+    url = document.getElementById("URL_of_gateway").value;
+    addIpfsGate(name, url);
+    alert("Gateway was modify and the change is visible in the gateway list in the form");
+}
+
+
+/**
+ * [addGateway will add a gateway to the gateway list. It first checks that the gateway
+ * does not exist already in the list.
+ * @param  {[Object]}   item    [Gateway object]
+ */
+function addGateway(e) {
+    e.stopPropagation();
+    name = document.getElementById("name_of_gateway").value;
+    url = document.getElementById("URL_of_gateway").value;
+
+    if ( name != "" && url != "" ) {
+        addIpfsGate(name, url);
+        alert("Gateway was added and is visible in the gateway list in the form");
+    } else 
+        alert ("Name and url can not be empty");
+}
+
 
 /**
  * Enumerates

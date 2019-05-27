@@ -44,7 +44,17 @@ function randomSuggestion() {
 		'mycrypto.dappnode.eth',
 		'myetherwallet.eth',
 		'game.portalnetwork.eth',
-		'cv.gnelson.eth'
+		'cv.gnelson.eth',
+		'mycrypto.dappnode.eth',
+		'myetherwallet.eth',
+		'game.portalnetwork.eth',
+		'cv.gnelson.eth',
+		'forkslowtrade.eth',
+		'digitallyrare.eth',
+		'neelyadav.eth',
+		'mattcondon.eth',
+		'nathanclayforcongress.eth',
+		'bradsherman.eth'
 	];
 
 	return urlList[getRandomInt(urlList.length)];

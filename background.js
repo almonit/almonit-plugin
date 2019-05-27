@@ -69,7 +69,7 @@ function ipfsAddressfromContent(hex) {
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ens_domain) {
 	var ipfshash = hextoIPFS(hex);
-	var ipfsaddress = "https://" + ipfs_gateway + "/ipfs/" + ipfshash;
+	var ipfsaddress = "https://" + ipfs_gateway.value + "/ipfs/" + ipfshash;
 
 	local_ENS[ipfshash] = ens_domain;
 
@@ -109,7 +109,7 @@ function ipfsAddressfromHex(hex) {
 	var ipfs_buffer = Multihashes.encode(dig, 18, 32);
 	var ipfshash = Multihashes.toB58String(ipfs_buffer);
 	local_ENS[ipfshash] = ens_domain;
-	var ipfsaddress = ipfs_gateway + ipfshash;
+	var ipfsaddress = ipfs_gateway.value + ipfshash;
 	return {
 		redirectUrl: ipfsaddress
 	};
@@ -208,11 +208,12 @@ function LoadSettingsSetSession(storage) {
 	if (storage.settings.ipfs == "random") {
 		if (!ipfs_gateway) {
 			var keys = Object.keys(storage.settings.gateways)
-			ipfs_gateway = storage.settings.gateways[keys[ keys.length * Math.random() << 0]];	
+			var ipfs_gateway_key = keys[ keys.length * Math.random() << 0];
+			ipfs_gateway = {"key": ipfs_gateway_key, "value": storage.settings.gateways[ipfs_gateway_key]};
 		}
 	} else {
 		let choosen_ipfs_gateway = JSON.parse(storage.settings.ipfs);
-		ipfs_gateway = choosen_ipfs_gateway.value;
+		ipfs_gateway = choosen_ipfs_gateway;
 	}
 
 	// save session info

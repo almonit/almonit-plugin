@@ -15,7 +15,7 @@ function restoreCurrentSettings(result) {
 const lionIcon = browser.runtime.getURL('theme/lion_header.png');
 document.body.innerHTML =
     `
-    <div>
+    <div id="ENS_url_div" hidden=true>
         <div class="group group-new">
         <div id="dragContainer" class="rect2"></div>
             <div id="drag" class="rect almonit-bar">
@@ -249,8 +249,11 @@ function lerp(start, end, amt) {
  * @param {[Object]} message [Callback data from ipfs function]
  */
 function setENSurl(message) {
+    console.log("msg: ", message);
    	const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
+
+    document.getElementById("ENS_url_div").hidden = false;
 
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
@@ -297,6 +300,10 @@ function sendmsg() {
         ipfsAddress: ipfsaddress
     });
     sending.then(setENSurl, handleError);
+}
+
+function handleError(e) { 
+    console.log("error: " +  e);
 }
 
 sendmsg();
