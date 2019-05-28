@@ -119,6 +119,8 @@ function saveSettings(e) {
     browser.runtime.sendMessage({
         reload_settings: true
     });
+
+    SavedAlert("Saved",1000);
 }
 
 /**
@@ -401,6 +403,20 @@ function addGateway(e) {
         alert ("Name and url can not be empty");
 }
 
+/**
+ * [addGateway will add a gateway to the gateway list. It first checks that the gateway
+ * does not exist already in the list.
+ * @param  {[Object]}   item    [Gateway object]
+ */
+function SavedAlert(msg,duration)
+{
+    savedmsg = document.getElementById('SettingsSavedMessage'); 
+    savedmsg.style.display = 'flex';
+
+    setTimeout(function(){
+        savedmsg.style.display = 'none';
+    },duration);
+}
 
 /**
  * Enumerates

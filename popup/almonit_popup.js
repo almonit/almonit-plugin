@@ -37,7 +37,6 @@ function randomSuggestion() {
 		'monkybrain.eth',
 		'badger.merklework.eth',
 		'amoebacore.eth',
-		'rinkebywhale.eth',
 		'hozt.portalnetworkweb.eth',
 		'christophershen.eth',
 		'phyrextsai.eth',
