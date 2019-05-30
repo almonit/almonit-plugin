@@ -198,61 +198,65 @@ function openGatewayModal(e) {
     const gatewayModal = document.getElementById('gatewayModal');
     const gatewayList = document.getElementById('gatewayList');
     let gateways_list = document.getElementById('ipfs_gateways');
-    for (i = 0; i < gateways_list.length; i++) {
-        const gatewayLI = document.createElement('li');
-        const gatewayTextSpan = document.createElement('span');
-        const gatewayEditButtonSpan = document.createElement('span');
-        const gatewayRemoveButtonSpan = document.createElement('span');
-        gatewayTextSpan.appendChild(
-            document.createTextNode(gateways_list[i].text)
-        );
-        gatewayEditButtonSpan.appendChild(document.createTextNode('Edit'));
-        gatewayRemoveButtonSpan.appendChild(document.createTextNode('Remove'));
-        gatewayEditButtonSpan.className = 'edit-gateway-button';
-        gatewayRemoveButtonSpan.className = 'remove-gateway-button';
-        gatewayLI.appendChild(gatewayTextSpan);
-        gatewayLI.appendChild(gatewayEditButtonSpan);
-        gatewayLI.appendChild(gatewayRemoveButtonSpan);
-        gatewayList.appendChild(gatewayLI);
-        listenerCollector[i * 2] = {
-            element: gatewayEditButtonSpan,
-            evtFunc: createGatewayForm.bind(
-                null,
-                JSON.parse(gateways_list[i].value),
-                'Edit',
-                editGateway
-            )
-        };
-        gatewayEditButtonSpan.addEventListener(
+    showGatewayModal();
+
+    function showGatewayModal() {
+        for (i = 0; i < gateways_list.length; i++) {
+            const gatewayLI = document.createElement('li');
+            const gatewayTextSpan = document.createElement('span');
+            const gatewayEditButtonSpan = document.createElement('span');
+            const gatewayRemoveButtonSpan = document.createElement('span');
+            gatewayTextSpan.appendChild(
+                document.createTextNode(gateways_list[i].text)
+            );
+            gatewayEditButtonSpan.appendChild(document.createTextNode('Edit'));
+            gatewayRemoveButtonSpan.appendChild(document.createTextNode('Remove'));
+            gatewayEditButtonSpan.className = 'edit-gateway-button';
+            gatewayRemoveButtonSpan.className = 'remove-gateway-button';
+            gatewayLI.appendChild(gatewayTextSpan);
+            gatewayLI.appendChild(gatewayEditButtonSpan);
+            gatewayLI.appendChild(gatewayRemoveButtonSpan);
+            gatewayList.appendChild(gatewayLI);
+            listenerCollector[i * 2] = {
+                element: gatewayEditButtonSpan,
+                evtFunc: createGatewayForm.bind(
+                    null,
+                    JSON.parse(gateways_list[i].value),
+                    'Edit',
+                    editGateway
+                )
+            };
+            gatewayEditButtonSpan.addEventListener(
+                'click',
+                createGatewayForm.bind(
+                    null,
+                    JSON.parse(gateways_list[i].value),
+                    'Edit',
+                    editGateway
+                )
+            );
+
+            gatewayRemoveButtonSpan.addEventListener(
+                'click',
+                removeGateway.bind(null, gatewayList.children[i], JSON.parse(gateways_list[i].value))
+            );
+
+            listenerCollector[i * 2 + 1] = {
+                element: gatewayRemoveButtonSpan,
+                evtFunc: removeGateway.bind(
+                    null,
+                    JSON.parse(gateways_list[i].value)
+                )
+            };
+        }
+        addGatewayButton = document.getElementById('addGatewayButton');
+        addGatewayButton.addEventListener(
             'click',
-            createGatewayForm.bind(
-                null,
-                JSON.parse(gateways_list[i].value),
-                'Edit',
-                editGateway
-            )
+            createGatewayForm.bind(null, null, 'Add', addGateway)
         );
 
-        gatewayRemoveButtonSpan.addEventListener(
-            'click',
-            removeGateway.bind(null, gatewayList.children[i], JSON.parse(gateways_list[i].value))
-        );
-
-        listenerCollector[i * 2 + 1] = {
-            element: gatewayRemoveButtonSpan,
-            evtFunc: removeGateway.bind(
-                null,
-                JSON.parse(gateways_list[i].value)
-            )
-        };
+        gatewayModal.style.display = 'flex';
     }
-    addGatewayButton = document.getElementById('addGatewayButton');
-    addGatewayButton.addEventListener(
-        'click',
-        createGatewayForm.bind(null, null, 'Add', addGateway)
-    );
-
-    gatewayModal.style.display = 'flex';
 
     /**
      * [removeListeners will remove whole assigned click listeners for action buttons]
@@ -291,6 +295,44 @@ function openGatewayModal(e) {
     };
     gatewayModal.addEventListener('click', closeGatewayModal);
     document.getElementById('DoneModifyingGateway').addEventListener('click', hideGatewayModal);
+
+    /**
+     * [addGateway will add a gateway to the gateway list. It first checks that the gateway
+     * does not exist already in the list.
+     * @param  {[Object]}   item    [Gateway object]
+     */
+    function addGateway(e) {
+        e.stopPropagation();
+        name = document.getElementById("name_of_gateway").value;
+        url = document.getElementById("URL_of_gateway").value;
+
+        if ( name != "" && url != "" ) {
+            addIpfsGate(name, url);
+            hideGatewayModal();
+            showGatewayModal();
+        } else 
+            alert ("Name and url can not be empty");
+    }
+
+    /**
+     * [editGateway will modify a gateway when user clicks edit action button in modal]
+     * @param  {[Object]}   item    [Gateway object]
+     */
+    function editGateway(e, item) {
+        let gateways_select = document.getElementById('ipfs_gateways')
+
+        // remove old version
+        let gateway_to_edit = document.getElementById(JSON.stringify(item));
+        gateways_select.removeChild(gateway_to_edit);
+
+        //add gateway with new version
+        name = document.getElementById("name_of_gateway").value;
+        url = document.getElementById("URL_of_gateway").value;
+        addIpfsGate(name, url);
+        hideGatewayModal();
+        showGatewayModal();
+    }
+
 }
 
 document
@@ -365,42 +407,6 @@ function removeGateway(child, item, e) {
         let gateway_to_remove = document.getElementById(JSON.stringify(item));
         gateways_select.removeChild(gateway_to_remove);
     }
-}
-
-/**
- * [editGateway will modify a gateway when user clicks edit action button in modal]
- * @param  {[Object]}   item    [Gateway object]
- */
-function editGateway(e, item) {
-    let gateways_select = document.getElementById('ipfs_gateways')
-
-    // remove old version
-    let gateway_to_edit = document.getElementById(JSON.stringify(item));
-    gateways_select.removeChild(gateway_to_edit);
-
-    //add gateway with new version
-    name = document.getElementById("name_of_gateway").value;
-    url = document.getElementById("URL_of_gateway").value;
-    addIpfsGate(name, url);
-    alert("Gateway was modify and the change is visible in the gateway list in the form");
-}
-
-
-/**
- * [addGateway will add a gateway to the gateway list. It first checks that the gateway
- * does not exist already in the list.
- * @param  {[Object]}   item    [Gateway object]
- */
-function addGateway(e) {
-    e.stopPropagation();
-    name = document.getElementById("name_of_gateway").value;
-    url = document.getElementById("URL_of_gateway").value;
-
-    if ( name != "" && url != "" ) {
-        addIpfsGate(name, url);
-        alert("Gateway was added and is visible in the gateway list in the form");
-    } else 
-        alert ("Name and url can not be empty");
 }
 
 /**
