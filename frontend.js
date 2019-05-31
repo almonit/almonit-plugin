@@ -123,9 +123,8 @@ function shortcutEvents(elm, urlBar) {
  * @param  {[DOM]}  urlBar [Address input DOM]
  */
 function restoreDragPosition(elm, urlBar) {
-    const storageItem = localStorage.getItem('almonit__bar');
-    if (storageItem) {
-        const res = JSON.parse(storageItem);
+    browser.storage.local.get("almonitBar").then(function(item) {
+        res = item.almonitBar;
         elm.style.top = res.y;
         elm.style.left = res.x;
         if (res.active) {
@@ -134,7 +133,19 @@ function restoreDragPosition(elm, urlBar) {
             urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
             urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
         }
-    }
+    });
+    // const storageItem = localStorage.getItem('almonit__bar');
+    // if (storageItem) {
+    //     const res = JSON.parse(storageItem);
+    //     elm.style.top = res.y;
+    //     elm.style.left = res.x;
+    //     if (res.active) {
+    //         elm.classList.add('active');
+    //         urlBar.style.display = 'inherit';
+    //         urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
+    //         urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
+    //     }
+    // }
 }
 
 /**
@@ -249,7 +260,6 @@ function lerp(start, end, amt) {
  * @param {[Object]} message [Callback data from ipfs function]
  */
 function setENSurl(message) {
-    console.log("msg: ", message);
    	const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
 
@@ -258,14 +268,12 @@ function setENSurl(message) {
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
             const dragElm = document.getElementById('drag');
-            localStorage.setItem(
-                'almonit__bar',
-                JSON.stringify({
-                    x: dragElm.style.left,
-                    y: dragElm.style.top,
-                    active: dragElm.classList.contains('active')
-                })
-            );
+            var almonitBar = {
+                "x": dragElm.style.left,
+                "y": dragElm.style.top,
+                "active": dragElm.classList.contains('active')
+            }
+            browser.storage.local.set({almonitBar});
 
             let url = document.getElementById('ENS_url').value;
             browser.runtime
