@@ -1,6 +1,6 @@
 // load settings
-var get_settings = browser.storage.local.get('settings');
-get_settings.then(restoreCurrentSettings, onError);
+var getSettings = browser.storage.local.get('settings');
+getSettings.then(restoreCurrentSettings, onError);
 
 // init shortcuts
 var shortcutAddressBar = "";
@@ -294,10 +294,10 @@ function onError(error) {
  */
 function sendmsg() {
     const url = window.location.href;
-    let ipfs_location = url.lastIndexOf('ipfs');
-    let ipfsaddress = url.substring(ipfs_location + 5, url.length - 1); //TODO: remove constants
+    let ipfsLocation = url.lastIndexOf('ipfs');
+    let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); //TODO: remove constants
     let sending = browser.runtime.sendMessage({
-        ipfsAddress: ipfsaddress
+        ipfsAddress: ipfsAddress
     });
     sending.then(setENSurl, handleError);
 }

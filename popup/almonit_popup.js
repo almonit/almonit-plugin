@@ -53,7 +53,11 @@ function randomSuggestion() {
 		'neelyadav.eth',
 		'mattcondon.eth',
 		'nathanclayforcongress.eth',
-		'bradsherman.eth'
+		'bradsherman.eth',
+		'liquid-long.keydonix.eth',
+		'liquid-close.keydonix.eth',
+		'hadriencroubois.eth',
+		'badger.merklework.eth'
 	];
 
 	return urlList[getRandomInt(urlList.length)];

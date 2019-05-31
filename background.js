@@ -7,14 +7,14 @@ importJS('js/normalize-url');
 /**
  * settings
  */
-var local_ENS = {}; // a local ENS of all names we discovered
-var ens_domain = ''; // domain in current call
-var ipfs_gateway = false;
+var localENS = {}; // a local ENS of all names we discovered
+var ensDomain = ''; // domain in current call
+var ipfsGateway = false;
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
-browser.storage.local.get('settings').then(LoadSettingsSetSession, err)
+browser.storage.local.get('settings').then(loadSettingsSetSession, err)
 
 
 /**
@@ -27,36 +27,36 @@ browser.webRequest.onBeforeRequest.addListener(
 );
 
 function listener(details) {
-	ens_domain = urlDomain(details.url);
+	ensDomain = urlDomain(details.url);
 
 	// if error in retrieving Contenthash, try general ENS content field
-	return WEB3ENS.getContenthash(ens_domain)
+	return WEB3ENS.getContenthash(ensDomain)
 		.then(
 			function(address) {
-				return handleENSContenthash(address, ens_domain);
+				return handleENSContenthash(address, ensDomain);
 			},
 			function(error) {
-				return getENSContent(ens_domain);
+				return getENSContent(ensDomain);
 			}
 		)
 		.catch(notFound);
 }
 
-function handleENSContenthash(address, ens_domain) {
-	return redirectENStoIPFS(address.slice(14), ens_domain);
+function handleENSContenthash(address, ensDomain) {
+	return redirectENStoIPFS(address.slice(14), ensDomain);
 }
 
 // retrieve general ENS content field
-function getENSContent(ens_domain) {
+function getENSContent(ensDomain) {
 	// from here -> ipfsAddresfromContent -> ipfsAddressfromHex
-	return WEB3ENS.getContent(ens_domain).then(function(content) {
-		return handleENSContent(content, ens_domain);
+	return WEB3ENS.getContent(ensDomain).then(function(content) {
+		return handleENSContent(content, ensDomain);
 	}, notFound);
 }
 
-function handleENSContent(hex, ens_domain) {
+function handleENSContent(hex, ensDomain) {
 	if (hex.slice(0, 2) == '0x')
-		return redirectENStoIPFS(hex.slice(2), ens_domain);
+		return redirectENStoIPFS(hex.slice(2), ensDomain);
 	else return err('ENS content exist but does not point to an IPFS address');
 }
 
@@ -67,34 +67,34 @@ function ipfsAddressfromContent(hex) {
 
 // extract ipfs address from hex and redirects there
 // before redirecting, handling usage metrics
-function redirectENStoIPFS(hex, ens_domain) {
-	var ipfshash = hextoIPFS(hex);
-	var ipfsaddress = "https://" + ipfs_gateway.value + "/ipfs/" + ipfshash;
+function redirectENStoIPFS(hex, ensDomain) {
+	var ipfsHash = hextoIPFS(hex);
+	var ipfsAddress = "https://" + ipfsGateway.value + "/ipfs/" + ipfsHash;
 
-	local_ENS[ipfshash] = ens_domain;
+	localENS[ipfsHash] = ensDomain;
 
 	// update metrics and redirect to ipfs
-	return browser.storage.local.get('usage_counter').then(function(item) {
+	return browser.storage.local.get('usageCounter').then(function(item) {
 		if (Object.entries(item).length != 0) {
 			
 			// increate counter
 			browser.storage.local.set({
-				usage_counter: item.usage_counter + 1
+				usageCounter: item.usageCounter + 1
 			});
 
 			// update metrics (if permissioned)
-			if (metrics_permission) metrics.add(ens_domain);
+			if (metricsPermission) metrics.add(ensDomain);
 			return {
-				redirectUrl: ipfsaddress
+				redirectUrl: ipfsAddress
 			};
 		} else {
 	
 			// init counter
-			browser.storage.local.set({ usage_counter: 1 });
+			browser.storage.local.set({ usageCounter: 1 });
 
 			// forward to "subscribe to metrics page" upon first usage
 			// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-			browser.storage.local.set({ENS_redirect_url: ipfsaddress });
+			browser.storage.local.set({ENSRedirectUrl: ipfsAddress });
 			return {
 				redirectUrl: browser.extension.getURL(
 					'pages/privacy_metrics_subscription.html'
@@ -106,48 +106,48 @@ function redirectENStoIPFS(hex, ens_domain) {
 
 function ipfsAddressfromHex(hex) {
 	dig = Multihashes.fromHexString(hex);
-	var ipfs_buffer = Multihashes.encode(dig, 18, 32);
-	var ipfshash = Multihashes.toB58String(ipfs_buffer);
-	local_ENS[ipfshash] = ens_domain;
-	var ipfsaddress = ipfs_gateway.value + ipfshash;
+	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
+	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
+	localENS[ipfsHash] = ensDomain;
+	var ipfsAddress = ipfsGateway.value + ipfsHash;
 	return {
-		redirectUrl: ipfsaddress
+		redirectUrl: ipfsAddress
 	};
 }
 
 /**
  * communicating with frontend scripts 
  */
-browser.runtime.onMessage.addListener(MessagefromFrontend);
+browser.runtime.onMessage.addListener(messagefromFrontend);
 
-function MessagefromFrontend(request, sender, sendResponse) {
+function messagefromFrontend(request, sender, sendResponse) {
 	if (!!request.normalizeURL) {
 		const normalizedUrl = normalizeUrl(request.normalizeURL, {
 			forceHttp: true
 		});
 		sendResponse({ response: normalizedUrl });
-	} else if (local_ENS[request.ipfsAddress]) {
-		sendResponse({ response: local_ENS[request.ipfsAddress] });
+	} else if (localENS[request.ipfsAddress]) {
+		sendResponse({ response: localENS[request.ipfsAddress] });
 	} else if (!!request.permission) {
-		let ipfs_location = request.first_site.lastIndexOf('ipfs');
-		let ipfsaddress = request.first_site.substring(ipfs_location + 5, request.first_site.length);
-		metrics.add(local_ENS[ipfsaddress]);
+		let ipfsLocation = request.first_site.lastIndexOf('ipfs');
+		let ipfsAddress = request.first_site.substring(ipfsLocation + 5, request.first_site.length);
+		metrics.add(localENS[ipfsAddress]);
 
 		//update local settings
-		metrics_permission = request.permission; 
+		metricsPermission = request.permission; 
 
 		//update stored settings
 		browser.storage.local.get("settings").then(function(item) {
 			var settings = item.settings; 
-			settings.metrics_permission = request.permission;
+			settings.metricsPermission = request.permission;
 			browser.storage.local.set({settings});
 		},err);
 	} else if (!!request.settings) {
 		var settingsTab = browser.tabs.create({
 	    	url: PAGE_SETTINGS
 	  	})
-	} else if (!!request.reload_settings) {
-		browser.storage.local.get('settings').then(LoadSettingsSetSession, err)  	
+	} else if (!!request.reloadSettings) {
+		browser.storage.local.get('settings').then(loadSettingsSetSession, err)  	
 	}
 }
 
@@ -177,7 +177,7 @@ function initSettings(details) {
 				}
 	
 		let settings = {
-			"metrics_permission": "uninitialized",
+			"metricsPermission": "uninitialized",
 			"ethereum": "infura",
 			"gateways": gateways,
 			"ipfs": "random",
@@ -187,38 +187,38 @@ function initSettings(details) {
 		browser.storage.local.set({settings});
 
 		// save empty metrics
-		let saved_metrics = {}
-		browser.storage.local.set({saved_metrics});
+		let savedMetrics = {}
+		browser.storage.local.set({savedMetrics});
 
 		}
 }
 
 
-function LoadSettingsSetSession(storage) {
+function loadSettingsSetSession(storage) {
 	// load settings
 	ethrerum = storage.settings.ethereum;	
-	ethereum_node = set_ethereum_node(ethrerum);
+	ethereumNode = setEthereumNode(ethrerum);
 
-	metrics_permission = storage.settings.metrics_permission;
+	metricsPermission = storage.settings.metricsPermission;
 
 
-	setTimeout(function () {WEB3ENS.connect_web3(ethereum_node);},1000);
+	setTimeout(function () {WEB3ENS.connect_web3(ethereumNode);},1000);
 
 	// set ipfs gateway
 	if (storage.settings.ipfs == "random") {
-		if (!ipfs_gateway) {
+		if (!ipfsGateway) {
 			var keys = Object.keys(storage.settings.gateways)
-			var ipfs_gateway_key = keys[ keys.length * Math.random() << 0];
-			ipfs_gateway = {"key": ipfs_gateway_key, "value": storage.settings.gateways[ipfs_gateway_key]};
+			var ipfsGatewayKey = keys[ keys.length * Math.random() << 0];
+			ipfsGateway = {"key": ipfsGatewayKey, "value": storage.settings.gateways[ipfsGatewayKey]};
 		}
 	} else {
-		let choosen_ipfs_gateway = JSON.parse(storage.settings.ipfs);
-		ipfs_gateway = choosen_ipfs_gateway;
+		let choosenIpfsGateway = JSON.parse(storage.settings.ipfs);
+		ipfsGateway = choosenIpfsGateway;
 	}
 
 	// save session info
 	var session = {
-		"ipfs_gateway": ipfs_gateway,
+		"ipfsGateway": ipfsGateway,
 	}
 	browser.storage.local.set({session});
 }
@@ -226,26 +226,26 @@ function LoadSettingsSetSession(storage) {
 /**
  * auxillary functions
  */
-function set_ethereum_node(eth) {
+function setEthereumNode(eth) {
 	switch(eth) {
 		case "infura":
-			var eth_node = "https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
+			var ethNode = "https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
 			break;
 		case "local": 
-			var eth_node = "http://localhost:8545";
+			var ethNode = "http://localhost:8545";
 			break;
 		default:
-			var eth_node = eth;
+			var ethNode = eth;
 	}
-	return eth_node;
+	return ethNode;
 }
 
 function hextoIPFS(hex) {
 	var dig = Multihashes.fromHexString(hex);
-	var ipfs_buffer = Multihashes.encode(dig, 18, 32);
-	var ipfshash = Multihashes.toB58String(ipfs_buffer);
+	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
+	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
 
-	return ipfshash;
+	return ipfsHash;
 }
 
 // extract a domain from url

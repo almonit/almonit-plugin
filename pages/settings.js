@@ -1,5 +1,6 @@
 const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton');
+var currentGateway = "";
 
 function loadSettings() {
     /**
@@ -11,22 +12,22 @@ function loadSettings() {
         settings = result.settings;
 
         // metric permission
-        if (settings.metrics_permission !== true) {
+        if (settings.metricsPermission !== true) {
             document.querySelector('#metricCheckbox').checked = false;
         } else document.querySelector('#metricCheckbox').checked = true;
 
         // ethereum client
         document.getElementById('urlInput').value = '';
-        ethereum_select = document.forms['settingsForm'].ethereum;
+        ethereumSelect = document.forms['settingsForm'].ethereum;
         switch (settings.ethereum) {
             case 'infura':
-                ethereum_select[0].checked = true;
+                ethereumSelect[0].checked = true;
                 break;
             case 'local':
-                ethereum_select[1].checked = true;
+                ethereumSelect[1].checked = true;
                 break;
             default:
-                ethereum_select[2].checked = true;
+                ethereumSelect[2].checked = true;
                 document.getElementById('urlInput').disabled = false;
                 document.getElementById('urlInput').value = settings.ethereum;
         }
@@ -49,8 +50,8 @@ function loadSettings() {
         document.getElementById("shortcutSettingsInput").value = settings.shortcuts.settings;
 
         // load session paramters
-        var get_session = browser.storage.local.get('session');
-        get_session.then(loadCurrentSession, onError);
+        var getSession = browser.storage.local.get('session');
+        getSession.then(loadCurrentSession, onError);
     }
 
     function onError(error) {
@@ -59,17 +60,17 @@ function loadSettings() {
 
     function loadCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
-        select.value = JSON.stringify(result.session.ipfs_gateway);
-        setCurrentIPFSGateway(result.session.ipfs_gateway);
+        select.value = JSON.stringify(result.session.ipfsGateway);
+        setCurrentIPFSGateway(result.session.ipfsGateway);
     }
 
-    var get_settings = browser.storage.local.get('settings');
-    get_settings.then(loadCurrentSettings, onError);
+    var getSettings = browser.storage.local.get('settings');
+    getSettings.then(loadCurrentSettings, onError);
 }
 
 function setCurrentIPFSGateway(gateway) {
-    var current_gateway = gateway.key + ": " + gateway.value;
-    document.getElementById('current_gateway').innerHTML = current_gateway;
+    currentGateway = gateway.key + ": " + gateway.value;
+    document.getElementById('current_gateway').innerHTML = currentGateway;
 }
 
 /**
@@ -80,7 +81,7 @@ function saveSettings(e) {
     e.preventDefault();
 
     // collect settings data
-    let metrics_permission = document.querySelector('#metricCheckbox').checked;
+    let metricsPermission = document.querySelector('#metricCheckbox').checked;
     if (document.forms['settingsForm'].ethereum.value !== 'other')
         var ethereum = document.forms['settingsForm'].ethereum.value;
     else var ethereum = document.getElementById('urlInput').value;
@@ -88,9 +89,9 @@ function saveSettings(e) {
     let gateways = {};
 
     // TODO: upadte for managed gateways once UI for it exists
-    let gateways_list = document.getElementById('ipfs_gateways');
-    for (i = 0; i < gateways_list.length; i++) {
-        let gateway = JSON.parse(gateways_list[i].value);
+    let gatewaysList = document.getElementById('ipfs_gateways');
+    for (i = 0; i < gatewaysList.length; i++) {
+        let gateway = JSON.parse(gatewaysList[i].value);
         gateways[gateway.key] = gateway.value;
     }
 
@@ -108,7 +109,7 @@ function saveSettings(e) {
 
     // create and save settings
     let settings = {
-        metrics_permission: metrics_permission,
+        metricsPermission: metricsPermission,
         ethereum: ethereum,
         gateways: gateways,
         ipfs: ipfs,
@@ -117,10 +118,10 @@ function saveSettings(e) {
     browser.storage.local.set({ settings });
 
     browser.runtime.sendMessage({
-        reload_settings: true
+        reloadSettings: true
     });
 
-    SavedAlert("Saved",1000);
+    savedAlert("Saved",1000);
 }
 
 /**
@@ -149,10 +150,10 @@ function handleShortcuts(shortcut, e) {
       ( e.metaKey  ? "Meta+"    : "" ) +
       keyStr;
 
-    var current_bar_shortcut = document.getElementById("shortcutBarInput").value;
-    var current_settings_shortcut = document.getElementById("shortcutSettingsInput").value;
-    if ( (shortcut == "shortcutBarInput" && current_settings_shortcut == reportStr) ||
-        (shortcut == "shortcutSettingsInput" && current_bar_shortcut == reportStr)) 
+    var currentBarShortcut = document.getElementById("shortcutBarInput").value;
+    var currentSettingsShortcut = document.getElementById("shortcutSettingsInput").value;
+    if ( (shortcut == "shortcutBarInput" && currentSettingsShortcut == reportStr) ||
+        (shortcut == "shortcutSettingsInput" && currentBarShortcut == reportStr)) 
         alert(reportStr + " is already used as another shortcut"); 
     else
 	   document.getElementById(shortcut).value = reportStr;
@@ -197,17 +198,17 @@ function openGatewayModal(e) {
     const listenerCollector = [];
     const gatewayModal = document.getElementById('gatewayModal');
     const gatewayList = document.getElementById('gatewayList');
-    let gateways_list = document.getElementById('ipfs_gateways');
+    let gatewaysList = document.getElementById('ipfs_gateways');
     showGatewayModal();
 
     function showGatewayModal() {
-        for (i = 0; i < gateways_list.length; i++) {
+        for (i = 0; i < gatewaysList.length; i++) {
             const gatewayLI = document.createElement('li');
             const gatewayTextSpan = document.createElement('span');
             const gatewayEditButtonSpan = document.createElement('span');
             const gatewayRemoveButtonSpan = document.createElement('span');
             gatewayTextSpan.appendChild(
-                document.createTextNode(gateways_list[i].text)
+                document.createTextNode(gatewaysList[i].text)
             );
             gatewayEditButtonSpan.appendChild(document.createTextNode('Edit'));
             gatewayRemoveButtonSpan.appendChild(document.createTextNode('Remove'));
@@ -221,7 +222,7 @@ function openGatewayModal(e) {
                 element: gatewayEditButtonSpan,
                 evtFunc: createGatewayForm.bind(
                     null,
-                    JSON.parse(gateways_list[i].value),
+                    JSON.parse(gatewaysList[i].value),
                     'Edit',
                     editGateway
                 )
@@ -230,7 +231,7 @@ function openGatewayModal(e) {
                 'click',
                 createGatewayForm.bind(
                     null,
-                    JSON.parse(gateways_list[i].value),
+                    JSON.parse(gatewaysList[i].value),
                     'Edit',
                     editGateway
                 )
@@ -238,14 +239,14 @@ function openGatewayModal(e) {
 
             gatewayRemoveButtonSpan.addEventListener(
                 'click',
-                removeGateway.bind(null, gatewayList.children[i], JSON.parse(gateways_list[i].value))
+                removeGateway.bind(null, gatewayList.children[i], JSON.parse(gatewaysList[i].value))
             );
 
             listenerCollector[i * 2 + 1] = {
                 element: gatewayRemoveButtonSpan,
                 evtFunc: removeGateway.bind(
                     null,
-                    JSON.parse(gateways_list[i].value)
+                    JSON.parse(gatewaysList[i].value)
                 )
             };
         }
@@ -319,11 +320,14 @@ function openGatewayModal(e) {
      * @param  {[Object]}   item    [Gateway object]
      */
     function editGateway(e, item) {
-        let gateways_select = document.getElementById('ipfs_gateways')
+    	if (currentGateway == (item.key + ': ' + item.value)) 
+    		alert("Can't edit current gateway");
+    	else {
+       	let gatewaysSelect = document.getElementById('ipfs_gateways')
 
         // remove old version
-        let gateway_to_edit = document.getElementById(JSON.stringify(item));
-        gateways_select.removeChild(gateway_to_edit);
+        let gatewayToEdit = document.getElementById(JSON.stringify(item));
+        gatewaysSelect.removeChild(gatewayToEdit);
 
         //add gateway with new version
         name = document.getElementById("name_of_gateway").value;
@@ -331,6 +335,7 @@ function openGatewayModal(e) {
         addIpfsGate(name, url);
         hideGatewayModal();
         showGatewayModal();
+    	}
     }
 
 }
@@ -395,7 +400,7 @@ function removeGateway(child, item, e) {
 
     if (gatewayList.children.length == 1)
         alert("Can't remove gateway, list must include at least one gateway.")
-    else if (current_gateway == (item.key + ': ' + item.value)) 
+    else if (currentGateway == (item.key + ': ' + item.value)) 
         alert(item.key + " is the current gateway. Please first change the" + 
                                 " current gateway and then try this action again.");
     else {
@@ -403,18 +408,18 @@ function removeGateway(child, item, e) {
         gatewayList.removeChild(child);
 
         // remove from gateway select option
-        let gateways_select = document.getElementById('ipfs_gateways')
-        let gateway_to_remove = document.getElementById(JSON.stringify(item));
-        gateways_select.removeChild(gateway_to_remove);
+        let gatewaysSelect = document.getElementById('ipfs_gateways')
+        let gatewayToRemove = document.getElementById(JSON.stringify(item));
+        gatewaysSelect.removeChild(gatewayToRemove);
     }
 }
 
 /**
- * [addGateway will add a gateway to the gateway list. It first checks that the gateway
- * does not exist already in the list.
- * @param  {[Object]}   item    [Gateway object]
+ * [SavedAlert shows a message when a user saves settings.
+ * @param  {[Object]}   msg        [message to present]
+ * @param  {[Object]}   duration    [duration of the message]
  */
-function SavedAlert(msg,duration)
+function savedAlert(msg,duration)
 {
     savedmsg = document.getElementById('SettingsSavedMessage'); 
     savedmsg.style.display = 'flex';
@@ -423,17 +428,3 @@ function SavedAlert(msg,duration)
         savedmsg.style.display = 'none';
     },duration);
 }
-
-/**
- * Enumerates
- */
-const eth_client = {
-    infura: 0,
-    local: 1,
-    other: 2
-};
-
-const ipfs_options = {
-    random: 0,
-    force_gateway: 1
-};
