@@ -134,18 +134,6 @@ function restoreDragPosition(elm, urlBar) {
             urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
         }
     });
-    // const storageItem = localStorage.getItem('almonit__bar');
-    // if (storageItem) {
-    //     const res = JSON.parse(storageItem);
-    //     elm.style.top = res.y;
-    //     elm.style.left = res.x;
-    //     if (res.active) {
-    //         elm.classList.add('active');
-    //         urlBar.style.display = 'inherit';
-    //         urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
-    //         urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
-    //     }
-    // }
 }
 
 /**

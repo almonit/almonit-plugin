@@ -151,10 +151,13 @@ function messagefromFrontend(request, sender, sendResponse) {
 	}
 }
 
-/**
- * load and set settings and session parameters
- */
+
 browser.runtime.onInstalled.addListener(initSettings);
+/**
+ * [Initiate plugin settings when first installed]
+ * @param  {[string]} details [reason that function was called]
+
+ */
 function initSettings(details) {
 
 
@@ -193,7 +196,10 @@ function initSettings(details) {
 		}
 }
 
-
+/**
+ * [Load settings]
+ * @param  {json} storage [current settings in browser storage]
+ */
 function loadSettingsSetSession(storage) {
 	// load settings
 	ethrerum = storage.settings.ethereum;	
