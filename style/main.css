@@ -7,6 +7,7 @@
 	box-sizing: border-box;
 	opacity: 0.8;
 	transition: opacity 0.2s ease, width 0.2s ease;
+	will-change: transform;
 }
 
 .almonit-bar__content {
@@ -22,13 +23,29 @@
 
 .almonit-bar.active {
 	opacity: 1;
-	width: 715px;
+	width: 515px;
+}
+
+@media only screen and (max-width: 515px) {
+  .almonit-bar.active {
+    width: 100% !important;
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+
+  .urlbar{
+  	width: calc(100% - 90px) !important;
+    bottom: 0 !important;
+    left: 60px !important;
+  }
 }
 
 .almonit-bar img {
-	flex: 0 0 30px;
-	margin-right: 20px;
+	flex: 0 0 50px;
+	padding: 10px;
+	margin-left: -10px;
 	cursor: pointer;
+	box-sizing: border-box;
 }
 
 .almonit-bar span {
@@ -38,7 +55,7 @@
 
 .urlbar {
 	display: none;
-	width: 625px;
+	width: 425px;
 	left: 60px;
 	top: 10px;
 	position: fixed;

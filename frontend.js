@@ -3,8 +3,8 @@ var getSettings = browser.storage.local.get('settings');
 getSettings.then(restoreCurrentSettings, onError);
 
 // init shortcuts
-var shortcutAddressBar = "";
-var shortcutSettings = "";
+var shortcutAddressBar = '';
+var shortcutSettings = '';
 
 function restoreCurrentSettings(result) {
     settings = result.settings;
@@ -85,12 +85,14 @@ function initListener() {
 function shortcutEvents(elm, urlBar) {
     document.onkeydown = function(e) {
         // create a string representing the keys which were pressed
-        var keyStr = ["Control", "Shift", "Alt", "Meta"].includes(e.key) ? "" : e.key;
-        var shortcutStr   =
-            ( e.ctrlKey  ? "Ctrl+" : "" ) +
-            ( e.shiftKey ? "Shift+"   : "" ) +
-            ( e.altKey   ? "Alt+"     : "" ) +
-            ( e.metaKey  ? "Meta+"    : "" ) +
+        var keyStr = ['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)
+            ? ''
+            : e.key;
+        var shortcutStr =
+            (e.ctrlKey ? 'Ctrl+' : '') +
+            (e.shiftKey ? 'Shift+' : '') +
+            (e.altKey ? 'Alt+' : '') +
+            (e.metaKey ? 'Meta+' : '') +
             keyStr;
 
         if (shortcutStr == shortcutAddressBar) {
@@ -123,7 +125,7 @@ function shortcutEvents(elm, urlBar) {
  * @param  {[DOM]}  urlBar [Address input DOM]
  */
 function restoreDragPosition(elm, urlBar) {
-    browser.storage.local.get("almonitBar").then(function(item) {
+    browser.storage.local.get('almonitBar').then(function(item) {
         res = item.almonitBar;
         elm.style.top = res.y;
         elm.style.left = res.x;
@@ -142,6 +144,7 @@ function restoreDragPosition(elm, urlBar) {
  */
 function dragElement(elm) {
     const urlBar = document.getElementById('ENS_url');
+    const expandBarElm = document.getElementById('expandBar');
 
     const DRAG_RESISTANCE = 3;
     const STICKY_RESISTANCE = 30;
@@ -210,9 +213,16 @@ function dragElement(elm) {
         let left = elm.offsetLeft - pos1;
         let leftLimit =
             left >= 0
-                ? left + elm.offsetWidth <= window.innerWidth
+                ? left +
+                      (window.innerWidth > elm.offsetWidth * 2
+                          ? 60 //HARDCODE
+                          : elm.offsetWidth) <=
+                  window.innerWidth
                     ? left
-                    : window.innerWidth - elm.offsetWidth
+                    : window.innerWidth -
+                      (window.innerWidth > elm.offsetWidth * 2
+                          ? 60 //HARDCODE
+                          : elm.offsetWidth)
                 : 0;
 
         let topPx = lerp(topLimit, e.clientY, 0.001);
@@ -221,8 +231,22 @@ function dragElement(elm) {
         elm.style.top = topPx + 'px';
         elm.style.left = leftPx + 'px';
 
-        urlBar.style.top = topPx + 10 + 'px';
-        urlBar.style.left = leftPx + 60 + 'px';
+        if (
+            leftPx > window.innerWidth / 2 &&
+            window.innerWidth > 1030 //HARDCODE
+        ) {
+            elm.style.transform = 'rotateY(-180deg)';
+            expandBarElm.style.transform = 'rotateY(180deg)';
+            elm.style.transformOrigin = '30px';
+            urlBar.style.top = topPx + 10 + 'px';
+            urlBar.style.left = leftPx - urlBar.offsetWidth + 'px';
+        } else {
+            elm.style.transform = 'none';
+            expandBarElm.style.transform = 'none';
+            elm.style.transformOrigin = 'initial';
+            urlBar.style.top = topPx + 10 + 'px';
+            urlBar.style.left = leftPx + 60 + 'px';
+        }
     }
 
     function closeDragElement() {
@@ -248,30 +272,27 @@ function lerp(start, end, amt) {
  * @param {[Object]} message [Callback data from ipfs function]
  */
 function setENSurl(message) {
-   	const urlBar = document.getElementById('ENS_url');
+    const urlBar = document.getElementById('ENS_url');
     urlBar.value = message.response;
 
-    document.getElementById("ENS_url_div").hidden = false;
+    document.getElementById('ENS_url_div').hidden = false;
 
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
             const dragElm = document.getElementById('drag');
             var almonitBar = {
-                "x": dragElm.style.left,
-                "y": dragElm.style.top,
-                "active": dragElm.classList.contains('active')
-            }
-            browser.storage.local.set({almonitBar});
+                x: dragElm.style.left,
+                y: dragElm.style.top,
+                active: dragElm.classList.contains('active')
+            };
+            browser.storage.local.set({ almonitBar });
 
             let url = document.getElementById('ENS_url').value;
             browser.runtime
                 .sendMessage({
                     normalizeURL: url
                 })
-                .then(
-                    data => window.location.replace(data.response),
-                    onError
-                );
+                .then(data => window.location.replace(data.response), onError);
         }
     });
 }
@@ -298,8 +319,8 @@ function sendmsg() {
     sending.then(setENSurl, handleError);
 }
 
-function handleError(e) { 
-    console.log("error: " +  e);
+function handleError(e) {
+    console.log('error: ' + e);
 }
 
 sendmsg();
