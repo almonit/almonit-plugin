@@ -1,1 +1,1 @@
-{"almonit.eth":8,"pepesza.eth":3,"badger.merklework.eth":1}
+{"almonit.eth":10,"pepesza.eth":5,"badger.merklework.eth":1,"nathanclayforcongress.eth":1,"liquid-close.keydonix.eth":1,"cv.gnelson.eth":1,"phyrextsai.eth":1,"bradsherman.eth":1}

@@ -57,7 +57,8 @@ function randomSuggestion() {
 		'liquid-long.keydonix.eth',
 		'liquid-close.keydonix.eth',
 		'hadriencroubois.eth',
-		'badger.merklework.eth'
+		'badger.merklework.eth',
+		'pricefeed.doracle.eth'
 	];
 
 	return urlList[getRandomInt(urlList.length)];

@@ -66,6 +66,7 @@ function initListener() {
                 if (!targetClass.contains('active')) {
                     urlBar.style.display = 'none';
                 }
+                saveUrlBarLocation();
             }
         },
         false
@@ -129,11 +130,12 @@ function restoreDragPosition(elm, urlBar) {
         res = item.almonitBar;
         elm.style.top = res.y;
         elm.style.left = res.x;
+        urlBar.style.display = 'hidden';
+        urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
+        urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
         if (res.active) {
             elm.classList.add('active');
             urlBar.style.display = 'inherit';
-            urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
-            urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
         }
     });
 }
@@ -253,7 +255,23 @@ function dragElement(elm) {
         // stop moving when mouse button is released:
         document.onmouseup = null;
         document.onmousemove = null;
+
+        saveUrlBarLocation();
     }
+}
+
+/**
+ * [saves into storage the location of the URL bar]
+ * @return {[none]}
+ */
+function saveUrlBarLocation() {
+    const dragElm = document.getElementById('drag');
+    var almonitBar = {
+        x: dragElm.style.left,
+        y: dragElm.style.top,
+        active: dragElm.classList.contains('active')
+    };
+    browser.storage.local.set({ almonitBar });
 }
 
 /**
@@ -279,14 +297,6 @@ function setENSurl(message) {
 
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
-            const dragElm = document.getElementById('drag');
-            var almonitBar = {
-                x: dragElm.style.left,
-                y: dragElm.style.top,
-                active: dragElm.classList.contains('active')
-            };
-            browser.storage.local.set({ almonitBar });
-
             let url = document.getElementById('ENS_url').value;
             browser.runtime
                 .sendMessage({
