@@ -15,6 +15,8 @@ Navigate to ENS+IPFS websites such as:
 - portalnetwork.eth
 - monkybrain.eth
 
+See full list (here)[http://almonit.club/ens+ipfs/list-of_ENSIPFS-websites.html]
+
 ## enable metrics
 The plugin asks permission for taking privacy preserving metrics when it's first activated. If permission is given, metrics are sent every `reportThreshold` times, (parameter is set in `js/metrics.js`). 
 
@@ -24,13 +26,8 @@ The metrics will be sent to our server in production version. Right now a local 
 - npm build
 - npm start
 
-# TODO
-Quite a lot!
-
-- plugin popup (after pressing plugin button in firefox bar)
-- custom error page (referring to ENS+IPFS websites index/search)
-- Decentralization via randomality: the plugin will choose each time a random IPFS gateway (that's a way of avoiding everyone using the same IPFS gateway, which is centrazliation)
-- redesign ugly theme
-- improve new ENS address bar
-- remove classic address bar in ENS websites
-
+# Features
+- Plugin popup: helps you explore ENS+IPFS wbsites
+- Decentralization via randomality: the plugin chooses each time a random IPFS gateway (that's a way of avoiding everyone using the same IPFS gateway, which is centrazliation).
+- ENS address bar: allows you to navigate the ENS+IPFS ecosphere.
+- Settings page offers (almost) full customization.
