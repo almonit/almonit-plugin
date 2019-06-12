@@ -39,7 +39,7 @@ function listener(details) {
 				return getENSContent(ensDomain);
 			}
 		)
-		.catch(notFound);
+		.catch(notFound.bind(null, ensDomain));
 }
 
 function handleENSContenthash(address, ensDomain) {
@@ -51,7 +51,7 @@ function getENSContent(ensDomain) {
 	// from here -> ipfsAddresfromContent -> ipfsAddressfromHex
 	return WEB3ENS.getContent(ensDomain).then(function(content) {
 		return handleENSContent(content, ensDomain);
-	}, notFound);
+	}, notFound.bind(null, ensDomain));
 }
 
 function handleENSContent(hex, ensDomain) {
@@ -202,8 +202,8 @@ function initSettings(details) {
  */
 function loadSettingsSetSession(storage) {
 	// load settings
-	ethrerum = storage.settings.ethereum;	
-	ethereumNode = setEthereumNode(ethrerum);
+	ethereum = storage.settings.ethereum;	
+	ethereumNode = setEthereumNode(ethereum);
 
 	metricsPermission = storage.settings.metricsPermission;
 
@@ -268,9 +268,9 @@ function importJS(file) {
 	document.getElementsByTagName('head')[0].appendChild(imported);
 }
 
-function notFound(e) {
-	console.log("err: " + e);
-	return { redirectUrl: PAGE_404 };
+function notFound(address, e) {
+	console.log("err: " + address, e);
+	return { redirectUrl: PAGE_404 + "?fallback=" + address };
 }
 
 function err(msg) {
