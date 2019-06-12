@@ -31,3 +31,6 @@ The metrics will be sent to our server in production version. Right now a local 
 - Decentralization via randomality: the plugin chooses each time a random IPFS gateway (that's a way of avoiding everyone using the same IPFS gateway, which is centrazliation).
 - ENS address bar: allows you to navigate the ENS+IPFS ecosphere.
 - Settings page offers (almost) full customization.
+
+# Contact
+Write us at contact@almonit.club
