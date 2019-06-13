@@ -15,17 +15,17 @@ function restoreCurrentSettings(result) {
 const lionIcon = browser.runtime.getURL('theme/lion_header.png');
 document.body.innerHTML =
     `
-    <div id="ENS_url_div" hidden=true>
-        <div class="group group-new">
-        <div id="dragContainer" class="rect2"></div>
-            <div id="drag" class="rect almonit-bar">
+    <div id="almonit_ENS_url_div" hidden=true>
+        <div class="almonit-group">
+        <div class="almonit-rect2"></div>
+            <div id="almonit_drag" class="almonit-rect almonit-bar">
                 <div class="almonit-bar__content">
-                    <img id="expandBar" src="${lionIcon}"/>
+                    <img id="almonit_expandBar" src="${lionIcon}"/>
                 </div>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="0" height="0">
                 <defs>
-                    <filter id="fancy-goo">
+                    <filter id="almonit-gooey">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
                         <feColorMatrix 
                           in="blur" 
@@ -37,7 +37,7 @@ document.body.innerHTML =
                 </defs>
             </svg>
         </div>
-        <input type="text" id="ENS_url" class="urlbar" value="" autofocus>
+        <input type="text" id="almonit_ENS_url" class="almonit-urlbar" value="" autofocus>
     </div>
     ` + document.body.innerHTML;
 
@@ -47,14 +47,13 @@ initListener();
  * [initListener - itializes all listeners and restore functions]
  */
 function initListener() {
-    const dragElm = document.getElementById('drag');
-    const expandBarElm = document.getElementById('expandBar');
-    const urlBar = document.getElementById('ENS_url');
+    const dragElm = document.getElementById('almonit_drag');
+    const expandBarElm = document.getElementById('almonit_expandBar');
+    const urlBar = document.getElementById('almonit_ENS_url');
 
     shortcutEvents(expandBarElm, urlBar);
-    restoreDragPosition(dragElm, urlBar);
-
     dragElement(dragElm);
+
     expandBarElm.addEventListener(
         'click',
         function(e) {
@@ -62,8 +61,8 @@ function initListener() {
             if (targetClass.contains('noclick')) {
                 targetClass.remove('noclick');
             } else {
-                targetClass.toggle('active');
-                if (!targetClass.contains('active')) {
+                targetClass.toggle('almonit-active');
+                if (!targetClass.contains('almonit-active')) {
                     urlBar.style.display = 'none';
                 }
                 saveUrlBarLocation();
@@ -74,8 +73,49 @@ function initListener() {
 
     dragElm.addEventListener('transitionend', function(e) {
         const targetClass = e.target.classList;
-        urlBar.style.display = targetClass.contains('active') && 'inherit';
+
+        const leftPx = parseFloat(e.target.style.left);
+        const topPx = parseFloat(e.target.style.top);
+
+        if (
+            leftPx > window.innerWidth / 2 &&
+            window.innerWidth > 1030 //HARDCODE
+        ) {
+
+            if( dragElm.style.transform === "" ||
+                dragElm.style.transform === "none") {
+                reverseBar(dragElm, expandBarElm);
+            }
+
+            urlBar.style.top = topPx + 10 + 'px';
+            urlBar.style.left = leftPx - urlBar.offsetWidth + 'px';
+        } else {
+            urlBar.style.top = parseFloat(topPx, 10) + 10 + 'px';
+            urlBar.style.left = parseFloat(leftPx, 10) + 60 + 'px';
+        }
+
+        urlBar.style.display = targetClass.contains('almonit-active') && 'inherit';
     });
+
+    window.onresize = function(){
+
+        if(window.innerHeight <= parseFloat(dragElm.style.top, 10) + 200) {
+            console.log("entered")
+            dragElm.style.top = (window.innerHeight - 50) + 'px';
+            urlBar.style.top = (window.innerHeight - 40) + 'px';
+        }
+
+        if(window.innerWidth <= parseFloat(dragElm.style.left, 10) + 515 &&
+            window.innerWidth > 1030) {
+            dragElm.style.left = (window.innerWidth - 60) + 'px';
+            urlBar.style.left = (window.innerWidth - 500) + 'px';
+        }
+
+        if((window.innerWidth < 1030))
+            reverseBar(dragElm, expandBarElm, true);
+    }
+
+    restoreDragPosition(dragElm, urlBar);
 }
 
 /**
@@ -102,8 +142,8 @@ function shortcutEvents(elm, urlBar) {
             if (targetClass.contains('noclick')) {
                 targetClass.remove('noclick');
             } else {
-                targetClass.toggle('active');
-                if (!targetClass.contains('active')) {
+                targetClass.toggle('almonit-active');
+                if (!targetClass.contains('almonit-active')) {
                     urlBar.style.display = 'none';
                 } else {
                     setTimeout(() => {
@@ -126,16 +166,17 @@ function shortcutEvents(elm, urlBar) {
  * @param  {[DOM]}  urlBar [Address input DOM]
  */
 function restoreDragPosition(elm, urlBar) {
+    const dragElm = document.getElementById('almonit_drag');
+    const expandBarElm = document.getElementById('almonit_expandBar');
     browser.storage.local.get('almonitBar').then(function(item) {
         res = item.almonitBar;
         elm.style.top = res.y;
         elm.style.left = res.x;
-        urlBar.style.display = 'hidden';
-        urlBar.style.top = parseFloat(res.y, 10) + 10 + 'px';
-        urlBar.style.left = parseFloat(res.x, 10) + 60 + 'px';
         if (res.active) {
-            elm.classList.add('active');
-            urlBar.style.display = 'inherit';
+            if(res.isReverse) {
+                reverseBar(dragElm, expandBarElm)
+            }
+            setTimeout(() => elm.classList.add('almonit-active'), 500);
         }
     });
 }
@@ -145,8 +186,8 @@ function restoreDragPosition(elm, urlBar) {
  * @param  {[DOM]}  elm    [Address Bar DOM]
  */
 function dragElement(elm) {
-    const urlBar = document.getElementById('ENS_url');
-    const expandBarElm = document.getElementById('expandBar');
+    const urlBar = document.getElementById('almonit_ENS_url');
+    const expandBarElm = document.getElementById('almonit_expandBar');
 
     const DRAG_RESISTANCE = 3;
     const STICKY_RESISTANCE = 30;
@@ -237,15 +278,11 @@ function dragElement(elm) {
             leftPx > window.innerWidth / 2 &&
             window.innerWidth > 1030 //HARDCODE
         ) {
-            elm.style.transform = 'rotateY(-180deg)';
-            expandBarElm.style.transform = 'rotateY(180deg)';
-            elm.style.transformOrigin = '30px';
+            reverseBar(elm, expandBarElm);
             urlBar.style.top = topPx + 10 + 'px';
             urlBar.style.left = leftPx - urlBar.offsetWidth + 'px';
         } else {
-            elm.style.transform = 'none';
-            expandBarElm.style.transform = 'none';
-            elm.style.transformOrigin = 'initial';
+            reverseBar(elm, expandBarElm, true);
             urlBar.style.top = topPx + 10 + 'px';
             urlBar.style.left = leftPx + 60 + 'px';
         }
@@ -265,11 +302,13 @@ function dragElement(elm) {
  * @return {[none]}
  */
 function saveUrlBarLocation() {
-    const dragElm = document.getElementById('drag');
+    const dragElm = document.getElementById('almonit_drag');
+    const leftPx = parseFloat(dragElm.style.left, 10);
     var almonitBar = {
         x: dragElm.style.left,
         y: dragElm.style.top,
-        active: dragElm.classList.contains('active')
+        active: dragElm.classList.contains('almonit-active'),
+        isReverse: leftPx > (window.innerWidth / 2)
     };
     browser.storage.local.set({ almonitBar });
 }
@@ -290,14 +329,14 @@ function lerp(start, end, amt) {
  * @param {[Object]} message [Callback data from ipfs function]
  */
 function setENSurl(message) {
-    const urlBar = document.getElementById('ENS_url');
+    const urlBar = document.getElementById('almonit_ENS_url');
     urlBar.value = message.response;
 
-    document.getElementById('ENS_url_div').hidden = false;
+    document.getElementById('almonit_ENS_url_div').hidden = false;
 
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
-            let url = document.getElementById('ENS_url').value;
+            let url = document.getElementById('almonit_ENS_url').value;
             browser.runtime
                 .sendMessage({
                     normalizeURL: url
@@ -334,3 +373,16 @@ function handleError(e) {
 }
 
 sendmsg();
+
+function reverseBar(dragElm, expandBarElm, revert = false){
+    if(revert) {
+        dragElm.style.transform = 'none';
+        expandBarElm.style.transform = 'none';
+        dragElm.style.transformOrigin = 'initial';
+        return;
+    }
+
+    dragElm.style.transform = 'rotateY(-180deg)';
+    expandBarElm.style.transform = 'rotateY(180deg)';
+    dragElm.style.transformOrigin = '30px';
+}
