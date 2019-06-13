@@ -21,19 +21,19 @@
 	box-sizing: border-box;
 }
 
-.almonit-bar.active {
+.almonit-bar.almonit-active {
 	opacity: 1;
 	width: 515px;
 }
 
-@media only screen and (max-width: 515px) {
-  .almonit-bar.active {
+@media only screen and (max-width: 1030px) {
+  .almonit-bar.almonit-active {
     width: 100% !important;
     bottom: 0 !important;
     left: 0 !important;
   }
 
-  .urlbar{
+  .almonit-urlbar{
   	width: calc(100% - 90px) !important;
     bottom: 0 !important;
     left: 60px !important;
@@ -41,19 +41,21 @@
 }
 
 .almonit-bar img {
-	flex: 0 0 50px;
-	padding: 10px;
-	margin-left: -10px;
-	cursor: pointer;
-	box-sizing: border-box;
+	flex: 0 0 50px !important;
+	padding: 10px !important;
+	margin-left: -10px !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+	max-width: initial !important;
+	max-height: initial !important;
 }
 
 .almonit-bar span {
-	font-size: 14pt;
-	line-height: 26px;
+	font-size: 14pt !important;
+	line-height: 26px !important;
 }
 
-.urlbar {
+.almonit-urlbar {
 	display: none;
 	width: 425px;
 	left: 60px;
@@ -74,7 +76,7 @@
 
 /* GOOEY EEFECT */
 
-.group {
+.almonit-group {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -83,11 +85,11 @@
 	width: 100%;
 	height: 100%;
 	z-index: 99999999 !important;
-	filter: url('#fancy-goo');
+	filter: url('#almonit-gooey');
 	pointer-events: none;
 }
 
-.rect {
+.almonit-rect {
 	background: black;
 	position: fixed;
 	top: 0;
@@ -97,7 +99,7 @@
 	pointer-events:all;
 }
 
-.rect2 {
+.almonit-rect2 {
 	position: fixed;
 	left: -17px;
 	right: -17px;
