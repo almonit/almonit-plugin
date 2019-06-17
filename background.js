@@ -1,5 +1,5 @@
 importJS('js/multihashes-min');
-importJS('npm/dist/main');
+importJS('js/main');
 importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
