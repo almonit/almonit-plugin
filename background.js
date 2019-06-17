@@ -27,36 +27,36 @@ browser.webRequest.onBeforeRequest.addListener(
 );
 
 function listener(details) {
-	ensDomain = urlDomain(details.url);
+	[ensDomain, ensPath] = urlDomain(details.url);
 
 	// if error in retrieving Contenthash, try general ENS content field
 	return WEB3ENS.getContenthash(ensDomain)
 		.then(
 			function(address) {
-				return handleENSContenthash(address, ensDomain);
+				return handleENSContenthash(address, ensDomain, ensPath);
 			},
 			function(error) {
-				return getENSContent(ensDomain);
+				return getENSContent(ensDomain, ensPath);
 			}
 		)
 		.catch(notFound.bind(null, ensDomain));
 }
 
-function handleENSContenthash(address, ensDomain) {
-	return redirectENStoIPFS(address.slice(14), ensDomain);
+function handleENSContenthash(address, ensDomain, ensPath) {
+	return redirectENStoIPFS(address.slice(14), ensDomain, ensPath);
 }
 
 // retrieve general ENS content field
-function getENSContent(ensDomain) {
+function getENSContent(ensDomain, ensPath) {
 	// from here -> ipfsAddresfromContent -> ipfsAddressfromHex
 	return WEB3ENS.getContent(ensDomain).then(function(content) {
-		return handleENSContent(content, ensDomain);
+		return handleENSContent(content, ensDomain, ensPath);
 	}, notFound.bind(null, ensDomain));
 }
 
-function handleENSContent(hex, ensDomain) {
+function handleENSContent(hex, ensDomain, ensPath) {
 	if (hex.slice(0, 2) == '0x')
-		return redirectENStoIPFS(hex.slice(2), ensDomain);
+		return redirectENStoIPFS(hex.slice(2), ensDomain, ensPath);
 	else return err('ENS content exist but does not point to an IPFS address');
 }
 
@@ -67,9 +67,9 @@ function ipfsAddressfromContent(hex) {
 
 // extract ipfs address from hex and redirects there
 // before redirecting, handling usage metrics
-function redirectENStoIPFS(hex, ensDomain) {
+function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	var ipfsHash = hextoIPFS(hex);
-	var ipfsAddress = "https://" + ipfsGateway.value + "/ipfs/" + ipfsHash;
+	var ipfsAddress = "https://" + ipfsGateway.value + "/ipfs/" + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
@@ -256,10 +256,9 @@ function hextoIPFS(hex) {
 
 // extract a domain from url
 function urlDomain(data) {
-	var matches = data.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-	if (matches[1].substring(0, 4) == 'www.')
-		return matches[1].substring(4, matches[1].length);
-	return matches[1];
+	var el = document.createElement('a');
+	el.href = data;
+	return [el.hostname, el.pathname + el.search + el.hash];
 }
 
 function importJS(file) {
