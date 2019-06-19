@@ -15,7 +15,7 @@ Navigate to ENS+IPFS websites such as:
 - portalnetwork.eth
 - monkybrain.eth
 
-See full list [here](http://almonit.club/ens+ipfs/list-of_ENSIPFS-websites.html).
+See full list in the [Almonit Dweb Portal](http://almonit.club/).
 
 ## enable metrics
 The plugin asks permission for taking privacy preserving metrics when it's first activated. If permission is given, metrics are sent every `reportThreshold` times, (parameter is set in `js/metrics.js`). 
