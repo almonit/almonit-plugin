@@ -12,7 +12,7 @@ function restoreCurrentSettings(result) {
     shortcutAddressBar = settings.shortcuts.addressbar;
     shortcutSettings = settings.shortcuts.settings;
 }
-const lionIcon = browser.runtime.getURL('theme/lion_header.png');
+const lionIcon = browser.runtime.getURL('resources/lion_header.png');
 document.body.innerHTML =
     `
     <div id="almonit_ENS_url_div" hidden=true>

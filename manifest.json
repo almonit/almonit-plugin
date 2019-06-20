@@ -18,7 +18,6 @@
     "webRequestBlocking",
     "activeTab",
     "http://*.eth/*",
-    "theme",
     "storage"
   ],
 
@@ -30,11 +29,10 @@
     }
   ],
 
-  "web_accessible_resources": ["theme/*.png", "pages/*"],
+  "web_accessible_resources": ["resources/*.png", "pages/*"],
 
   "options_ui": {
     "page": "pages/settings.html",
-    "browser_style": true,
     "open_in_tab": true
   },
 
