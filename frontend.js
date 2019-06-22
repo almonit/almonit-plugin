@@ -63,7 +63,7 @@ function initListener() {
             } else {
                 targetClass.toggle('almonit-active');
                 if (!targetClass.contains('almonit-active')) {
-                    urlBar.style.display = 'none';
+                    urlBar.style.setProperty('display', 'none', 'important');
                 }
                 saveUrlBarLocation();
             }
@@ -87,28 +87,28 @@ function initListener() {
                 reverseBar(dragElm, expandBarElm);
             }
 
-            urlBar.style.top = topPx + 10 + 'px';
-            urlBar.style.left = leftPx - urlBar.offsetWidth + 'px';
+            urlBar.style.setProperty('top', (topPx + 10) + 'px');
+            urlBar.style.setProperty('left', (leftPx - urlBar.offsetWidth) + 'px');
         } else {
-            urlBar.style.top = parseFloat(topPx, 10) + 10 + 'px';
-            urlBar.style.left = parseFloat(leftPx, 10) + 60 + 'px';
+            urlBar.style.setProperty('top', (parseFloat(topPx, 10) + 10) + 'px');
+            urlBar.style.setProperty('left', (parseFloat(leftPx, 10) + 60) + 'px');
         }
 
-        urlBar.style.display = targetClass.contains('almonit-active') && 'inherit';
+        urlBar.style.setProperty('display', targetClass.contains('almonit-active') ? 'block' : '', 'important');
     });
 
     window.onresize = function(){
 
         if(window.innerHeight <= parseFloat(dragElm.style.top, 10) + 200) {
             console.log("entered")
-            dragElm.style.top = (window.innerHeight - 50) + 'px';
-            urlBar.style.top = (window.innerHeight - 40) + 'px';
+            dragElm.style.setProperty('top', (window.innerHeight - 50) + 'px');
+            urlBar.style.setProperty('top', (window.innerHeight - 40) + 'px');
         }
 
         if(window.innerWidth <= parseFloat(dragElm.style.left, 10) + 515 &&
             window.innerWidth > 1030) {
-            dragElm.style.left = (window.innerWidth - 60) + 'px';
-            urlBar.style.left = (window.innerWidth - 500) + 'px';
+            dragElm.style.setProperty('left', (window.innerWidth - 60) + 'px');
+            urlBar.style.setProperty('left', (window.innerWidth - 500) + 'px');
         }
 
         if((window.innerWidth < 1030))
@@ -144,7 +144,7 @@ function shortcutEvents(elm, urlBar) {
             } else {
                 targetClass.toggle('almonit-active');
                 if (!targetClass.contains('almonit-active')) {
-                    urlBar.style.display = 'none';
+                    urlBar.style.setProperty('display', 'none', 'important');
                 } else {
                     setTimeout(() => {
                         urlBar.focus();
@@ -170,8 +170,8 @@ function restoreDragPosition(elm, urlBar) {
     const expandBarElm = document.getElementById('almonit_expandBar');
     browser.storage.local.get('almonitBar').then(function(item) {
         res = item.almonitBar;
-        elm.style.top = res.y;
-        elm.style.left = res.x;
+        elm.style.setProperty('top', res.y);
+        elm.style.setProperty('left', res.x);
         if (res.active) {
             if(res.isReverse) {
                 reverseBar(dragElm, expandBarElm)
@@ -271,20 +271,20 @@ function dragElement(elm) {
         let topPx = lerp(topLimit, e.clientY, 0.001);
         let leftPx = lerp(leftLimit, e.clientX, 0.001);
         // set the element's new position:
-        elm.style.top = topPx + 'px';
-        elm.style.left = leftPx + 'px';
+        elm.style.setProperty('top', topPx + 'px');
+        elm.style.setProperty('left', leftPx + 'px');
 
         if (
             leftPx > window.innerWidth / 2 &&
             window.innerWidth > 1030 //HARDCODE
         ) {
             reverseBar(elm, expandBarElm);
-            urlBar.style.top = topPx + 10 + 'px';
-            urlBar.style.left = leftPx - urlBar.offsetWidth + 'px';
+            urlBar.style.setProperty('top', (topPx + 10) + 'px');
+            urlBar.style.setProperty('left', (leftPx - urlBar.offsetWidth) + 'px');
         } else {
             reverseBar(elm, expandBarElm, true);
-            urlBar.style.top = topPx + 10 + 'px';
-            urlBar.style.left = leftPx + 60 + 'px';
+            urlBar.style.setProperty('top', (topPx + 10) + 'px');
+            urlBar.style.setProperty('left', (leftPx + 60) + 'px');
         }
     }
 
@@ -376,13 +376,13 @@ sendmsg();
 
 function reverseBar(dragElm, expandBarElm, revert = false){
     if(revert) {
-        dragElm.style.transform = 'none';
-        expandBarElm.style.transform = 'none';
-        dragElm.style.transformOrigin = 'initial';
+        dragElm.style.setProperty('transform', 'none', 'important');
+        expandBarElm.style.setProperty('transform', 'none', 'important');
+        dragElm.style.setProperty('transform-origin', 'initial', 'important');
         return;
     }
 
-    dragElm.style.transform = 'rotateY(-180deg)';
-    expandBarElm.style.transform = 'rotateY(180deg)';
-    dragElm.style.transformOrigin = '30px';
+    dragElm.style.setProperty('transform', 'rotateY(-180deg)', 'important');
+    expandBarElm.style.setProperty('transform', 'rotateY(180deg)', 'important');
+    dragElm.style.setProperty('transform-origin', '30px', 'important');
 }

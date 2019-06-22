@@ -1,43 +1,29 @@
 .almonit-bar {
-	width: 60px;
-	height: 50px;
-	background: #555;
-	position: fixed;
+	width: 60px !important;
+	height: 50px !important;
+	background: #555 !important;
+	position: fixed !important;
 	top: 0;
-	box-sizing: border-box;
-	opacity: 0.8;
-	transition: opacity 0.2s ease, width 0.2s ease;
-	will-change: transform;
+	box-sizing: border-box !important;
+	opacity: 0.8 !important;
+	transition: opacity 0.2s ease, width 0.2s ease !important;
+	will-change: transform !important;
 }
 
 .almonit-bar__content {
-	width: 100%;
-	height: 50px;
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	color: #f1f1f1;
-	padding: 5px 16px;
-	box-sizing: border-box;
+	width: 100% !important;
+	height: 50px !important;
+	display: flex !important;
+	justify-content: flex-start !important;
+	align-items: center !important;
+	color: #f1f1f1 !important;
+	padding: 5px 16px !important;
+	box-sizing: border-box !important;
 }
 
 .almonit-bar.almonit-active {
-	opacity: 1;
-	width: 515px;
-}
-
-@media only screen and (max-width: 1030px) {
-  .almonit-bar.almonit-active {
-    width: 100% !important;
-    bottom: 0 !important;
-    left: 0 !important;
-  }
-
-  .almonit-urlbar{
-  	width: calc(100% - 90px) !important;
-    bottom: 0 !important;
-    left: 60px !important;
-  }
+	opacity: 1 !important;
+	width: 515px !important;
 }
 
 .almonit-bar img {
@@ -56,57 +42,85 @@
 }
 
 .almonit-urlbar {
-	display: none;
-	width: 425px;
+	display: none !important;
+	width: 437px !important;
+	height: auto !important;
 	left: 60px;
 	top: 10px;
-	position: fixed;
-	border-radius: 5px;
-	outline: 0;
-	padding: 0 5px;
-	border: 1px solid #555;
-	background: #777;
-	line-height: 28px;
-	font-size: 14pt;
-	color: #f1f1f1;
+	position: fixed !important;
+	border-radius: 5px !important;
+	outline: 0 !important;
+	padding: 0 5px !important;
+	border: 1px solid #555 !important;
+	background: #777 !important;
+	color: #f1f1f1 !important;
 	z-index: 99999999999 !important;
-	pointer-events:all;
-	transition: opacity 0.2s ease;
+	pointer-events:all !important;
+	transition: opacity 0.2s ease !important;
+	margin: 0 !important;
+	box-shadow: none !important;
+	-webkit-box-sizing: border-box !important;
+	/*font*/
+	font-size: 14pt !important;
+	line-height: 28px !important;
+	font-family: Arial !important;
+}
+
+.almonit-bar::after,
+.almonit-bar::before,
+.almonit-bar__content::after,
+.almonit-bar__content::before,
+.almonit-urlbar::after, 
+.almonit-urlbar::before {
+	box-sizing: border-box !important;
 }
 
 /* GOOEY EEFECT */
 
 .almonit-group {
-	position: fixed;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	bottom: 0 !important;
+	right: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
 	z-index: 99999999 !important;
-	filter: url('#almonit-gooey');
-	pointer-events: none;
+	filter: url('#almonit-gooey') !important;
+	pointer-events: none !important;
 }
 
 .almonit-rect {
-	background: black;
-	position: fixed;
+	background: black !important;
+	position: fixed !important;
 	top: 0;
 	left: 0;
-	bottom: 0;
-	right: 0;
-	pointer-events:all;
+	bottom: 0 !important;
+	right: 0 !important;
+	pointer-events:all !important;
 }
 
 .almonit-rect2 {
-	position: fixed;
-	left: -17px;
-	right: -17px;
-	top: -17px;
-	bottom: -17px;
-	height: calc(100% + 34px);
-	width: calc(100% + 34px);
-	border: 15px solid black;
-	box-sizing: border-box;
+	position: fixed !important;
+	left: -17px !important;
+	right: -17px !important;
+	top: -17px !important;
+	bottom: -17px !important;
+	height: calc(100% + 34px) !important;
+	width: calc(100% + 34px) !important;
+	border: 15px solid black !important;
+	box-sizing: border-box !important;
+}
+
+@media only screen and (max-width: 1030px) {
+	.almonit-bar.almonit-active {
+		width: 100% !important;
+		left: 0 !important;
+	}
+
+	.almonit-urlbar{
+		width: calc(100% - 90px) !important;
+		bottom: 0 !important;
+		left: 60px !important;
+	}
 }
