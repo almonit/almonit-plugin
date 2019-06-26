@@ -22,7 +22,7 @@ browser.storage.local.get('settings').then(loadSettingsSetSession, err)
  */
 browser.webRequest.onBeforeRequest.addListener(
 	listener,
-	{ urls: ['http://*.eth/*'], types: ['main_frame'] },
+	{ urls: ['http://*.eth/*', 'https://*.eth/*'], types: ['main_frame'] },
 	['blocking']
 );
 

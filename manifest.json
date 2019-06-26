@@ -18,6 +18,7 @@
     "webRequestBlocking",
     "activeTab",
     "http://*.eth/*",
+    "https://*.eth/*",
     "storage"
   ],
 
