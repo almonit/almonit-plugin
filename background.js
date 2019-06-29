@@ -161,7 +161,7 @@ browser.runtime.onInstalled.addListener(initSettings);
 function initSettings(details) {
 
 
-	if (details.reason == "install") { //TODO or settings is not defined..
+	if (details.reason == "install") { 
 		let gateways = {
 	    "Ipfs": "ipfs.io",
 	    "Siderus": "siderus.io",
