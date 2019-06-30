@@ -1,5 +1,5 @@
 importJS('js/multihashes-min');
-importJS('js/main');
+importJS('npm/dist/main');
 importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
@@ -14,8 +14,7 @@ const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
-browser.storage.local.get('settings').then(loadSettingsSetSession, err)
-
+browser.storage.local.get('settings').then(loadSettingsSetSession, err);
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -69,14 +68,14 @@ function ipfsAddressfromContent(hex) {
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	var ipfsHash = hextoIPFS(hex);
-	var ipfsAddress = "https://" + ipfsGateway.value + "/ipfs/" + ipfsHash + ensPath;
+	var ipfsAddress =
+		'https://' + ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
 	// update metrics and redirect to ipfs
 	return browser.storage.local.get('usageCounter').then(function(item) {
 		if (Object.entries(item).length != 0) {
-			
 			// increate counter
 			browser.storage.local.set({
 				usageCounter: item.usageCounter + 1
@@ -88,13 +87,12 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 				redirectUrl: ipfsAddress
 			};
 		} else {
-	
 			// init counter
 			browser.storage.local.set({ usageCounter: 1 });
 
 			// forward to "subscribe to metrics page" upon first usage
 			// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-			browser.storage.local.set({ENSRedirectUrl: ipfsAddress });
+			browser.storage.local.set({ ENSRedirectUrl: ipfsAddress });
 			return {
 				redirectUrl: browser.extension.getURL(
 					'pages/privacy_metrics_subscription.html'
@@ -116,7 +114,7 @@ function ipfsAddressfromHex(hex) {
 }
 
 /**
- * communicating with frontend scripts 
+ * communicating with frontend scripts
  */
 browser.runtime.onMessage.addListener(messagefromFrontend);
 
@@ -130,27 +128,29 @@ function messagefromFrontend(request, sender, sendResponse) {
 		sendResponse({ response: localENS[request.ipfsAddress] });
 	} else if (!!request.permission) {
 		let ipfsLocation = request.first_site.lastIndexOf('ipfs');
-		let ipfsAddress = request.first_site.substring(ipfsLocation + 5, request.first_site.length);
+		let ipfsAddress = request.first_site.substring(
+			ipfsLocation + 5,
+			request.first_site.length
+		);
 		metrics.add(localENS[ipfsAddress]);
 
 		//update local settings
-		metricsPermission = request.permission; 
+		metricsPermission = request.permission;
 
 		//update stored settings
-		browser.storage.local.get("settings").then(function(item) {
-			var settings = item.settings; 
+		browser.storage.local.get('settings').then(function(item) {
+			var settings = item.settings;
 			settings.metricsPermission = request.permission;
-			browser.storage.local.set({settings});
-		},err);
+			browser.storage.local.set({ settings });
+		}, err);
 	} else if (!!request.settings) {
 		var settingsTab = browser.tabs.create({
-	    	url: PAGE_SETTINGS
-	  	})
+			url: PAGE_SETTINGS
+		});
 	} else if (!!request.reloadSettings) {
-		browser.storage.local.get('settings').then(loadSettingsSetSession, err)  	
+		browser.storage.local.get('settings').then(loadSettingsSetSession, err);
 	}
 }
-
 
 browser.runtime.onInstalled.addListener(initSettings);
 /**
@@ -159,41 +159,38 @@ browser.runtime.onInstalled.addListener(initSettings);
 
  */
 function initSettings(details) {
-
-
-	if (details.reason == "install") { 
+	if (details.reason == 'install') {
 		let gateways = {
-	    "Ipfs": "ipfs.io",
-	    "Siderus": "siderus.io",
-	    "Eternum": "ipfs.eternum.io",
-	    "Infura": "ipfs.infura.io",
-	    "Hardbin": "hardbin.com",
-	    "Wahlers": "ipfs.wa.hle.rs",
-	    "Cloudflare": "cloudflare-ipfs.com",
-	    "Temporal": "gateway.temporal.cloud",
-	    "serph": "gateway.serph.network"
-		}
-	
-		let shortcuts = {
-				"addressbar": "Ctrl+Shift+T",
-				"settings": "Ctrl+Shift+O"
-				}
-	
-		let settings = {
-			"metricsPermission": "uninitialized",
-			"ethereum": "infura",
-			"gateways": gateways,
-			"ipfs": "random",
-			"shortcuts": shortcuts
-		}
+			Ipfs: 'ipfs.io',
+			Siderus: 'siderus.io',
+			Eternum: 'ipfs.eternum.io',
+			Infura: 'ipfs.infura.io',
+			Hardbin: 'hardbin.com',
+			Wahlers: 'ipfs.wa.hle.rs',
+			Cloudflare: 'cloudflare-ipfs.com',
+			Temporal: 'gateway.temporal.cloud',
+			serph: 'gateway.serph.network'
+		};
 
-		browser.storage.local.set({settings});
+		let shortcuts = {
+			addressbar: 'Ctrl+Shift+T',
+			settings: 'Ctrl+Shift+O'
+		};
+
+		let settings = {
+			metricsPermission: 'uninitialized',
+			ethereum: 'infura',
+			gateways: gateways,
+			ipfs: 'random',
+			shortcuts: shortcuts
+		};
+
+		browser.storage.local.set({ settings });
 
 		// save empty metrics
-		let savedMetrics = {}
-		browser.storage.local.set({savedMetrics});
-
-		}
+		let savedMetrics = {};
+		browser.storage.local.set({ savedMetrics });
+	}
 }
 
 /**
@@ -202,20 +199,24 @@ function initSettings(details) {
  */
 function loadSettingsSetSession(storage) {
 	// load settings
-	ethereum = storage.settings.ethereum;	
+	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
 
 	metricsPermission = storage.settings.metricsPermission;
 
-
-	setTimeout(function () {WEB3ENS.connect_web3(ethereumNode);},1000);
+	setTimeout(function() {
+		WEB3ENS.connect_web3(ethereumNode);
+	}, 1000);
 
 	// set ipfs gateway
-	if (storage.settings.ipfs == "random") {
+	if (storage.settings.ipfs == 'random') {
 		if (!ipfsGateway) {
-			var keys = Object.keys(storage.settings.gateways)
-			var ipfsGatewayKey = keys[ keys.length * Math.random() << 0];
-			ipfsGateway = {"key": ipfsGatewayKey, "value": storage.settings.gateways[ipfsGatewayKey]};
+			var keys = Object.keys(storage.settings.gateways);
+			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			ipfsGateway = {
+				key: ipfsGatewayKey,
+				value: storage.settings.gateways[ipfsGatewayKey]
+			};
 		}
 	} else {
 		let choosenIpfsGateway = JSON.parse(storage.settings.ipfs);
@@ -224,21 +225,22 @@ function loadSettingsSetSession(storage) {
 
 	// save session info
 	var session = {
-		"ipfsGateway": ipfsGateway,
-	}
-	browser.storage.local.set({session});
+		ipfsGateway: ipfsGateway
+	};
+	browser.storage.local.set({ session });
 }
 
 /**
  * auxillary functions
  */
 function setEthereumNode(eth) {
-	switch(eth) {
-		case "infura":
-			var ethNode = "https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
+	switch (eth) {
+		case 'infura':
+			var ethNode =
+				'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17';
 			break;
-		case "local": 
-			var ethNode = "http://localhost:8545";
+		case 'local':
+			var ethNode = 'http://localhost:8545';
 			break;
 		default:
 			var ethNode = eth;
@@ -268,8 +270,8 @@ function importJS(file) {
 }
 
 function notFound(address, e) {
-	console.log("err: " + address, e);
-	return { redirectUrl: PAGE_404 + "?fallback=" + address };
+	console.log('err: ' + address, e);
+	return { redirectUrl: PAGE_404 + '?fallback=' + address };
 }
 
 function err(msg) {
