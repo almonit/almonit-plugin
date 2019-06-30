@@ -141,6 +141,11 @@ function WordShuffler(holder, opt) {
         );
     }
 
+    this.removeChilds = function(node) {
+        var last;
+        while ((last = node.lastChild)) node.removeChild(last);
+    };
+
     this.getRandCharacter = function(characterToReplace) {
         if (characterToReplace == ' ') {
             return ' ';
@@ -165,7 +170,7 @@ function WordShuffler(holder, opt) {
     this.generateSingleCharacter = function(color, character) {
         var span = document.createElement('span');
         span.style.color = color;
-        span.innerHTML = character;
+        span.textContent = character;
         return span;
     };
 
@@ -218,7 +223,7 @@ function WordShuffler(holder, opt) {
                 if (that.currentCharacter === that.currentWordLength) {
                     that.needUpdate = false;
                 }
-                this.holder.innerHTML = '';
+                this.removeChilds(this.holder);
                 word.forEach(function(w, index) {
                     var color = null;
                     if (index > that.currentCharacter) {

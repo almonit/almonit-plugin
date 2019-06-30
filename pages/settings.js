@@ -1,6 +1,12 @@
+const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton');
-var currentGateway = "";
+var currentGateway = '';
+
+var removeChilds = function(node) {
+    var last;
+    while ((last = node.lastChild)) node.removeChild(last);
+};
 
 function loadSettings() {
     /**
@@ -44,10 +50,12 @@ function loadSettings() {
             document.forms['settingsForm'].gateway[1].checked = true;
             document.getElementById('ipfs_gateways').disabled = false;
         }
-				
-		// shortcuts
-        document.getElementById("shortcutBarInput").value = settings.shortcuts.addressbar; 
-        document.getElementById("shortcutSettingsInput").value = settings.shortcuts.settings;
+
+        // shortcuts
+        document.getElementById('shortcutBarInput').value =
+            settings.shortcuts.addressbar;
+        document.getElementById('shortcutSettingsInput').value =
+            settings.shortcuts.settings;
 
         // load session paramters
         var getSession = browser.storage.local.get('session');
@@ -69,8 +77,8 @@ function loadSettings() {
 }
 
 function setCurrentIPFSGateway(gateway) {
-    currentGateway = gateway.key + ": " + gateway.value;
-    document.getElementById('current_gateway').innerHTML = currentGateway;
+    currentGateway = gateway.key + ': ' + gateway.value;
+    document.getElementById('current_gateway').textContent = currentGateway;
 }
 
 /**
@@ -99,12 +107,12 @@ function saveSettings(e) {
         var ipfs = 'random';
     else {
         var ipfs = document.getElementById('ipfs_gateways').value;
-        setCurrentIPFSGateway(JSON.parse(ipfs)); //once saved, update current gateway in html        
+        setCurrentIPFSGateway(JSON.parse(ipfs)); //once saved, update current gateway in html
     }
 
     let shortcuts = {
-        addressbar: document.getElementById("shortcutBarInput").value,
-        settings: document.getElementById("shortcutSettingsInput").value
+        addressbar: document.getElementById('shortcutBarInput').value,
+        settings: document.getElementById('shortcutSettingsInput').value
     };
 
     // create and save settings
@@ -121,7 +129,7 @@ function saveSettings(e) {
         reloadSettings: true
     });
 
-    savedAlert("Saved",1000);
+    savedAlert('Saved', 1000);
 }
 
 /**
@@ -129,36 +137,42 @@ function saveSettings(e) {
  * @param  {[Object]} e [Event handler]
  */
 function shortcutListener(shortcut, e) {
-	document.getElementById("field_disabel_form").disabled = true;
-	document.activeElement.blur();
-	document.addEventListener ('keydown', function handleShortcut(e) {
-		if (!["Control", "Shift", "Alt", "Meta"].includes(e.key)) {
-			handleShortcuts(shortcut, e);
-			this.removeEventListener ('keydown', arguments.callee);
-		}
-	});
+    document.getElementById('field_disabel_form').disabled = true;
+    document.activeElement.blur();
+    document.addEventListener('keydown', function handleShortcut(e) {
+        if (!['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+            handleShortcuts(shortcut, e);
+            this.removeEventListener('keydown', arguments.callee);
+        }
+    });
 }
 
 function handleShortcuts(shortcut, e) {
-  e.stopPropagation ();
-  e.preventDefault ()
-  var keyStr = ["Control", "Shift", "Alt", "Meta"].includes(e.key) ? "" : e.key;
-  var reportStr   =
-      ( e.ctrlKey  ? "Ctrl+" : "" ) +
-      ( e.shiftKey ? "Shift+"   : "" ) +
-      ( e.altKey   ? "Alt+"     : "" ) +
-      ( e.metaKey  ? "Meta+"    : "" ) +
-      keyStr;
+    e.stopPropagation();
+    e.preventDefault();
+    var keyStr = ['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)
+        ? ''
+        : e.key;
+    var reportStr =
+        (e.ctrlKey ? 'Ctrl+' : '') +
+        (e.shiftKey ? 'Shift+' : '') +
+        (e.altKey ? 'Alt+' : '') +
+        (e.metaKey ? 'Meta+' : '') +
+        keyStr;
 
-    var currentBarShortcut = document.getElementById("shortcutBarInput").value;
-    var currentSettingsShortcut = document.getElementById("shortcutSettingsInput").value;
-    if ( (shortcut == "shortcutBarInput" && currentSettingsShortcut == reportStr) ||
-        (shortcut == "shortcutSettingsInput" && currentBarShortcut == reportStr)) 
-        alert(reportStr + " is already used as another shortcut"); 
-    else
-	   document.getElementById(shortcut).value = reportStr;
+    var currentBarShortcut = document.getElementById('shortcutBarInput').value;
+    var currentSettingsShortcut = document.getElementById(
+        'shortcutSettingsInput'
+    ).value;
+    if (
+        (shortcut == 'shortcutBarInput' &&
+            currentSettingsShortcut == reportStr) ||
+        (shortcut == 'shortcutSettingsInput' && currentBarShortcut == reportStr)
+    )
+        alert(reportStr + ' is already used as another shortcut');
+    else document.getElementById(shortcut).value = reportStr;
 
-	document.getElementById("field_disabel_form").disabled = false;
+    document.getElementById('field_disabel_form').disabled = false;
 }
 
 document.addEventListener('DOMContentLoaded', loadSettings);
@@ -167,10 +181,12 @@ document
     .addEventListener('submit', saveSettings);
 document
     .getElementById('ModifyShortcutBarInput')
-    .addEventListener('click', e => shortcutListener("shortcutBarInput",e));
+    .addEventListener('click', e => shortcutListener('shortcutBarInput', e));
 document
     .getElementById('ModifyShortcutSettingsInput')
-    .addEventListener('click', e => shortcutListener("shortcutSettingsInput", e));
+    .addEventListener('click', e =>
+        shortcutListener('shortcutSettingsInput', e)
+    );
 
 // Radio group listeners
 /**
@@ -211,7 +227,9 @@ function openGatewayModal(e) {
                 document.createTextNode(gatewaysList[i].text)
             );
             gatewayEditButtonSpan.appendChild(document.createTextNode('Edit'));
-            gatewayRemoveButtonSpan.appendChild(document.createTextNode('Remove'));
+            gatewayRemoveButtonSpan.appendChild(
+                document.createTextNode('Remove')
+            );
             gatewayEditButtonSpan.className = 'edit-gateway-button';
             gatewayRemoveButtonSpan.className = 'remove-gateway-button';
             gatewayLI.appendChild(gatewayTextSpan);
@@ -239,7 +257,11 @@ function openGatewayModal(e) {
 
             gatewayRemoveButtonSpan.addEventListener(
                 'click',
-                removeGateway.bind(null, gatewayList.children[i], JSON.parse(gatewaysList[i].value))
+                removeGateway.bind(
+                    null,
+                    gatewayList.children[i],
+                    JSON.parse(gatewaysList[i].value)
+                )
             );
 
             listenerCollector[i * 2 + 1] = {
@@ -271,16 +293,22 @@ function openGatewayModal(e) {
             'click',
             createGatewayForm.bind(null, null, 'Add', addGateway)
         );
-
-        addGatewayPanel.innerHTML =
+        removeChilds(addGatewayPanel);
+        const domparser = new DOMParser();
+        const addGatewayTemplate =
             '<span id="addGatewayButton"> + Add new gateway</span>';
+        const gatewayDOM = domparser.parseFromString(
+            addGatewayTemplate,
+            htmlMime
+        );
+        addGatewayPanel.appendChild(gatewayDOM.body.firstChild);
     }
 
     function hideGatewayModal() {
         const gatewayModal = document.getElementById('gatewayModal');
         const gatewayList = document.getElementById('gatewayList');
-        removeListeners();  
-        gatewayList.innerHTML = '';
+        removeListeners();
+        removeChilds(gatewayList);
         gatewayModal.style.display = 'none';
         gatewayModal.removeEventListener('click', closeGatewayModal);
     }
@@ -291,11 +319,12 @@ function openGatewayModal(e) {
      * @param  {[Object]} e [Event handler]
      */
     const closeGatewayModal = function(e) {
-        if (!event.target.closest('#gatewayModalPanel')) 
-            hideGatewayModal();
+        if (!event.target.closest('#gatewayModalPanel')) hideGatewayModal();
     };
     gatewayModal.addEventListener('click', closeGatewayModal);
-    document.getElementById('DoneModifyingGateway').addEventListener('click', hideGatewayModal);
+    document
+        .getElementById('DoneModifyingGateway')
+        .addEventListener('click', hideGatewayModal);
 
     /**
      * [addGateway will add a gateway to the gateway list. It first checks that the gateway
@@ -304,15 +333,14 @@ function openGatewayModal(e) {
      */
     function addGateway(e) {
         e.stopPropagation();
-        name = document.getElementById("name_of_gateway").value;
-        url = document.getElementById("URL_of_gateway").value;
+        name = document.getElementById('name_of_gateway').value;
+        url = document.getElementById('URL_of_gateway').value;
 
-        if ( name != "" && url != "" ) {
+        if (name != '' && url != '') {
             addIpfsGate(name, url);
             hideGatewayModal();
             showGatewayModal();
-        } else 
-            alert ("Name and url can not be empty");
+        } else alert('Name and url can not be empty');
     }
 
     /**
@@ -320,24 +348,23 @@ function openGatewayModal(e) {
      * @param  {[Object]}   item    [Gateway object]
      */
     function editGateway(e, item) {
-    	if (currentGateway == (item.key + ': ' + item.value)) 
-    		alert("Can't edit current gateway");
-    	else {
-       	let gatewaysSelect = document.getElementById('ipfs_gateways')
+        if (currentGateway == item.key + ': ' + item.value)
+            alert("Can't edit current gateway");
+        else {
+            let gatewaysSelect = document.getElementById('ipfs_gateways');
 
-        // remove old version
-        let gatewayToEdit = document.getElementById(JSON.stringify(item));
-        gatewaysSelect.removeChild(gatewayToEdit);
+            // remove old version
+            let gatewayToEdit = document.getElementById(JSON.stringify(item));
+            gatewaysSelect.removeChild(gatewayToEdit);
 
-        //add gateway with new version
-        name = document.getElementById("name_of_gateway").value;
-        url = document.getElementById("URL_of_gateway").value;
-        addIpfsGate(name, url);
-        hideGatewayModal();
-        showGatewayModal();
-    	}
+            //add gateway with new version
+            name = document.getElementById('name_of_gateway').value;
+            url = document.getElementById('URL_of_gateway').value;
+            addIpfsGate(name, url);
+            hideGatewayModal();
+            showGatewayModal();
+        }
     }
-
 }
 
 document
@@ -362,7 +389,7 @@ function addIpfsGate(key, value) {
  */
 function createGatewayForm(item, btnName, callback, e) {
     e.stopPropagation();
-    addGatewayPanel.innerHTML = '';
+    removeChilds(addGatewayPanel);
     const addGatewayNameInput = document.createElement('input');
     const addGatewayURLInput = document.createElement('input');
     const saveGatewayURLButton = document.createElement('button');
@@ -384,10 +411,9 @@ function createGatewayForm(item, btnName, callback, e) {
     addGatewayForm.appendChild(saveGatewayURLButton);
     addGatewayPanel.appendChild(addGatewayForm);
     saveGatewayURLButton.setAttribute('type', 'button');
-    if (item) 
-        saveGatewayURLButton.addEventListener('click', e=> callback(e,item));
-    else
-        saveGatewayURLButton.addEventListener('click', callback);
+    if (item)
+        saveGatewayURLButton.addEventListener('click', e => callback(e, item));
+    else saveGatewayURLButton.addEventListener('click', callback);
     addGatewayNameInput.focus();
 }
 
@@ -399,16 +425,19 @@ function removeGateway(child, item, e) {
     e.stopPropagation();
 
     if (gatewayList.children.length == 1)
-        alert("Can't remove gateway, list must include at least one gateway.")
-    else if (currentGateway == (item.key + ': ' + item.value)) 
-        alert(item.key + " is the current gateway. Please first change the" + 
-                                " current gateway and then try this action again.");
+        alert("Can't remove gateway, list must include at least one gateway.");
+    else if (currentGateway == item.key + ': ' + item.value)
+        alert(
+            item.key +
+                ' is the current gateway. Please first change the' +
+                ' current gateway and then try this action again.'
+        );
     else {
         // remove from gateway modal
         gatewayList.removeChild(child);
 
         // remove from gateway select option
-        let gatewaysSelect = document.getElementById('ipfs_gateways')
+        let gatewaysSelect = document.getElementById('ipfs_gateways');
         let gatewayToRemove = document.getElementById(JSON.stringify(item));
         gatewaysSelect.removeChild(gatewayToRemove);
     }
@@ -419,12 +448,11 @@ function removeGateway(child, item, e) {
  * @param  {[Object]}   msg        [message to present]
  * @param  {[Object]}   duration    [duration of the message]
  */
-function savedAlert(msg,duration)
-{
-    savedmsg = document.getElementById('SettingsSavedMessage'); 
+function savedAlert(msg, duration) {
+    savedmsg = document.getElementById('SettingsSavedMessage');
     savedmsg.style.display = 'flex';
 
-    setTimeout(function(){
+    setTimeout(function() {
         savedmsg.style.display = 'none';
-    },duration);
+    }, duration);
 }

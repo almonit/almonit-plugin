@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Almonit",
-  "version": "0.01",
+  "version": "0.0.1",
 
   "description": "Add Almonit action icon to toolbar",
   "homepage_url": "https://almonit.eth",
