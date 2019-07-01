@@ -1,6 +1,6 @@
 npm/node_modules
 npm/package-lock.json
 npm/dist
-socket.io-server/node_modules
+socket.io-server
 web-ext-artifacts
 .DS_Store
