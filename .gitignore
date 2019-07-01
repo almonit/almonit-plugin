@@ -1,6 +1,6 @@
-npm/node_modules
-npm/package-lock.json
-npm/dist
+js/web3-wrapper/node_modules
+js/web3-wrapper/package-lock.json
+js/web3-wrapper/dist
 socket.io-server
 web-ext-artifacts
 .DS_Store
