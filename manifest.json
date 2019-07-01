@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "Almonit",
   "version": "0.0.1",
-
-  "description": "Add Almonit action icon to toolbar",
+  "author": "Almonit",
+  "description": "Extension for Decentralized Web",
   "homepage_url": "https://almonit.eth",
   "icons": {
     "48": "icons/almonit-48.png"
