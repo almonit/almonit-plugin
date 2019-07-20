@@ -1,10 +1,42 @@
-importJS('js/promisify');
 importJS('js/multihashes-min');
 importJS('js/web3-wrapper/dist/main');
 importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
 
+const isChrome = !!chrome;
+if (isChrome) {
+	browser = chrome;
+}
+
+/**
+ * [promisify description]
+ * @param  {[function]} 	api    		[description]
+ * @param  {[Array]} 		args   		[description]
+ * @return {[function]}        			[description]
+ *
+ * @example
+ * promisify(firefoxFunc, [1,2,3]).then(res => {})
+ *
+ * promisify(chromeFunc, [1,2,3]).then(res => {}) 
+ */
+function promisify(api, args) {
+	console.log("args", ...args);
+	function callBack(resolve, reject, result) {
+		console.log("result", result);
+		if (browser.runtime.lastError) {
+			reject(chrome.runtime.lastError);
+			return;
+		}
+		if (result) resolve(result);
+		reject('error');
+	}
+
+	return new Promise((resolve, reject) => {
+		if (isChrome) api.call(null, args, callBack.bind(null, resolve, reject));
+		else api.call(null, ...args).then(callBack.bind(null, resolve, reject));
+	});
+}
 /**
  * settings
  */
@@ -16,7 +48,7 @@ const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
-browser.promisify(storage.local.get(['settings']).then(loadSettingsSetSession, err);
+promisify(browser.storage.local.get, ['settings']).then(loadSettingsSetSession, err);
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -29,6 +61,7 @@ browser.webRequest.onBeforeRequest.addListener(
 
 function listener(details) {
 	[ensDomain, ensPath] = urlDomain(details.url);
+	console.log("details", details, ensDomain);
 
 	// if error in retrieving Contenthash, try general ENS content field
 	return WEB3ENS.getContenthash(ensDomain)
@@ -76,10 +109,10 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	localENS[ipfsHash] = ensDomain;
 
 	// update metrics and redirect to ipfs
-	return browser.promisify(storage.local.get, ['usageCounter']).then(function(item) {
+	return promisify(storage.local.get, ['usageCounter']).then(function(item) {
 		if (Object.entries(item).length != 0) {
 			// increate counter
-			browser.promisify(browser.storage.local.set, [{
+			promisify(browser.storage.local.set, [{
 				usageCounter: item.usageCounter + 1
 			}]);
 
@@ -90,11 +123,11 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 			};
 		} else {
 			// init counter
-			browser.promisify(browser.storage.local.set, [{ usageCounter: 1 }]);
+			promisify(browser.storage.local.set, [{ usageCounter: 1 }]);
 
 			// forward to "subscribe to metrics page" upon first usage
 			// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-			browser.promisify(browser.storage.local.set, [{ ENSRedirectUrl: ipfsAddress }]);
+			promisify(browser.storage.local.set, [{ ENSRedirectUrl: ipfsAddress }]);
 			return {
 				redirectUrl: browser.extension.getURL(
 					'pages/privacy_metrics_subscription.html'
@@ -140,17 +173,17 @@ function messagefromFrontend(request, sender, sendResponse) {
 		metricsPermission = request.permission;
 
 		//update stored settings
-		browser.promisify(browser.storage.local.get, ['settings']).then(function(item) {
+		promisify(browser.storage.local.get, ['settings']).then(function(item) {
 			var settings = item.settings;
 			settings.metricsPermission = request.permission;
-			browser.promisify(storage.local.set, [{ settings }]);
+			promisify(storage.local.set, [{ settings }]);
 		}, err);
 	} else if (!!request.settings) {
 		var settingsTab = browser.tabs.create({
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
-		browser.promisify(storage.local.get, ['settings']).then(loadSettingsSetSession, err);
+		promisify(storage.local.get, ['settings']).then(loadSettingsSetSession, err);
 	}
 }
 
@@ -187,10 +220,10 @@ function initSettings(details) {
 			shortcuts: shortcuts
 		};
 
-		browser.promisify(browser.storage.local.set, [{ settings }]);
+		promisify(browser.storage.local.set, [{ settings }]);
 		// save empty metrics
 		let savedMetrics = {};
-		browser.promisify(browser.storage.local.set, [{ savedMetrics }]);
+		promisify(browser.storage.local.set, [{ savedMetrics }]);
 	}
 }
 
@@ -199,6 +232,7 @@ function initSettings(details) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
+	console.log("storage", storage);
 	// load settings
 	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
@@ -228,7 +262,7 @@ function loadSettingsSetSession(storage) {
 	var session = {
 		ipfsGateway: ipfsGateway
 	};
-	browser.promisify(browser.storage.local.set, [{ session }]);
+	promisify(browser.storage.local.set, [{ session }]);
 }
 
 /**
