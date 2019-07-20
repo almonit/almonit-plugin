@@ -7,7 +7,7 @@ importJS('js/normalize-url');
 let isFirefox;
 
 function checkBrowser(){
-	if(!browser.runtime.getBrowserInfo){
+	if(!browser){
 		browser = chrome;
 		return;
 	}
