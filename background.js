@@ -4,10 +4,23 @@ importJS('js/metrics');
 importJS('js/socket.io');
 importJS('js/normalize-url');
 
-const isChrome = !!chrome;
-if (isChrome) {
-	browser = chrome;
+let isFirefox;
+
+function checkBrowser(){
+	if(!browser.runtime.getBrowserInfo){
+		browser = chrome;
+		return;
+	}
+	
+	browser.runtime.getBrowserInfo( browserInfo => {
+		isFirefox = browserInfo.name === 'Firefox';
+		if (!isFirefox) {
+			browser = chrome;
+		}
+	});
 }
+
+checkBrowser();
 
 /**
  * [promisify description]
@@ -21,9 +34,7 @@ if (isChrome) {
  * promisify(chromeFunc, [1,2,3]).then(res => {}) 
  */
 function promisify(api, args) {
-	console.log("args", ...args);
 	function callBack(resolve, reject, result) {
-		console.log("result", result);
 		if (browser.runtime.lastError) {
 			reject(chrome.runtime.lastError);
 			return;
@@ -33,7 +44,7 @@ function promisify(api, args) {
 	}
 
 	return new Promise((resolve, reject) => {
-		if (isChrome) api.call(null, args, callBack.bind(null, resolve, reject));
+		if (!isFirefox) api.call(null, args, callBack.bind(null, resolve, reject));
 		else api.call(null, ...args).then(callBack.bind(null, resolve, reject));
 	});
 }
@@ -109,7 +120,7 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	localENS[ipfsHash] = ensDomain;
 
 	// update metrics and redirect to ipfs
-	return promisify(storage.local.get, ['usageCounter']).then(function(item) {
+	return promisify(browser.storage.local.get, ['usageCounter']).then(function(item) {
 		if (Object.entries(item).length != 0) {
 			// increate counter
 			promisify(browser.storage.local.set, [{
