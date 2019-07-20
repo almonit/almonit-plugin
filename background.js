@@ -10,11 +10,23 @@ importJS('js/normalize-url');
 var localENS = {}; // a local ENS of all names we discovered
 var ensDomain = ''; // domain in current call
 var ipfsGateway = false;
+var isFF = typeof(browser) != "undefined";
+if (!isFF) {
+    browser = chrome;
+};
+console.log("isFF is", isFF);
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
-browser.storage.local.get('settings').then(loadSettingsSetSession, err);
+if (isFF) browser.storage.local.get('settings').then(loadSettingsSetSession, err);
+// else
+    browser.storage.local.get(['settings'], function(result) { loadSettingsSetSession(result); });
+
+localGet = function(key) {
+    if (!isFF) key = [key];
+    return browser.storage.local.get(key);
+}
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -185,7 +197,8 @@ function initSettings(details) {
 			shortcuts: shortcuts
 		};
 
-		browser.storage.local.set({ settings });
+o     if (isFF) browser.storage.local.set({ settings });
+      else chrome.storage.local.set({ settings });
 
 		// save empty metrics
 		let savedMetrics = {};
