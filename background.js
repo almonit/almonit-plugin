@@ -15,6 +15,9 @@ var ipfsGateway = false;
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
+// load plugin settings
+browser.promisify(storage.local.get(['settings']).then(loadSettingsSetSession, err);
+
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
  */
