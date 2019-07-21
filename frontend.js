@@ -1,5 +1,49 @@
+let isFirefox;
+
+function checkBrowser() {
+    if (typeof browser === 'undefined') {
+        browser = chrome;
+    } else {
+        isFirefox = true;
+    }
+    return;
+}
+
+checkBrowser();
+
+/**
+ * [promisify description]
+ * @param  {[function]}     api         [description]
+ * @param  {[Array]}        args        [description]
+ * @return {[function]}                 [description]
+ *
+ * @example
+ * promisify(firefoxFunc, [1,2,3]).then(res => {})
+ *
+ * promisify(chromeFunc, [1,2,3]).then(res => {})
+ */
+const promisify = (api, method, args) => {
+    const callBack = (resolve, reject, result) => {
+        if (browser.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+        }
+
+        resolve(result);
+    };
+
+    return new Promise((resolve, reject) => {
+        if (!isFirefox)
+            api[method](
+                method !== 'get' ? args[0] : args,
+                callBack.bind(this, resolve, reject)
+            );
+        else api[method](...args).then(callBack.bind(this, resolve, reject));
+    });
+};
+
 // load settings
-var getSettings = browser.storage.local.get('settings');
+var getSettings = promisify(browser.storage.local, 'get', ['settings']);
 getSettings.then(restoreCurrentSettings, onError);
 
 // init shortcuts
@@ -171,9 +215,11 @@ function shortcutEvents(elm, urlBar) {
                 }
             }
         } else if (shortcutStr == shortcutSettings) {
-            browser.runtime.sendMessage({
-                settings: true
-            });
+            promisify(browser.runtime, 'sendMessage', [
+                {
+                    settings: true
+                }
+            ]);
         }
     };
 }
@@ -186,7 +232,10 @@ function shortcutEvents(elm, urlBar) {
 function restoreDragPosition(elm, urlBar) {
     const dragElm = document.getElementById('almonit_drag');
     const expandBarElm = document.getElementById('almonit_expandBar');
-    browser.storage.local.get('almonitBar').then(function(item) {
+    promisify(browser.storage.local, 'get', ['almonitBar']).then(function(
+        item
+    ) {
+        console.log("item", item);
         res = item.almonitBar;
         elm.style.setProperty('top', res.y);
         elm.style.setProperty('left', res.x);
@@ -331,7 +380,7 @@ function saveUrlBarLocation() {
         active: dragElm.classList.contains('almonit-active'),
         isReverse: leftPx > window.innerWidth / 2
     };
-    browser.storage.local.set({ almonitBar });
+    promisify(browser.storage.local, 'set', [{ almonitBar }]);
 }
 
 /**
@@ -358,11 +407,11 @@ function setENSurl(message) {
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
             let url = document.getElementById('almonit_ENS_url').value;
-            browser.runtime
-                .sendMessage({
+            promisify(browser.runtime, 'sendMessage', [
+                {
                     normalizeURL: url
-                })
-                .then(data => window.location.replace(data.response), onError);
+                }
+            ]).then(data => window.location.replace(data.response), onError);
         }
     });
 }
@@ -383,9 +432,11 @@ function sendmsg() {
     const url = window.location.href;
     let ipfsLocation = url.lastIndexOf('ipfs');
     let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); //TODO: remove constants
-    let sending = browser.runtime.sendMessage({
-        ipfsAddress: ipfsAddress
-    });
+    let sending = promisify(browser.runtime, 'sendMessage', [
+        {
+            ipfsAddress: ipfsAddress
+        }
+    ]);
     sending.then(setENSurl, handleError);
 }
 

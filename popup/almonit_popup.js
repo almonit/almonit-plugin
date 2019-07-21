@@ -1,6 +1,30 @@
 const url = document.getElementById('url');
 const shuffleBtn = document.getElementById('shuffleBtn');
 
+let isFirefox;
+
+function checkBrowser() {
+	if (typeof browser === 'undefined') {
+		browser = chrome;
+	} else {
+		isFirefox = true;
+	}
+	return;
+}
+
+checkBrowser();
+
+if (!isFirefox) {
+	window.addEventListener('click', function(e) {
+		if (e.target.parentElement.href !== undefined) {
+			browser.tabs.create({
+				active: true,
+				url: e.target.parentElement.href
+			});
+		}
+	});
+}
+
 const urlText = new WordShuffler(url, {
 	textColor: '#0078e7',
 	timeOffset: 4,

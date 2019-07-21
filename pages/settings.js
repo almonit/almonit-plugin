@@ -3,6 +3,55 @@ const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton');
 var currentGateway = '';
 
+let isFirefox;
+
+function checkBrowser() {
+    if (typeof browser === 'undefined') {
+        browser = chrome;
+        return;
+    }
+
+    browser.runtime.getBrowserInfo(browserInfo => {
+        isFirefox = browserInfo.name === 'Firefox';
+        if (!isFirefox) {
+            browser = chrome;
+        }
+    });
+}
+
+checkBrowser();
+
+/**
+ * [promisify description]
+ * @param  {[function]}     api         [description]
+ * @param  {[Array]}        args        [description]
+ * @return {[function]}                 [description]
+ *
+ * @example
+ * promisify(firefoxFunc, [1,2,3]).then(res => {})
+ *
+ * promisify(chromeFunc, [1,2,3]).then(res => {})
+ */
+const promisify = (api, method, args) => {
+    const callBack = (resolve, reject, result) => {
+        if (browser.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+        }
+
+        resolve(result);
+    };
+
+    return new Promise((resolve, reject) => {
+        if (!isFirefox)
+            api[method](
+                method === 'set' ? args[0] : args,
+                callBack.bind(this, resolve, reject)
+            );
+        else api[method](...args).then(callBack.bind(this, resolve, reject));
+    });
+};
+
 var removeChilds = function(node) {
     var last;
     while ((last = node.lastChild)) node.removeChild(last);
@@ -58,7 +107,7 @@ function loadSettings() {
             settings.shortcuts.settings;
 
         // load session paramters
-        var getSession = browser.storage.local.get('session');
+        var getSession = promisify(browser.storage.local, 'get', ['session']);
         getSession.then(loadCurrentSession, onError);
     }
 
@@ -72,7 +121,7 @@ function loadSettings() {
         setCurrentIPFSGateway(result.session.ipfsGateway);
     }
 
-    var getSettings = browser.storage.local.get('settings');
+    var getSettings = promisify(browser.storage.local, 'get', ['settings']);
     getSettings.then(loadCurrentSettings, onError);
 }
 
@@ -123,11 +172,11 @@ function saveSettings(e) {
         ipfs: ipfs,
         shortcuts: shortcuts
     };
-    browser.storage.local.set({ settings });
+    promisify(browser.storage.local, 'set', [{ settings }]);
 
-    browser.runtime.sendMessage({
+    promisify(browser.runtime, 'sendMessage', [{
         reloadSettings: true
-    });
+    }]);
 
     savedAlert('Saved', 1000);
 }

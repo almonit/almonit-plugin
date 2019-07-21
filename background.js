@@ -6,18 +6,13 @@ importJS('js/normalize-url');
 
 let isFirefox;
 
-function checkBrowser(){
-	if(typeof browser === 'undefined'){
-		browser = chrome;
-		return;
-	}
-	
-	browser.runtime.getBrowserInfo( browserInfo => {
-		isFirefox = browserInfo.name === 'Firefox';
-		if (!isFirefox) {
-			browser = chrome;
-		}
-	});
+function checkBrowser() {
+    if (typeof browser === 'undefined') {
+        browser = chrome;
+    } else {
+        isFirefox = true;
+    }
+    return;
 }
 
 checkBrowser();
@@ -31,23 +26,27 @@ checkBrowser();
  * @example
  * promisify(firefoxFunc, [1,2,3]).then(res => {})
  *
- * promisify(chromeFunc, [1,2,3]).then(res => {}) 
+ * promisify(chromeFunc, [1,2,3]).then(res => {})
  */
-function promisify(api, args) {
-	function callBack(resolve, reject, result) {
+const promisify = (api, method, args) => {
+	const callBack = (resolve, reject, result) => {
 		if (browser.runtime.lastError) {
 			reject(chrome.runtime.lastError);
 			return;
 		}
-		if (result) resolve(result);
-		reject('error');
-	}
+
+		resolve(result);
+	};
 
 	return new Promise((resolve, reject) => {
-		if (!isFirefox) api.call(null, args, callBack.bind(null, resolve, reject));
-		else api.call(null, ...args).then(callBack.bind(null, resolve, reject));
+		if (!isFirefox)
+			api[method](
+				method === 'set' ? args[0] : args,
+				callBack.bind(this, resolve, reject)
+			);
+		else api[method](...args).then(callBack.bind(this, resolve, reject));
 	});
-}
+};
 /**
  * settings
  */
@@ -56,10 +55,14 @@ var ensDomain = ''; // domain in current call
 var ipfsGateway = false;
 
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
+const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
 // load plugin settings
-promisify(browser.storage.local.get, ['settings']).then(loadSettingsSetSession, err);
+promisify(browser.storage.local, 'get', ['settings']).then(
+	loadSettingsSetSession,
+	err
+);
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -72,8 +75,11 @@ browser.webRequest.onBeforeRequest.addListener(
 
 function listener(details) {
 	[ensDomain, ensPath] = urlDomain(details.url);
-	console.log("details", details, ensDomain);
-
+	if (!isFirefox)
+		return {
+			redirectUrl:
+				PAGE_REDIRECT + '?redirect=' + ensDomain + '&path=' + ensPath
+		};
 	// if error in retrieving Contenthash, try general ENS content field
 	return WEB3ENS.getContenthash(ensDomain)
 		.then(
@@ -120,32 +126,39 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	localENS[ipfsHash] = ensDomain;
 
 	// update metrics and redirect to ipfs
-	return promisify(browser.storage.local.get, ['usageCounter']).then(function(item) {
-		if (Object.entries(item).length != 0) {
-			// increate counter
-			promisify(browser.storage.local.set, [{
-				usageCounter: item.usageCounter + 1
-			}]);
+	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
+		function(item) {
+			if (Object.entries(item).length != 0) {
+				// increate counter
+				promisify(browser.storage.local, 'set', [
+					{
+						usageCounter: item.usageCounter + 1
+					}
+				]);
 
-			// update metrics (if permissioned)
-			if (metricsPermission) metrics.add(ensDomain);
-			return {
-				redirectUrl: ipfsAddress
-			};
-		} else {
-			// init counter
-			promisify(browser.storage.local.set, [{ usageCounter: 1 }]);
+				// update metrics (if permissioned)
+				if (metricsPermission) metrics.add(ensDomain);
+				return {
+					redirectUrl: ipfsAddress
+				};
+			} else {
+				// init counter
+				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
 
-			// forward to "subscribe to metrics page" upon first usage
-			// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-			promisify(browser.storage.local.set, [{ ENSRedirectUrl: ipfsAddress }]);
-			return {
-				redirectUrl: browser.extension.getURL(
-					'pages/privacy_metrics_subscription.html'
-				)
-			};
-		}
-	}, err);
+				// forward to "subscribe to metrics page" upon first usage
+				// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
+				promisify(browser.storage.local, 'set', [
+					{ ENSRedirectUrl: ipfsAddress }
+				]);
+				return {
+					redirectUrl: browser.extension.getURL(
+						'pages/privacy_metrics_subscription.html'
+					)
+				};
+			}
+		},
+		err
+	);
 }
 
 function ipfsAddressfromHex(hex) {
@@ -165,6 +178,7 @@ function ipfsAddressfromHex(hex) {
 browser.runtime.onMessage.addListener(messagefromFrontend);
 
 function messagefromFrontend(request, sender, sendResponse) {
+	request = Array.isArray(request) ? request[0] : request;
 	if (!!request.normalizeURL) {
 		const normalizedUrl = normalizeUrl(request.normalizeURL, {
 			forceHttp: true
@@ -184,18 +198,49 @@ function messagefromFrontend(request, sender, sendResponse) {
 		metricsPermission = request.permission;
 
 		//update stored settings
-		promisify(browser.storage.local.get, ['settings']).then(function(item) {
+		promisify(browser.storage.local, 'get', ['settings']).then(function(
+			item
+		) {
 			var settings = item.settings;
 			settings.metricsPermission = request.permission;
-			promisify(storage.local.set, [{ settings }]);
-		}, err);
+			promisify(browser.storage.local, 'set', [{ settings }]);
+		},
+		err);
 	} else if (!!request.settings) {
 		var settingsTab = browser.tabs.create({
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
-		promisify(storage.local.get, ['settings']).then(loadSettingsSetSession, err);
+		promisify(browser.storage.local, 'get', ['settings']).then(
+			loadSettingsSetSession,
+			err
+		);
+	} else if (!!request.resolveUrl) {
+		const [ensDomain, ensPath] = request.resolveUrl;
+		WEB3ENS.getContenthash(ensDomain)
+			.then(
+				function(address) {
+					const resolvedUrl = handleENSContenthash(
+						address,
+						ensDomain,
+						ensPath
+					);
+					resolvedUrl.then(({ redirectUrl }) =>
+						sendResponse(redirectUrl)
+					);
+				},
+				function(error) {
+					const resolvedUrl = getENSContent(ensDomain, ensPath);
+					resolvedUrl.then(({ redirectUrl }) =>
+						sendResponse(redirectUrl)
+					);
+				}
+			)
+			.catch(() => {
+				sendResponse(PAGE_404 + '?fallback=' + ensDomain);
+			});
 	}
+	return true;
 }
 
 browser.runtime.onInstalled.addListener(initSettings);
@@ -231,10 +276,10 @@ function initSettings(details) {
 			shortcuts: shortcuts
 		};
 
-		promisify(browser.storage.local.set, [{ settings }]);
+		promisify(browser.storage.local, 'set', [{ settings }]);
 		// save empty metrics
 		let savedMetrics = {};
-		promisify(browser.storage.local.set, [{ savedMetrics }]);
+		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
 	}
 }
 
@@ -243,7 +288,6 @@ function initSettings(details) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
-	console.log("storage", storage);
 	// load settings
 	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
@@ -273,7 +317,7 @@ function loadSettingsSetSession(storage) {
 	var session = {
 		ipfsGateway: ipfsGateway
 	};
-	promisify(browser.storage.local.set, [{ session }]);
+	promisify(browser.storage.local, 'set', [{ session }]);
 }
 
 /**
