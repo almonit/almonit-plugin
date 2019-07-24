@@ -47,7 +47,6 @@ function handleENSContenthash(address, ensDomain, ensPath) {
 
 // retrieve general ENS content field
 function getENSContent(ensDomain, ensPath) {
-	// from here -> ipfsAddresfromContent -> ipfsAddressfromHex
 	return WEB3ENS.getContent(ensDomain).then(function(content) {
 		return handleENSContent(content, ensDomain, ensPath);
 	}, notFound.bind(null, ensDomain));
@@ -59,17 +58,13 @@ function handleENSContent(hex, ensDomain, ensPath) {
 	else return err('ENS content exist but does not point to an IPFS address');
 }
 
-function ipfsAddressfromContent(hex) {
-	if (hex.slice(0, 2) == '0x') return ipfsAddressfromHex(hex.slice(2));
-	else return err('ENS content exist but does not point to an IPFS address');
-}
 
 // extract ipfs address from hex and redirects there
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	var ipfsHash = hextoIPFS(hex);
 	var ipfsAddress =
-		'https://' + ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
+		ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
@@ -100,17 +95,6 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 			};
 		}
 	}, err);
-}
-
-function ipfsAddressfromHex(hex) {
-	dig = Multihashes.fromHexString(hex);
-	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
-	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
-	localENS[ipfsHash] = ensDomain;
-	var ipfsAddress = ipfsGateway.value + ipfsHash;
-	return {
-		redirectUrl: ipfsAddress
-	};
 }
 
 /**
@@ -182,6 +166,8 @@ function initSettings(details) {
 			ethereum: 'infura',
 			gateways: gateways,
 			ipfs: 'random',
+			ipfs_gateway: "",
+			ipfs_other_gateway: "",
 			shortcuts: shortcuts
 		};
 
@@ -213,20 +199,37 @@ function loadSettingsSetSession(storage) {
 		if (!ipfsGateway) {
 			var keys = Object.keys(storage.settings.gateways);
 			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			var session = {
+				ipfsGateway: {key: ipfsGatewayKey, value: storage.settings.gateways[ipfsGatewayKey]}
+			};
+
 			ipfsGateway = {
 				key: ipfsGatewayKey,
-				value: storage.settings.gateways[ipfsGatewayKey]
+				value: "https://" + storage.settings.gateways[ipfsGatewayKey]
 			};
 		}
-	} else {
-		let choosenIpfsGateway = JSON.parse(storage.settings.ipfs);
-		ipfsGateway = choosenIpfsGateway;
+	} else if (storage.settings.ipfs == 'force_gateway') {
+		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
+		var session = {
+    	"ipfsGateway": ipfsGateway
+  	}	 
+
+		ipfsGateway = {
+				key: ipfsGateway.key,
+				value: "https://" + ipfsGateway.value + "/"
+			};
+	} else  if (storage.settings.ipfs == 'other_gateway') { 
+		ipfsGateway = {
+				key: "other",
+				value: storage.settings.ipfs_other_gateway
+		};
+		
+		var session = {
+    	"ipfsGateway": ipfsGateway
+  	}	 
 	}
 
 	// save session info
-	var session = {
-		ipfsGateway: ipfsGateway
-	};
 	browser.storage.local.set({ session });
 }
 

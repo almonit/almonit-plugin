@@ -382,7 +382,7 @@ function onError(error) {
 function sendmsg() {
     const url = window.location.href;
     let ipfsLocation = url.lastIndexOf('ipfs');
-    let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); //TODO: remove constants
+    let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); // TODO: remove constants in future release
     let sending = browser.runtime.sendMessage({
         ipfsAddress: ipfsAddress
     });
