@@ -58,11 +58,15 @@ const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
-// load plugin settings
-promisify(browser.storage.local, 'get', ['settings']).then(
-	loadSettingsSetSession,
-	err
-);
+function loadSettings() {
+	// load plugin settings
+	promisify(browser.storage.local, 'get', ['settings']).then(
+		loadSettingsSetSession,
+		err
+	);
+}
+
+loadSettings();
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -288,6 +292,11 @@ function initSettings(details) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
+	if(!storage.settings) {
+		console.info('settings is preparing...')
+		loadSettings();
+		return;
+	}
 	// load settings
 	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
@@ -296,7 +305,7 @@ function loadSettingsSetSession(storage) {
 
 	setTimeout(function() {
 		WEB3ENS.connect_web3(ethereumNode);
-	}, 1000);
+	}, 500);
 
 	// set ipfs gateway
 	if (storage.settings.ipfs == 'random') {
