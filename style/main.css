@@ -88,6 +88,7 @@
 	width: 100% !important;
 	height: 100% !important;
 	z-index: 99999999 !important;
+	-webkit-filter: url('#almonit-gooey') !important;
 	filter: url('#almonit-gooey') !important;
 	pointer-events: none !important;
 }

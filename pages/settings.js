@@ -3,55 +3,6 @@ const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton');
 var currentGateway = '';
 
-let isFirefox;
-
-function checkBrowser() {
-    if (typeof browser === 'undefined') {
-        browser = chrome;
-        return;
-    }
-
-    browser.runtime.getBrowserInfo(browserInfo => {
-        isFirefox = browserInfo.name === 'Firefox';
-        if (!isFirefox) {
-            browser = chrome;
-        }
-    });
-}
-
-checkBrowser();
-
-/**
- * [promisify description]
- * @param  {[function]}     api         [description]
- * @param  {[Array]}        args        [description]
- * @return {[function]}                 [description]
- *
- * @example
- * promisify(firefoxFunc, [1,2,3]).then(res => {})
- *
- * promisify(chromeFunc, [1,2,3]).then(res => {})
- */
-const promisify = (api, method, args) => {
-    const callBack = (resolve, reject, result) => {
-        if (browser.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-            return;
-        }
-
-        resolve(result);
-    };
-
-    return new Promise((resolve, reject) => {
-        if (!isFirefox)
-            api[method](
-                method === 'set' ? args[0] : args,
-                callBack.bind(this, resolve, reject)
-            );
-        else api[method](...args).then(callBack.bind(this, resolve, reject));
-    });
-};
-
 var removeChilds = function(node) {
     var last;
     while ((last = node.lastChild)) node.removeChild(last);
@@ -65,6 +16,10 @@ function loadSettings() {
      */
     function loadCurrentSettings(result) {
         settings = result.settings;
+
+        // init values
+        document.getElementById('urlInput').value = '';
+        document.getElementById('ipfs_other_gateway').value = '';
 
         // metric permission
         if (settings.metricsPermission !== true) {
@@ -95,9 +50,14 @@ function loadSettings() {
         // ipfs gateway settings
         if (settings.ipfs == 'random')
             document.forms['settingsForm'].gateway[0].checked = true;
-        else {
+        else if (settings.ipfs == 'force_gateway') {
             document.forms['settingsForm'].gateway[1].checked = true;
             document.getElementById('ipfs_gateways').disabled = false;
+        } else if (settings.ipfs == 'other_gateway') {
+            document.forms['settingsForm'].gateway[2].checked = true;
+            document.getElementById('ipfs_other_gateway').disabled = false;
+            document.getElementById('ipfs_other_gateway').value =
+                settings.ipfs_other_gateway;
         }
 
         // shortcuts
@@ -117,7 +77,10 @@ function loadSettings() {
 
     function loadCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
-        select.value = JSON.stringify(result.session.ipfsGateway);
+        if (result.session.ipfsGateway.key != 'other')
+            select.value = JSON.stringify(result.session.ipfsGateway);
+        else select.value = select[0].id; //show first value in select, to keep it nonempty
+
         setCurrentIPFSGateway(result.session.ipfsGateway);
     }
 
@@ -145,18 +108,29 @@ function saveSettings(e) {
 
     let gateways = {};
 
-    // TODO: upadte for managed gateways once UI for it exists
     let gatewaysList = document.getElementById('ipfs_gateways');
     for (i = 0; i < gatewaysList.length; i++) {
         let gateway = JSON.parse(gatewaysList[i].value);
         gateways[gateway.key] = gateway.value;
     }
 
+    var ipfs_gateway = '';
+    var ipfs_other_gateway = '';
     if (document.forms['settingsForm'].gateway.value == 'random')
         var ipfs = 'random';
-    else {
-        var ipfs = document.getElementById('ipfs_gateways').value;
-        setCurrentIPFSGateway(JSON.parse(ipfs)); //once saved, update current gateway in html
+    else if (document.forms['settingsForm'].gateway.value == 'force_gateway') {
+        var ipfs = 'force_gateway';
+        ipfs_gateway = document.getElementById('ipfs_gateways').value;
+        document.getElementById('ipfs_other_gateway').value = '';
+        setCurrentIPFSGateway(JSON.parse(ipfs_gateway)); //once saved, update current gateway in html
+    } else if (
+        document.forms['settingsForm'].gateway.value == 'other_gateway'
+    ) {
+        var ipfs = 'other_gateway';
+        ipfs_other_gateway = document.getElementById('ipfs_other_gateway')
+            .value;
+        select.value = select[0].id;
+        setCurrentIPFSGateway({ key: 'other', value: ipfs_other_gateway }); //once saved, update current gateway in html
     }
 
     let shortcuts = {
@@ -170,13 +144,17 @@ function saveSettings(e) {
         ethereum: ethereum,
         gateways: gateways,
         ipfs: ipfs,
+        ipfs_gateway: ipfs_gateway,
+        ipfs_other_gateway: ipfs_other_gateway,
         shortcuts: shortcuts
     };
     promisify(browser.storage.local, 'set', [{ settings }]);
 
-    promisify(browser.runtime, 'sendMessage', [{
-        reloadSettings: true
-    }]);
+    promisify(browser.runtime, 'sendMessage', [
+        {
+            reloadSettings: true
+        }
+    ]);
 
     savedAlert('Saved', 1000);
 }
@@ -249,6 +227,9 @@ function radioGroupListener(e) {
     } else if (e.target.getAttribute('name') === 'gateway') {
         document.getElementById('ipfs_gateways').disabled =
             e.target.value !== 'force_gateway';
+
+        document.getElementById('ipfs_other_gateway').disabled =
+            e.target.value !== 'other_gateway';
     }
 }
 

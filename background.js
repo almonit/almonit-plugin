@@ -1,52 +1,3 @@
-importJS('js/multihashes-min');
-importJS('js/web3-wrapper/dist/main');
-importJS('js/metrics');
-importJS('js/socket.io');
-importJS('js/normalize-url');
-
-let isFirefox;
-
-function checkBrowser() {
-    if (typeof browser === 'undefined') {
-        browser = chrome;
-    } else {
-        isFirefox = true;
-    }
-    return;
-}
-
-checkBrowser();
-
-/**
- * [promisify description]
- * @param  {[function]} 	api    		[description]
- * @param  {[Array]} 		args   		[description]
- * @return {[function]}        			[description]
- *
- * @example
- * promisify(firefoxFunc, [1,2,3]).then(res => {})
- *
- * promisify(chromeFunc, [1,2,3]).then(res => {})
- */
-const promisify = (api, method, args) => {
-	const callBack = (resolve, reject, result) => {
-		if (browser.runtime.lastError) {
-			reject(chrome.runtime.lastError);
-			return;
-		}
-
-		resolve(result);
-	};
-
-	return new Promise((resolve, reject) => {
-		if (!isFirefox)
-			api[method](
-				method === 'set' ? args[0] : args,
-				callBack.bind(this, resolve, reject)
-			);
-		else api[method](...args).then(callBack.bind(this, resolve, reject));
-	});
-};
 /**
  * settings
  */
@@ -103,7 +54,6 @@ function handleENSContenthash(address, ensDomain, ensPath) {
 
 // retrieve general ENS content field
 function getENSContent(ensDomain, ensPath) {
-	// from here -> ipfsAddresfromContent -> ipfsAddressfromHex
 	return WEB3ENS.getContent(ensDomain).then(function(content) {
 		return handleENSContent(content, ensDomain, ensPath);
 	}, notFound.bind(null, ensDomain));
@@ -115,17 +65,11 @@ function handleENSContent(hex, ensDomain, ensPath) {
 	else return err('ENS content exist but does not point to an IPFS address');
 }
 
-function ipfsAddressfromContent(hex) {
-	if (hex.slice(0, 2) == '0x') return ipfsAddressfromHex(hex.slice(2));
-	else return err('ENS content exist but does not point to an IPFS address');
-}
-
 // extract ipfs address from hex and redirects there
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	var ipfsHash = hextoIPFS(hex);
-	var ipfsAddress =
-		'https://' + ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
+	var ipfsAddress = ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
@@ -163,17 +107,6 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 		},
 		err
 	);
-}
-
-function ipfsAddressfromHex(hex) {
-	dig = Multihashes.fromHexString(hex);
-	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
-	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
-	localENS[ipfsHash] = ensDomain;
-	var ipfsAddress = ipfsGateway.value + ipfsHash;
-	return {
-		redirectUrl: ipfsAddress
-	};
 }
 
 /**
@@ -277,6 +210,8 @@ function initSettings(details) {
 			ethereum: 'infura',
 			gateways: gateways,
 			ipfs: 'random',
+			ipfs_gateway: '',
+			ipfs_other_gateway: '',
 			shortcuts: shortcuts
 		};
 
@@ -292,8 +227,8 @@ function initSettings(details) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
-	if(!storage.settings) {
-		console.info('settings is preparing...')
+	if (!storage.settings) {
+		console.info('settings is preparing...');
 		loadSettings();
 		return;
 	}
@@ -303,23 +238,40 @@ function loadSettingsSetSession(storage) {
 
 	metricsPermission = storage.settings.metricsPermission;
 
-	setTimeout(function() {
-		WEB3ENS.connect_web3(ethereumNode);
-	}, 500);
+	WEB3ENS.connect_web3(ethereumNode);
 
 	// set ipfs gateway
 	if (storage.settings.ipfs == 'random') {
 		if (!ipfsGateway) {
 			var keys = Object.keys(storage.settings.gateways);
 			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			var session = {
+				ipfsGateway: {
+					key: ipfsGatewayKey,
+					value: storage.settings.gateways[ipfsGatewayKey]
+				}
+			};
+
 			ipfsGateway = {
 				key: ipfsGatewayKey,
-				value: storage.settings.gateways[ipfsGatewayKey]
+				value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
 			};
 		}
-	} else {
-		let choosenIpfsGateway = JSON.parse(storage.settings.ipfs);
-		ipfsGateway = choosenIpfsGateway;
+	} else if (storage.settings.ipfs == 'force_gateway') {
+		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
+		var session = {
+			ipfsGateway: ipfsGateway
+		};
+
+		ipfsGateway = {
+			key: ipfsGateway.key,
+			value: 'https://' + ipfsGateway.value + '/'
+		};
+	} else if (storage.settings.ipfs == 'other_gateway') {
+		ipfsGateway = {
+			key: 'other',
+			value: storage.settings.ipfs_other_gateway
+		};
 	}
 
 	// save session info
@@ -327,6 +279,7 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
+	browser.tabs.create({ url: 'https://almonit.eth'});
 }
 
 /**
@@ -360,12 +313,6 @@ function urlDomain(data) {
 	var el = document.createElement('a');
 	el.href = data;
 	return [el.hostname, el.pathname + el.search + el.hash];
-}
-
-function importJS(file) {
-	var imported = document.createElement('script');
-	imported.src = file + '.js';
-	document.getElementsByTagName('head')[0].appendChild(imported);
 }
 
 function notFound(address, e) {

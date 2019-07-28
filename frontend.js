@@ -1,47 +1,3 @@
-let isFirefox;
-
-function checkBrowser() {
-    if (typeof browser === 'undefined') {
-        browser = chrome;
-    } else {
-        isFirefox = true;
-    }
-    return;
-}
-
-checkBrowser();
-
-/**
- * [promisify description]
- * @param  {[function]}     api         [description]
- * @param  {[Array]}        args        [description]
- * @return {[function]}                 [description]
- *
- * @example
- * promisify(firefoxFunc, [1,2,3]).then(res => {})
- *
- * promisify(chromeFunc, [1,2,3]).then(res => {})
- */
-const promisify = (api, method, args) => {
-    const callBack = (resolve, reject, result) => {
-        if (browser.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-            return;
-        }
-
-        resolve(result);
-    };
-
-    return new Promise((resolve, reject) => {
-        if (!isFirefox)
-            api[method](
-                method !== 'get' ? args[0] : args,
-                callBack.bind(this, resolve, reject)
-            );
-        else api[method](...args).then(callBack.bind(this, resolve, reject));
-    });
-};
-
 // load settings
 var getSettings = promisify(browser.storage.local, 'get', ['settings']);
 getSettings.then(restoreCurrentSettings, onError);
@@ -61,7 +17,7 @@ const lionIcon = browser.runtime.getURL('resources/lion_header.png');
 const addressBarTemplate = `
     <div id="almonit_ENS_url_div" hidden=true>
         <div class="almonit-group">
-        <div class="almonit-rect2"></div>
+            <div class="almonit-rect2"></div>
             <div id="almonit_drag" class="almonit-rect almonit-bar">
                 <div class="almonit-bar__content">
                     <img id="almonit_expandBar" src="${lionIcon}"/>
@@ -70,7 +26,7 @@ const addressBarTemplate = `
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="0" height="0">
                 <defs>
                     <filter id="almonit-gooey">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
                         <feColorMatrix 
                           in="blur" 
                           mode="matrix" 
@@ -161,7 +117,6 @@ function initListener() {
 
     window.onresize = function() {
         if (window.innerHeight <= parseFloat(dragElm.style.top, 10) + 200) {
-            console.log('entered');
             dragElm.style.setProperty('top', window.innerHeight - 50 + 'px');
             urlBar.style.setProperty('top', window.innerHeight - 40 + 'px');
         }
@@ -235,15 +190,16 @@ function restoreDragPosition(elm, urlBar) {
     promisify(browser.storage.local, 'get', ['almonitBar']).then(function(
         item
     ) {
-        console.log("item", item);
         res = item.almonitBar;
-        elm.style.setProperty('top', res.y);
-        elm.style.setProperty('left', res.x);
-        if (res.active) {
-            if (res.isReverse) {
-                reverseBar(dragElm, expandBarElm);
+        if (!!res && Object.keys(res).length > 0) {
+            elm.style.setProperty('top', res.y);
+            elm.style.setProperty('left', res.x);
+            if (res.active) {
+                if (res.isReverse) {
+                    reverseBar(dragElm, expandBarElm);
+                }
+                setTimeout(() => elm.classList.add('almonit-active'), 500);
             }
-            setTimeout(() => elm.classList.add('almonit-active'), 500);
         }
     });
 }
