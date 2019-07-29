@@ -4,6 +4,7 @@
 var localENS = {}; // a local ENS of all names we discovered
 var ensDomain = ''; // domain in current call
 var ipfsGateway = false;
+let redirectAddress = null;
 
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
@@ -29,12 +30,11 @@ browser.webRequest.onBeforeRequest.addListener(
 );
 
 function listener(details) {
-	[ensDomain, ensPath] = urlDomain(details.url);
-	if (!isFirefox)
-		return {
-			redirectUrl:
-				PAGE_REDIRECT + '?redirect=' + ensDomain + '&path=' + ensPath
-		};
+	const [ensDomain, ensPath] = urlDomain(details.url);
+	if (!isFirefox) {
+		redirectAddress = { ensDomain, ensPath };
+		return { redirectUrl: PAGE_REDIRECT };
+	}
 	// if error in retrieving Contenthash, try general ENS content field
 	return WEB3ENS.getContenthash(ensDomain)
 		.then(
@@ -153,7 +153,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 			err
 		);
 	} else if (!!request.resolveUrl) {
-		const [ensDomain, ensPath] = request.resolveUrl;
+		const { ensDomain, ensPath } = redirectAddress;
 		WEB3ENS.getContenthash(ensDomain)
 			.then(
 				function(address) {
@@ -175,6 +175,9 @@ function messagefromFrontend(request, sender, sendResponse) {
 			)
 			.catch(() => {
 				sendResponse(PAGE_404 + '?fallback=' + ensDomain);
+			})
+			.finally(() => {
+				redirectAddress = null;
 			});
 	}
 	return true;
@@ -279,7 +282,7 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
-	browser.tabs.create({ url: 'https://almonit.eth'});
+	browser.tabs.create({ url: 'https://almonit.eth' });
 }
 
 /**
