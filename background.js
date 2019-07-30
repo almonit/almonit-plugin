@@ -10,10 +10,10 @@ const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 
-function loadSettings() {
+function loadSettings(initial = true) {
 	// load plugin settings
 	promisify(browser.storage.local, 'get', ['settings']).then(
-		loadSettingsSetSession,
+		loadSettingsSetSession.bind(null,  initial),
 		err
 	);
 }
@@ -148,10 +148,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
-		promisify(browser.storage.local, 'get', ['settings']).then(
-			loadSettingsSetSession,
-			err
-		);
+		loadSettings(false);
 	} else if (!!request.resolveUrl) {
 		const { ensDomain, ensPath } = redirectAddress;
 		WEB3ENS.getContenthash(ensDomain)
@@ -229,7 +226,7 @@ function initSettings(details) {
  * [Load settings]
  * @param  {json} storage [current settings in browser storage]
  */
-function loadSettingsSetSession(storage) {
+function loadSettingsSetSession(initial, storage) {
 	if (!storage.settings) {
 		console.info('settings is preparing...');
 		loadSettings();
@@ -282,7 +279,7 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
-	browser.tabs.create({ url: 'https://almonit.eth' });
+	if (initial) browser.tabs.create({ url: 'https://almonit.eth' });
 }
 
 /**
