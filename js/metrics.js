@@ -6,9 +6,9 @@ class Metrics {
 	}
 
 	add(site) {
-		browser.storage.local
-			.get('savedMetrics')
-			.then(item => this.addSitetoMetrics(item, site));
+		promisify(browser.storage.local, 'get', ['savedMetrics']).then(item =>
+			this.addSitetoMetrics(item, site)
+		);
 	}
 }
 
@@ -21,10 +21,10 @@ Metrics.prototype.addSitetoMetrics = function(item, site) {
 		savedMetrics[site] = 1;
 	}
 
-	browser.storage.local.set({ savedMetrics });
-	browser.storage.local
-		.get('usageCounter')
-		.then(item => this.isReportNeeded(item));
+	promisify(browser.storage.local, 'set', [{ savedMetrics }]);
+	promisify(browser.storage.local, 'get', ['usageCounter']).then(item =>
+		this.isReportNeeded(item)
+	);
 };
 
 Metrics.prototype.isReportNeeded = function(item) {
@@ -32,13 +32,16 @@ Metrics.prototype.isReportNeeded = function(item) {
 		item.usageCounter % this.reportThreshold == 0 &&
 		item.usageCounter > 0
 	) {
-		browser.storage.local.get('savedMetrics').then(reportMetrics, err);
+		promisify(browser.storage.local, 'get', ['savedMetrics']).then(
+			reportMetrics,
+			err
+		);
 	}
 };
 
 function reportMetrics(item) {
 	let savedMetrics = {};
-	browser.storage.local.set({ savedMetrics });
+	promisify(browser.storage.local, 'set', [{ savedMetrics }]);
 
 	var socket = io.connect(server);
 	socket.emit('metrics', JSON.stringify(item.savedMetrics));

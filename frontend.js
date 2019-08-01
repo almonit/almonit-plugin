@@ -1,5 +1,5 @@
 // load settings
-var getSettings = browser.storage.local.get('settings');
+var getSettings = promisify(browser.storage.local, 'get', ['settings']);
 getSettings.then(restoreCurrentSettings, onError);
 
 // init shortcuts
@@ -17,7 +17,7 @@ const lionIcon = browser.runtime.getURL('resources/lion_header.png');
 const addressBarTemplate = `
     <div id="almonit_ENS_url_div" hidden=true>
         <div class="almonit-group">
-        <div class="almonit-rect2"></div>
+            <div class="almonit-rect2"></div>
             <div id="almonit_drag" class="almonit-rect almonit-bar">
                 <div class="almonit-bar__content">
                     <img id="almonit_expandBar" src="${lionIcon}"/>
@@ -26,7 +26,7 @@ const addressBarTemplate = `
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="0" height="0">
                 <defs>
                     <filter id="almonit-gooey">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
                         <feColorMatrix 
                           in="blur" 
                           mode="matrix" 
@@ -117,7 +117,6 @@ function initListener() {
 
     window.onresize = function() {
         if (window.innerHeight <= parseFloat(dragElm.style.top, 10) + 200) {
-            console.log('entered');
             dragElm.style.setProperty('top', window.innerHeight - 50 + 'px');
             urlBar.style.setProperty('top', window.innerHeight - 40 + 'px');
         }
@@ -171,9 +170,11 @@ function shortcutEvents(elm, urlBar) {
                 }
             }
         } else if (shortcutStr == shortcutSettings) {
-            browser.runtime.sendMessage({
-                settings: true
-            });
+            promisify(browser.runtime, 'sendMessage', [
+                {
+                    settings: true
+                }
+            ]);
         }
     };
 }
@@ -186,15 +187,19 @@ function shortcutEvents(elm, urlBar) {
 function restoreDragPosition(elm, urlBar) {
     const dragElm = document.getElementById('almonit_drag');
     const expandBarElm = document.getElementById('almonit_expandBar');
-    browser.storage.local.get('almonitBar').then(function(item) {
+    promisify(browser.storage.local, 'get', ['almonitBar']).then(function(
+        item
+    ) {
         res = item.almonitBar;
-        elm.style.setProperty('top', res.y);
-        elm.style.setProperty('left', res.x);
-        if (res.active) {
-            if (res.isReverse) {
-                reverseBar(dragElm, expandBarElm);
+        if (!!res && Object.keys(res).length > 0) {
+            elm.style.setProperty('top', res.y);
+            elm.style.setProperty('left', res.x);
+            if (res.active) {
+                if (res.isReverse) {
+                    reverseBar(dragElm, expandBarElm);
+                }
+                setTimeout(() => elm.classList.add('almonit-active'), 500);
             }
-            setTimeout(() => elm.classList.add('almonit-active'), 500);
         }
     });
 }
@@ -331,7 +336,7 @@ function saveUrlBarLocation() {
         active: dragElm.classList.contains('almonit-active'),
         isReverse: leftPx > window.innerWidth / 2
     };
-    browser.storage.local.set({ almonitBar });
+    promisify(browser.storage.local, 'set', [{ almonitBar }]);
 }
 
 /**
@@ -358,11 +363,11 @@ function setENSurl(message) {
     urlBar.addEventListener('keyup', function(event) {
         if (event.keyCode == 13) {
             let url = document.getElementById('almonit_ENS_url').value;
-            browser.runtime
-                .sendMessage({
+            promisify(browser.runtime, 'sendMessage', [
+                {
                     normalizeURL: url
-                })
-                .then(data => window.location.replace(data.response), onError);
+                }
+            ]).then(data => window.location.replace(data.response), onError);
         }
     });
 }
@@ -382,10 +387,12 @@ function onError(error) {
 function sendmsg() {
     const url = window.location.href;
     let ipfsLocation = url.lastIndexOf('ipfs');
-    let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); // TODO: remove constants in future release
-    let sending = browser.runtime.sendMessage({
-        ipfsAddress: ipfsAddress
-    });
+    let ipfsAddress = url.substring(ipfsLocation + 5, url.length - 1); //TODO: remove constants
+    let sending = promisify(browser.runtime, 'sendMessage', [
+        {
+            ipfsAddress: ipfsAddress
+        }
+    ]);
     sending.then(setENSurl, handleError);
 }
 

@@ -3,14 +3,8 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <link
-            rel="stylesheet"
-            href="../style/pure-min.css"
-        />
-        <link
-            href="../style/montserrat-font.css"
-            rel="stylesheet"
-        />
+        <link rel="stylesheet" href="../style/pure-min.css" />
+        <link href="../style/montserrat-font.css" rel="stylesheet" />
         <link rel="stylesheet" href="settings.css" />
     </head>
 
@@ -28,178 +22,185 @@
             />
         </div>
         <form id="settingsForm" class="panel">
-					<fieldset id="field_disabel_form">
-            <header>
-                <h3>General</h3>
-                <p>Control what Almonit serves for you.</p>
-            </header>
-            <div class="pure-form pure-form-aligned scrollable">
-                <section>
-                    <h3 class="settings__label">Metrics</h3>
-                    <div>
-                        <label for="option-one" class="pure-checkbox">
-                            <input
-                                id="metricCheckbox"
-                                type="checkbox"
-                                value=""
-                            />
-                            I would like to share my metrics privately. (<a
-                                href="almonit.club"
-                                >details</a
-                            >)
-                        </label>
-                    </div>
-                </section>
-                <section>
-                    <h3 class="settings__label">Ethereum</h3>
-                    <div>
-                        <label for="ethereum-one" class="pure-checkbox">
-                            <input
-                                id="ethereum-one"
-                                type="radio"
-                                name="ethereum"
-                                value="infura"
-                                checked
-                            />
-                            Infura
-                        </label>
-                        <label for="ethereum-two" class="pure-checkbox">
-                            <input
-                                id="ethereum-two"
-                                type="radio"
-                                name="ethereum"
-                                value="local"
-                                checked
-                            />
-                            Local: http://localhost:8545
-                        </label>
-                        <label for="ethereum-three" class="pure-checkbox">
-                            <input
-                                id="ethereum-three"
-                                type="radio"
-                                name="ethereum"
-                                value="other"
-                                checked
-                            />
-                            Other
-                            <br /><br />
-                            <input id="urlInput" type="text" disabled />
-                        </label>
-                    </div>
-                </section>
-                <section>
-                    <h3 class="settings__label">IPFS</h3>
-                    <div>
-                        <fieldset class="pure-control-group">
-                            <label for="gateways">Current Gateway:</label>
-                            <pre id="current_gateway">
-                                Current gateway placeholder
-                            </pre>
-                        </fieldset>
-                        <button
-                            class="pure-button pure-button-primary"
-                            type="button"
-                            id="manageGatewaysButton"
-                        >
-                            Manage Gateways
-                        </button>
-                        <br /><br />
-                        <label for="gateway-one" class="pure-checkbox">
-                            <input
-                                id="gateway-one"
-                                type="radio"
-                                name="gateway"
-                                value="random"
-                                checked
-                            />
-                            Use random gateway (decentrazliation via
-                            randomization)
-                        </label>
-                        <label for="gateway-two" class="pure-checkbox">
-                            <input
-                                id="gateway-two"
-                                type="radio"
-                                name="gateway"
-                                value="force_gateway"
-                                checked
-                            />
-                            Force gateway
-                            <br /><br />
-                            <select id="ipfs_gateways" disabled></select>
-                        </label>
-                        <label for="gateway-three" class="pure-checkbox">
-                            <input
-                                id="gateway-three"
-                                type="radio"
-                                name="gateway"
-                                value="other_gateway"
-                                checked
-                            />
-                            Other
-                            <br /><br />
-                            <input id="ipfs_other_gateway"  placeholder="http://localhost:8080/" type="text" disabled />
-                        </label>
-                        <br />
-                    </div>
-                </section>
-                <section>
-                    <h3 class="settings__label">Shortcuts</h3>
-                    <div>
-                        <fieldset class="pure-control-group">
-                            <label for="shortcutBarInput" class="label__shortcut">
-                                Toggle Address Bar
+            <fieldset id="field_disabel_form">
+                <header>
+                    <h3>General</h3>
+                    <p>Control what Almonit serves for you.</p>
+                </header>
+                <div class="pure-form pure-form-aligned scrollable">
+                    <section>
+                        <h3 class="settings__label">Metrics</h3>
+                        <div>
+                            <label for="option-one" class="pure-checkbox">
+                                <input
+                                    id="metricCheckbox"
+                                    type="checkbox"
+                                    value=""
+                                />
+                                I would like to share my metrics privately. (<a
+                                    href="almonit.club"
+                                    >details</a
+                                >)
                             </label>
-                            <input
-                                id="shortcutBarInput"
-                                type="text"
-                                value="Ctrl + Shift + T"
-                                readonly
-                            />
-                        <button
-                            class="pure-button pure-button-primary"
-                            type="button"
-                            id="ModifyShortcutBarInput"
-                        >
-                            Modify
-                        </button>
-                        </fieldset>
-                        <fieldset class="pure-control-group">
-                            <label
-                                for="shortcutSettingsInput"
-                                class="label__shortcut"
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="settings__label">Ethereum</h3>
+                        <div>
+                            <label for="ethereum-one" class="pure-checkbox">
+                                <input
+                                    id="ethereum-one"
+                                    type="radio"
+                                    name="ethereum"
+                                    value="infura"
+                                    checked
+                                />
+                                Infura
+                            </label>
+                            <label for="ethereum-two" class="pure-checkbox">
+                                <input
+                                    id="ethereum-two"
+                                    type="radio"
+                                    name="ethereum"
+                                    value="local"
+                                    checked
+                                />
+                                Local: http://localhost:8545
+                            </label>
+                            <label for="ethereum-three" class="pure-checkbox">
+                                <input
+                                    id="ethereum-three"
+                                    type="radio"
+                                    name="ethereum"
+                                    value="other"
+                                    checked
+                                />
+                                Other
+                                <br /><br />
+                                <input id="urlInput" type="text" disabled />
+                            </label>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="settings__label">IPFS</h3>
+                        <div>
+                            <fieldset class="pure-control-group">
+                                <label for="gateways">Current Gateway:</label>
+                                <b>
+                                    <pre id="current_gateway">
+                                        Current gateway placeholder
+                                    </pre>
+                                </b>
+                            </fieldset>
+                            <button
+                                class="pure-button pure-button-primary"
+                                type="button"
+                                id="manageGatewaysButton"
                             >
-                                Open Settings
+                                Manage Gateways
+                            </button>
+                            <br /><br />
+                            <label for="gateway-one" class="pure-checkbox">
+                                <input
+                                    id="gateway-one"
+                                    type="radio"
+                                    name="gateway"
+                                    value="random"
+                                    checked
+                                />
+                                Use random gateway (decentrazliation via
+                                randomization)
                             </label>
-                            <input
-                                id="shortcutSettingsInput"
-                                type="text"
-                                value="Ctrl + Shift + O"
-                                readonly
-                            />
-                        <button
-                            class="pure-button pure-button-primary"
-                            type="button"
-                            id="ModifyShortcutSettingsInput"
-                        >
-                            Modify
-                        </button>
-                        </fieldset>
-
-
-
-                    </div>
-                </section>
-            </div>
-            <footer class="panel__action">
-                <button
-                    class="pure-button pure-button-primary button-submit"
-                    type="submit"
-                    id="saveSettings"
-                >
-                    Save
-                </button>
-            </footer>
-				</fieldset>
+                            <label for="gateway-two" class="pure-checkbox">
+                                <input
+                                    id="gateway-two"
+                                    type="radio"
+                                    name="gateway"
+                                    value="force_gateway"
+                                    checked
+                                />
+                                Force gateway
+                                <br /><br />
+                                <select id="ipfs_gateways" disabled></select>
+                            </label>
+                            <label for="gateway-three" class="pure-checkbox">
+                                <input
+                                    id="gateway-three"
+                                    type="radio"
+                                    name="gateway"
+                                    value="other_gateway"
+                                    checked
+                                />
+                                Other
+                                <br /><br />
+                                <input
+                                    id="ipfs_other_gateway"
+                                    placeholder="http://localhost:8080/"
+                                    type="text"
+                                    disabled
+                                />
+                            </label>
+                            <br />
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="settings__label">Shortcuts</h3>
+                        <div>
+                            <fieldset class="pure-control-group">
+                                <label
+                                    for="shortcutBarInput"
+                                    class="label__shortcut"
+                                >
+                                    Toggle Address Bar
+                                </label>
+                                <input
+                                    id="shortcutBarInput"
+                                    type="text"
+                                    value="Ctrl + Shift + T"
+                                    readonly
+                                />
+                                <button
+                                    class="pure-button pure-button-primary"
+                                    type="button"
+                                    id="ModifyShortcutBarInput"
+                                >
+                                    Modify
+                                </button>
+                            </fieldset>
+                            <fieldset class="pure-control-group">
+                                <label
+                                    for="shortcutSettingsInput"
+                                    class="label__shortcut"
+                                >
+                                    Open Settings
+                                </label>
+                                <input
+                                    id="shortcutSettingsInput"
+                                    type="text"
+                                    value="Ctrl + Shift + O"
+                                    readonly
+                                />
+                                <button
+                                    class="pure-button pure-button-primary"
+                                    type="button"
+                                    id="ModifyShortcutSettingsInput"
+                                >
+                                    Modify
+                                </button>
+                            </fieldset>
+                        </div>
+                    </section>
+                </div>
+                <footer class="panel__action">
+                    <button
+                        class="pure-button pure-button-primary button-submit"
+                        type="submit"
+                        id="saveSettings"
+                    >
+                        Save
+                    </button>
+                </footer>
+            </fieldset>
         </form>
         <div id="gatewayModal" class="modal-container">
             <div id="gatewayModalPanel" class="modal">
@@ -226,5 +227,7 @@
             </div>
         </div>
     </body>
+    <script src="../js/check-browser.js"></script>
+    <script src="../js/promisify.js"></script>
     <script src="settings.js"></script>
 </html>
