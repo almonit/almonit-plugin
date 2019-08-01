@@ -18,8 +18,8 @@ function loadSettings() {
         settings = result.settings;
 
         // init values
-        document.getElementById('urlInput').value = "";
-        document.getElementById('ipfs_other_gateway').value = "";
+        document.getElementById('urlInput').value = '';
+        document.getElementById('ipfs_other_gateway').value = '';
 
         // metric permission
         if (settings.metricsPermission !== true) {
@@ -56,7 +56,8 @@ function loadSettings() {
         } else if (settings.ipfs == 'other_gateway') {
             document.forms['settingsForm'].gateway[2].checked = true;
             document.getElementById('ipfs_other_gateway').disabled = false;
-            document.getElementById('ipfs_other_gateway').value = settings.ipfs_other_gateway;
+            document.getElementById('ipfs_other_gateway').value =
+                settings.ipfs_other_gateway;
         }
 
         // shortcuts
@@ -66,7 +67,7 @@ function loadSettings() {
             settings.shortcuts.settings;
 
         // load session paramters
-        var getSession = browser.storage.local.get('session');
+        var getSession = promisify(browser.storage.local, 'get', ['session']);
         getSession.then(loadCurrentSession, onError);
     }
 
@@ -75,17 +76,15 @@ function loadSettings() {
     }
 
     function loadCurrentSession(result) {
-        
         select = document.getElementById('ipfs_gateways');
-        if (result.session.ipfsGateway.key != "other") 
+        if (result.session.ipfsGateway.key != 'other')
             select.value = JSON.stringify(result.session.ipfsGateway);
-        else 
-            select.value = select[0].id //show first value in select, to keep it nonempty
+        else select.value = select[0].id; //show first value in select, to keep it nonempty
 
         setCurrentIPFSGateway(result.session.ipfsGateway);
     }
 
-    var getSettings = browser.storage.local.get('settings');
+    var getSettings = promisify(browser.storage.local, 'get', ['settings']);
     getSettings.then(loadCurrentSettings, onError);
 }
 
@@ -115,20 +114,23 @@ function saveSettings(e) {
         gateways[gateway.key] = gateway.value;
     }
 
-    var ipfs_gateway = "";
-    var ipfs_other_gateway = "";
+    var ipfs_gateway = '';
+    var ipfs_other_gateway = '';
     if (document.forms['settingsForm'].gateway.value == 'random')
         var ipfs = 'random';
     else if (document.forms['settingsForm'].gateway.value == 'force_gateway') {
         var ipfs = 'force_gateway';
         ipfs_gateway = document.getElementById('ipfs_gateways').value;
-        document.getElementById('ipfs_other_gateway').value = "";
+        document.getElementById('ipfs_other_gateway').value = '';
         setCurrentIPFSGateway(JSON.parse(ipfs_gateway)); //once saved, update current gateway in html
-    } else if (document.forms['settingsForm'].gateway.value == 'other_gateway') {
+    } else if (
+        document.forms['settingsForm'].gateway.value == 'other_gateway'
+    ) {
         var ipfs = 'other_gateway';
-        ipfs_other_gateway = document.getElementById('ipfs_other_gateway').value;
+        ipfs_other_gateway = document.getElementById('ipfs_other_gateway')
+            .value;
         select.value = select[0].id;
-        setCurrentIPFSGateway({"key": "other", "value": ipfs_other_gateway}); //once saved, update current gateway in html
+        setCurrentIPFSGateway({ key: 'other', value: ipfs_other_gateway }); //once saved, update current gateway in html
     }
 
     let shortcuts = {
@@ -146,11 +148,13 @@ function saveSettings(e) {
         ipfs_other_gateway: ipfs_other_gateway,
         shortcuts: shortcuts
     };
-    browser.storage.local.set({ settings });
+    promisify(browser.storage.local, 'set', [{ settings }]);
 
-    browser.runtime.sendMessage({
-        reloadSettings: true
-    });
+    promisify(browser.runtime, 'sendMessage', [
+        {
+            reloadSettings: true
+        }
+    ]);
 
     savedAlert('Saved', 1000);
 }

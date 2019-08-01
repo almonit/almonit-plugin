@@ -1,6 +1,17 @@
 const url = document.getElementById('url');
 const shuffleBtn = document.getElementById('shuffleBtn');
 
+if (!isFirefox) {
+	window.addEventListener('click', function(e) {
+		if (e.target.parentElement.href !== undefined) {
+			browser.tabs.create({
+				active: true,
+				url: e.target.parentElement.href
+			});
+		}
+	});
+}
+
 const urlText = new WordShuffler(url, {
 	textColor: '#0078e7',
 	timeOffset: 4,

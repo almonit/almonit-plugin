@@ -2,26 +2,24 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <link
-            rel="stylesheet"
-            href="../style/pure-min.css"
-        />
-        <link
-            href="../style/montserrat-font.css"
-            rel="stylesheet"
-        />
-        <link rel="stylesheet" href="../style/icono.min.css">
+        <link rel="stylesheet" href="../style/pure-min.css" />
+        <link href="../style/montserrat-font.css" rel="stylesheet" />
+        <link rel="stylesheet" href="../style/icono.min.css" />
         <link rel="stylesheet" href="almonit_popup.css" />
     </head>
 
     <body>
         <header>
-            <div>
-                <img src="../resources/lion_header.png" alt="" />
-                <span>Almonit</span>
+            <div class="logo">
+                <a href="https://almonit.eth">
+                    <img src="../resources/lion_header.png" alt="" />
+                    <span>Almonit</span>
+                </a>
             </div>
             <div>
-                <a href="../pages/settings.html" target="settings_almonit"><span class="icono-sliders"/></a>
+                <a href="../pages/settings.html" target="settings_almonit"
+                    ><span class="icono-sliders"
+                /></a>
             </div>
         </header>
         <main>
@@ -31,8 +29,12 @@
             </section>
         </main>
         <footer>
-            <button id="shuffleBtn" class="pure-button pure-button-primary">Shuffle</button>
+            <button id="shuffleBtn" class="pure-button pure-button-primary">
+                Shuffle
+            </button>
         </footer>
+        <script src="../js/check-browser.js"></script>
+        <script src="../js/promisify.js"></script>
         <script src="../js/shuffler.js"></script>
         <script src="almonit_popup.js"></script>
     </body>

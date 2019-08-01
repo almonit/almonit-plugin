@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Almonit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Almonit",
   "description": "Extension for Decentralized Web",
   "homepage_url": "https://almonit.eth",
@@ -10,7 +10,16 @@
   },
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "js/check-browser.js",
+      "js/promisify.js",
+      "js/multihashes-min.js",
+      "js/web3-wrapper/dist/main.js",
+      "js/metrics.js",
+      "js/socket.io.js",
+      "js/normalize-url.js",
+      "background.js"
+    ]
   },
 
   "permissions": [
@@ -25,7 +34,11 @@
   "content_scripts": [
     {
       "matches": ["*://*/ipfs/*"],
-      "js": ["frontend.js"],
+      "js": [
+        "js/check-browser.js",
+        "js/promisify.js",
+        "frontend.js"
+      ],
       "css": ["style/main.css"]
     }
   ],
