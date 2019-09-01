@@ -280,7 +280,7 @@ function openGatewayModal(e) {
                 createGatewayForm.bind(
                     null,
                     JSON.parse(gatewaysList[i].value),
-                    'Edit',
+                    'Save',
                     editGateway
                 )
             );
@@ -305,7 +305,7 @@ function openGatewayModal(e) {
         addGatewayButton = document.getElementById('addGatewayButton');
         addGatewayButton.addEventListener(
             'click',
-            createGatewayForm.bind(null, null, 'Add', addGateway)
+            createGatewayForm.bind(null, null, 'Save', addGateway)
         );
 
         gatewayModal.style.display = 'flex';
@@ -321,7 +321,7 @@ function openGatewayModal(e) {
 
         addGatewayButton.removeEventListener(
             'click',
-            createGatewayForm.bind(null, null, 'Add', addGateway)
+            createGatewayForm.bind(null, null, 'Save', addGateway)
         );
         removeChilds(addGatewayPanel);
         const domparser = new DOMParser();
