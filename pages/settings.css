@@ -13,6 +13,11 @@ body {
 	font-family: "Montserrat", sans-serif;
 }
 
+a {
+	text-decoration: none;
+	color: black;
+}
+
 .header {
 	display: flex;
 	justify-content: space-between;
