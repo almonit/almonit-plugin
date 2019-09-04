@@ -248,12 +248,6 @@ function loadSettingsSetSession(storage) {
 		if (!ipfsGateway) {
 			var keys = Object.keys(storage.settings.gateways);
 			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
-			var session = {
-				ipfsGateway: {
-					key: ipfsGatewayKey,
-					value: storage.settings.gateways[ipfsGatewayKey]
-				}
-			};
 
 			ipfsGateway = {
 				key: ipfsGatewayKey,
@@ -262,13 +256,10 @@ function loadSettingsSetSession(storage) {
 		}
 	} else if (storage.settings.ipfs == 'force_gateway') {
 		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
-		var session = {
-			ipfsGateway: ipfsGateway
-		};
 
 		ipfsGateway = {
 			key: ipfsGateway.key,
-			value: 'https://' + ipfsGateway.value + '/'
+			value: 'https://' + ipfsGateway.value
 		};
 	} else if (storage.settings.ipfs == 'other_gateway') {
 		ipfsGateway = {

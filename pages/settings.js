@@ -77,9 +77,13 @@ function loadSettings() {
 
     function loadCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
-        if (result.session.ipfsGateway.key != 'other')
+        if (result.session.ipfsGateway.key != 'other') {
+            //remove 'https' from ipfsGateway value
+            result.session.ipfsGateway.value = 
+                result.session.ipfsGateway.value.slice(8,result.session.ipfsGateway.value.length)
+
             select.value = JSON.stringify(result.session.ipfsGateway);
-        else select.value = select[0].id; //show first value in select, to keep it nonempty
+        } else select.value = select[0].id; //show first value in select, to keep it nonempty
 
         setCurrentIPFSGateway(result.session.ipfsGateway);
     }
