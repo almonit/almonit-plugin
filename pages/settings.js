@@ -1,6 +1,6 @@
 const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
-let addGatewayButton = document.getElementById('addGatewayButton');
+const addGatewayButton = document.getElementById('addGatewayButton');
 var currentGateway = '';
 
 var removeChilds = function(node) {
@@ -9,6 +9,11 @@ var removeChilds = function(node) {
 };
 
 function loadSettings() {
+    const manifest = browser.runtime.getManifest();
+    document.getElementById('appVersion').textContent = `(v${
+        manifest.version
+    })`;
+
     /**
      * [loadCurrentSettings function will fetch previous settings from
      * local storage and will parse them to the proper inputs]
@@ -79,8 +84,10 @@ function loadSettings() {
         select = document.getElementById('ipfs_gateways');
         if (result.session.ipfsGateway.key != 'other') {
             //remove 'https' from ipfsGateway value
-            result.session.ipfsGateway.value = 
-                result.session.ipfsGateway.value.slice(8,result.session.ipfsGateway.value.length)
+            result.session.ipfsGateway.value = result.session.ipfsGateway.value.slice(
+                8,
+                result.session.ipfsGateway.value.length
+            );
 
             select.value = JSON.stringify(result.session.ipfsGateway);
         } else select.value = select[0].id; //show first value in select, to keep it nonempty
