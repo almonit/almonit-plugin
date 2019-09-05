@@ -132,7 +132,7 @@ function initListener() {
         if (window.innerWidth < 1030) reverseBar(dragElm, expandBarElm, true);
     };
 
-    restoreDragPosition(dragElm, urlBar);
+    restoreDragPosition(dragElm, urlBar, expandBarElm);
 }
 
 /**
@@ -184,9 +184,7 @@ function shortcutEvents(elm, urlBar) {
  * @param  {[DOM]}  elm    [Address Bar DOM]
  * @param  {[DOM]}  urlBar [Address input DOM]
  */
-function restoreDragPosition(elm, urlBar) {
-    const dragElm = document.getElementById('almonit_drag');
-    const expandBarElm = document.getElementById('almonit_expandBar');
+function restoreDragPosition(elm, urlBar, expandBarElm) {
     promisify(browser.storage.local, 'get', ['almonitBar']).then(function(
         item
     ) {
@@ -196,10 +194,16 @@ function restoreDragPosition(elm, urlBar) {
             elm.style.setProperty('left', res.x);
             if (res.active) {
                 if (res.isReverse) {
-                    reverseBar(dragElm, expandBarElm);
+                    reverseBar(elm, expandBarElm);
                 }
                 setTimeout(() => elm.classList.add('almonit-active'), 500);
             }
+        } else {
+            elm.style.setProperty(
+                'top',
+                window.scrollY + window.innerHeight - 50 + 'px'
+            );
+            elm.style.setProperty('left', '0');
         }
     });
 }
