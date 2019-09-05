@@ -1,6 +1,6 @@
 const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
-const addGatewayButton = document.getElementById('addGatewayButton');
+let addGatewayButton = document.getElementById('addGatewayButton'); //'let' in purpose
 var currentGateway = '';
 
 var removeChilds = function(node) {
