@@ -21,7 +21,7 @@ From the folder of the plugin, choose `manifest.json`
 
 - Firefox: https://addons.mozilla.org/en-GB/firefox/addon/almonit/
 - Chrome, Opera, Brave: https://chrome.google.com/webstore/detail/almonit/adobfkcnfkodjfobnndpfipdanhdcafm
-- Internet Explorer: https://media.giphy.com/media/3ohhwpVt8pe3Kdm5nW/source.gif
+- Internet Explorer: https://giphy.com/gifs/jk-just-kidding-messin-3ohhwpVt8pe3Kdm5nW/fullscreen
 
 # Usage
 Navigate to ENS+IPFS websites such as:
