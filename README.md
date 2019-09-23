@@ -10,12 +10,18 @@ Almonit plugin let users access decentralized websites through the browser. The 
 
 See more information on ENS+IPFS websites [in our blog](http://almonit.club/blog/ens+ipfs/ENSIPFS-Part-1-Introduction.html). The [how it works](#how-it-works) section in this README gives a more technical description.
 
-# Installation
+# Installation (from source)
 In Firefox, enter `about:debugging`.
 
 Choose `Load Temporary Add-on...`
 
 From the folder of the plugin, choose `manifest.json`
+
+# Installation (from extension store)
+
+Firefox: https://addons.mozilla.org/en-GB/firefox/addon/almonit/
+Chrome, Opera, Brave: https://chrome.google.com/webstore/detail/almonit/adobfkcnfkodjfobnndpfipdanhdcafm
+Internet Exlporer: https://media.giphy.com/media/3ohhwpVt8pe3Kdm5nW/source.gif
 
 # Usage
 Navigate to ENS+IPFS websites such as:
@@ -51,11 +57,6 @@ The plugin contains some extra features, such as a popup window that helps the u
 - Decentralization via randomality: the plugin chooses each time a random IPFS gateway (that's a way of avoiding everyone using the same IPFS gateway, which is centralization).
 - ENS address bar: allows you to navigate the ENS+IPFS ecosphere.
 - Settings page offers (almost) full customization.
-
-# Limitation
-At this stage the plugin is only for Firefox. The development focused on desktop browsers, though the plugin should also work on mobile devices.
-
-A Chrome version is planned in the future.
 
 # Contact
 Write us at contact@almonit.club
