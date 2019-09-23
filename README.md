@@ -19,9 +19,9 @@ From the folder of the plugin, choose `manifest.json`
 
 # Installation (from extension store)
 
-Firefox: https://addons.mozilla.org/en-GB/firefox/addon/almonit/
-Chrome, Opera, Brave: https://chrome.google.com/webstore/detail/almonit/adobfkcnfkodjfobnndpfipdanhdcafm
-Internet Exlporer: https://media.giphy.com/media/3ohhwpVt8pe3Kdm5nW/source.gif
+- Firefox: https://addons.mozilla.org/en-GB/firefox/addon/almonit/
+- Chrome, Opera, Brave: https://chrome.google.com/webstore/detail/almonit/adobfkcnfkodjfobnndpfipdanhdcafm
+- Internet Explorer: https://media.giphy.com/media/3ohhwpVt8pe3Kdm5nW/source.gif
 
 # Usage
 Navigate to ENS+IPFS websites such as:
