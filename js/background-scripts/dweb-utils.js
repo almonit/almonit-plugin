@@ -1,5 +1,5 @@
 /**
- * Backgroud functions related to Dweb infrastructure: 
+ * Backgroud functions related to Dweb infrastructure:
  * IPFS, ENS, Swarm etc.
  */
 

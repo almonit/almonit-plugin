@@ -1,6 +1,25 @@
 /**
  * Backgroud functions related to settings
  */
+const ipfs_options = Object.freeze({
+	RANDOM: 'random',
+	FORCE: 'force_gateway',
+	OTHER: 'other_gateway'
+});
+
+function loadSettings() {
+	// load plugin settings
+	promisify(browser.storage.local, 'get', ['settings']).then(
+		loadSettingsSetSession,
+		err
+	);
+}
+
+function err(msg) {
+	console.warn(msg);
+}
+
+loadSettings();
 
 browser.runtime.onInstalled.addListener(initSettings);
 /**
@@ -53,20 +72,20 @@ function initSettings(details) {
  */
 function loadSettingsSetSession(storage) {
 	if (!storage.settings) {
-		console.info('settings is preparing...');
+		console.info('settings are preparing...');
 		loadSettings();
 		return;
 	}
 	// load settings
-	ethereum = storage.settings.ethereum;
-	ethereumNode = setEthereumNode(ethereum);
+	const ethereum = storage.settings.ethereum;
+	const ethereumNode = setEthereumNode(ethereum);
 
-	metricsPermission = storage.settings.metricsPermission;
+	const metricsPermission = storage.settings.metricsPermission;
 
 	WEB3ENS.connect_web3(ethereumNode);
 
 	// set ipfs gateway
-	if (storage.settings.ipfs == 'random') {
+	if (storage.settings.ipfs == ipfs_options.RANDOM) {
 		if (!ipfsGateway) {
 			var keys = Object.keys(storage.settings.gateways);
 			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
@@ -76,14 +95,14 @@ function loadSettingsSetSession(storage) {
 				value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
 			};
 		}
-	} else if (storage.settings.ipfs == 'force_gateway') {
+	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
 		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
 
 		ipfsGateway = {
 			key: ipfsGateway.key,
 			value: 'https://' + ipfsGateway.value
 		};
-	} else if (storage.settings.ipfs == 'other_gateway') {
+	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
 		ipfsGateway = {
 			key: 'other',
 			value: storage.settings.ipfs_other_gateway
@@ -95,12 +114,4 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
-}
-
-function loadSettings() {
-	// load plugin settings
-	promisify(browser.storage.local, 'get', ['settings']).then(
-		loadSettingsSetSession,
-		err
-	);
 }
