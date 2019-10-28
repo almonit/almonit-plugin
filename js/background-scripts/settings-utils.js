@@ -1,4 +1,11 @@
 /**
+ * Global variables
+ */
+var ethereum;
+var ethereumNode;
+var metricsPermission;
+
+/**
  * Backgroud functions related to settings
  */
 const ipfs_options = Object.freeze({
@@ -78,10 +85,10 @@ function loadSettingsSetSession(storage) {
 		return;
 	}
 	// load settings
-	const ethereum = storage.settings.ethereum;
-	const ethereumNode = setEthereumNode(ethereum);
+	ethereum = storage.settings.ethereum;
+	ethereumNode = setEthereumNode(ethereum);
 
-	const metricsPermission = storage.settings.metricsPermission;
+	metricsPermission = storage.settings.metricsPermission;
 
 	WEB3ENS.connect_web3(ethereumNode);
 
