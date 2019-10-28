@@ -34,11 +34,12 @@ function initSettings(details) {
 			Siderus: 'siderus.io',
 			Eternum: 'ipfs.eternum.io',
 			Infura: 'ipfs.infura.io',
-			Hardbin: 'hardbin.com',
 			Wahlers: 'ipfs.wa.hle.rs',
 			Cloudflare: 'cloudflare-ipfs.com',
 			Temporal: 'gateway.temporal.cloud',
-			serph: 'gateway.serph.network'
+			Pinata: 'gateway.pinata.cloud',
+			Serph: 'gateway.serph.network',
+			Permaweb: 'permaweb.io'
 		};
 
 		let shortcuts = {
