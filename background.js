@@ -19,48 +19,6 @@ browser.webRequest.onBeforeRequest.addListener(
 	['blocking']
 );
 
-browser.webRequest.onHeadersReceived.addListener(
-	checkGateway,
-	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
-	["blocking", "responseHeaders"]
-);
-
-browser.webRequest.onBeforeSendHeaders.addListener(
-  checkGatewayBeforeSendHeaders,
-  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*']},
-  ["blocking", "requestHeaders"]
-);
-
-browser.webRequest.onSendHeaders.addListener(
-	checkGatewaySendHeaders,
-	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
-	["requestHeaders"]
-);
-
-browser.webRequest.onErrorOccurred.addListener(
-  logError,
-  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
-);
-
-function checkGatewayBeforeSendHeaders(e) {
-	console.log("Before send header: ", e.requestHeaders);
-	// return {responseHeaders: e};
-}
-
-function checkGatewaySendHeaders(e) {
-	console.log("send header: ", e.requestHeaders);
-}
-
-function checkGateway(e) {
-	console.log("responseHeaders received: ", e);
-	return {responseHeaders: e.responseHeaders};
-}
-
-function logError(responseDetails) {
-  console.log("error url: ", responseDetails.url);
-  console.log("error details: ", responseDetails.error);
-}
-
 function listener(details) {
 	const [ensDomain, ensPath] = urlDomain(details.url);
 	if (!isFirefox) {
@@ -122,6 +80,87 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 		},
 		err
 	);
+}
+
+/**
+ * Error handling
+ */
+browser.webRequest.onErrorOccurred.addListener(
+  logError,
+  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
+);
+
+function logError(resp) {
+	let [domain, path] = urlDomain(resp.url);
+	let currentGateway = ipfsGateway.value.slice(8,ipfsGateway.value.length)
+
+	if (domain == currentGateway) 
+		promisify(browser.storage.local, 'get', ['settings']).then(
+			storage => handleGatewayError(storage,resp.url, resp.tabId),
+			err
+		);
+}
+
+browser.webRequest.onHeadersReceived.addListener(
+	handleHeaderReceived,
+	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
+	["blocking", "responseHeaders"]
+);
+
+function handleHeaderReceived(e) {
+	let statusDigit = (''+e.statusCode)[0];
+	if (statusDigit == 5) {
+		let [domain, path] = urlDomain(resp.url);
+		let currentGateway = ipfsGateway.value.slice(8,ipfsGateway.value.length)
+
+		if (domain == currentGateway) 
+			promisify(browser.storage.local, 'get', ['settings']).then(
+				storage => handleGatewayError(storage,resp.url, resp.tabId),
+				err
+			);
+	}
+
+	return {responseHeaders: e.responseHeaders};
+}
+
+function handleGatewayError(storage, url, tab) {
+	// this step may change only session options and not user settings
+	if (storage.settings.ipfs == ipfs_options.OTHER) {
+		ipfsGateway = {
+			key: 'other',
+			value: storage.settings.ipfs_other_gateway
+		};
+	} else if ((storage.settings.ipfs == ipfs_options.RANDOM) || 
+						 (storage.settings.ipfs == ipfs_options.FORCE) ) {
+		var ipfsGatewayKey = ""
+		var keys = Object.keys(storage.settings.gateways);
+
+		// if keys.length < 1, don't do anything
+		if (keys.length > 1) 
+			do 
+				ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			while (ipfsGatewayKey == ipfsGateway.key)
+
+		ipfsGateway = {
+			key: ipfsGatewayKey,
+			value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
+		};
+	}
+
+	// save session info
+	var session = {
+		ipfsGateway: ipfsGateway
+	};
+	promisify(browser.storage.local, 'set', [{ session }]);
+
+	//redirect	
+	
+	let ipfsPath = separateIpfsUrl(url);
+	let [hash, subpath] = separateAddressIpfsHashandSubpath(ipfsPath);
+	if (localENS[hash]) {
+		var ipfsAddress = ipfsGateway.value + '/ipfs/' + ipfsPath;
+		browser.tabs.update(tab,{url: ipfsAddress});
+	}
 }
 
 /**
@@ -211,6 +250,40 @@ function setEthereumNode(eth) {
 			var ethNode = eth;
 	}
 	return ethNode;
+}
+
+
+/**
+ * [separateIpfsUrl separates ipfs path from url
+ * @param  {[type]} url [description]
+ * @return {[type]}      [description]
+ */
+function separateIpfsUrl(url) {
+  let ipfsLocation = url.lastIndexOf('ipfs');
+	let ipfsPath = url.substring(
+		ipfsLocation + 5,
+		url.length
+	);
+  return ipfsPath;
+}
+
+/**
+ * [separateAddressIpfsUrl separates ipfs path to hash and subpath
+ * @param  {[type]} data [description]
+ * @return {[type]}      [description]
+ */
+function separateAddressIpfsHashandSubpath(ipfsPath) {
+  var locationSlash = ipfsPath.search("/");
+
+  if (locationSlash == -1) {
+    var ipfsHash = ipfsPath;
+    var ipfsSubpath = "/";
+  } else {
+    var ipfsHash = ipfsPath.slice(0,locationSlash);
+    var ipfsSubpath = ipfsPath.slice(locationSlash, ipfsPath.length);
+    //TODO: add till last / -- after that it's parameters like # and &
+  }
+  return [ipfsHash, ipfsSubpath];
 }
 
 // extract a domain from url
