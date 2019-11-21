@@ -19,6 +19,48 @@ browser.webRequest.onBeforeRequest.addListener(
 	['blocking']
 );
 
+browser.webRequest.onHeadersReceived.addListener(
+	checkGateway,
+	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
+	["blocking", "responseHeaders"]
+);
+
+browser.webRequest.onBeforeSendHeaders.addListener(
+  checkGatewayBeforeSendHeaders,
+  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*']},
+  ["blocking", "requestHeaders"]
+);
+
+browser.webRequest.onSendHeaders.addListener(
+	checkGatewaySendHeaders,
+	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
+	["requestHeaders"]
+);
+
+browser.webRequest.onErrorOccurred.addListener(
+  logError,
+  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
+);
+
+function checkGatewayBeforeSendHeaders(e) {
+	console.log("Before send header: ", e.requestHeaders);
+	// return {responseHeaders: e};
+}
+
+function checkGatewaySendHeaders(e) {
+	console.log("send header: ", e.requestHeaders);
+}
+
+function checkGateway(e) {
+	console.log("responseHeaders received: ", e);
+	return {responseHeaders: e.responseHeaders};
+}
+
+function logError(responseDetails) {
+  console.log("error url: ", responseDetails.url);
+  console.log("error details: ", responseDetails.error);
+}
+
 function listener(details) {
 	const [ensDomain, ensPath] = urlDomain(details.url);
 	if (!isFirefox) {
