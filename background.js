@@ -90,13 +90,13 @@ browser.webRequest.onErrorOccurred.addListener(
   { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
 );
 
-function logError(resp) {
-	let [domain, path] = urlDomain(resp.url);
-	let currentGateway = ipfsGateway.value.slice(8,ipfsGateway.value.length)
+function logError(e) {
+	let [domain, path] = urlDomain(e.url);
+	let currentGateway = normalizeUrl(ipfsGateway.value, {stripProtocol: true});
 
 	if (domain == currentGateway) 
 		promisify(browser.storage.local, 'get', ['settings']).then(
-			storage => handleGatewayError(storage,resp.url, resp.tabId),
+			storage => handleGatewayError(storage,e.url, e.tabId),
 			err
 		);
 }
@@ -110,12 +110,12 @@ browser.webRequest.onHeadersReceived.addListener(
 function handleHeaderReceived(e) {
 	let statusDigit = (''+e.statusCode)[0];
 	if (statusDigit == 5) {
-		let [domain, path] = urlDomain(resp.url);
-		let currentGateway = ipfsGateway.value.slice(8,ipfsGateway.value.length)
+		let [domain, path] = urlDomain(e.url);
+		let currentGateway = normalizeUrl(ipfsGateway.value, {stripProtocol: true});
 
 		if (domain == currentGateway) 
 			promisify(browser.storage.local, 'get', ['settings']).then(
-				storage => handleGatewayError(storage,resp.url, resp.tabId),
+				storage => handleGatewayError(storage,e.url, e.tabId),
 				err
 			);
 	}
