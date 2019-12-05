@@ -45,7 +45,6 @@ function initSettings(details) {
 			Cloudflare: 'cloudflare-ipfs.com',
 			Temporal: 'gateway.temporal.cloud',
 			Pinata: 'gateway.pinata.cloud',
-			Serph: 'gateway.serph.network',
 			Permaweb: 'permaweb.io'
 		};
 
