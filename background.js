@@ -111,7 +111,6 @@ browser.webRequest.onHeadersReceived.addListener(
 
 function handleHeaderReceived(e) {
 	let statusCode = '' + e.statusCode;
-	console.log("statusCode", statusCode);
 	if (statusCode.startsWith(5)) {
 		let [domain, path] = urlDomain(e.url);
 		let currentGateway = normalizeUrl(ipfsGateway.value, {
