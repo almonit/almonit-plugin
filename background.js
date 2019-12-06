@@ -5,6 +5,9 @@ var localENS = {}; // a local ENS of all names we discovered
 var ensDomain = ''; // domain in current call
 var ipfsGateway = false;
 let redirectAddress = null;
+var ipfsGateways = {};
+var checkedforUpdates = false;
+var settingsUrl = "settings.extension.almonit.eth";
 
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
@@ -80,6 +83,54 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 		},
 		err
 	);
+}
+
+browser.webRequest.onCompleted.addListener(
+  handleRequestComplete,
+  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
+);
+
+function handleRequestComplete(e) {
+	let statusDigit = (''+e.statusCode)[0];
+	if (!checkedforUpdates && (statusDigit == 2) )  {
+		let [domain, path] = urlDomain(e.url);
+
+		var gatewayURL = "https://" + domain + "/ipfs/QmbMskndJWbWxuQFoRFZPhn5CdBygYRC7zzsQmB5NFSfYU";
+		checkedforUpdates = true;
+		initSettingsUpgrade(domain);
+	}
+
+	return {responseHeaders: e.responseHeaders};
+}
+
+function initSettingsUpgrade(domain) {
+	WEB3ENS.getContenthash(settingsUrl)
+	.then(
+		function(address) {
+			let hex = address.slice(14);
+			let ipfsHash = hextoIPFS(hex);
+			let ipfsAddress = "https://" + domain + '/ipfs/' + ipfsHash;
+			loadHttpUrl(ipfsAddress, settingsUpgrade);
+		},
+		function(error) {
+			err(error);
+	});
+}
+
+function settingsUpgrade(newSettings) {
+	
+	try {
+		newSettings = JSON.parse(newSettings);
+  } catch (e) {
+  	return false;
+  }
+
+  ipfsGateways.default = newSettings;
+	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
+		var settings = item.settings;
+		settings.ipfsGateways.default = newSettings;
+		promisify(browser.storage.local, 'set', [{ settings }]);
+	});	
 }
 
 /**
@@ -169,6 +220,24 @@ function setEthereumNode(eth) {
 			var ethNode = eth;
 	}
 	return ethNode;
+}
+
+function loadHttpUrl(url, cb) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url, true);
+	xhr.onload = function (e) {
+	  if (xhr.readyState === 4) {
+	    if (xhr.status === 200) {
+	      cb(xhr.responseText);
+	    } else {
+	      console.error(xhr.statusText);
+	    }
+	  }
+	};
+	xhr.onerror = function (e) {
+	  console.error(xhr.statusText);
+	};
+	xhr.send(null); 
 }
 
 // extract a domain from url

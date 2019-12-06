@@ -36,18 +36,19 @@ browser.runtime.onInstalled.addListener(initSettings);
  */
 function initSettings(details) {
 	if (details.reason == 'install') {
-		let gateways = {
+		let deafulrsIpfsGateways = {
 			Ipfs: 'ipfs.io',
-			Siderus: 'siderus.io',
-			Eternum: 'ipfs.eternum.io',
-			Infura: 'ipfs.infura.io',
-			Wahlers: 'ipfs.wa.hle.rs',
-			Cloudflare: 'cloudflare-ipfs.com',
-			Temporal: 'gateway.temporal.cloud',
-			Pinata: 'gateway.pinata.cloud',
-			Serph: 'gateway.serph.network',
-			Permaweb: 'permaweb.io'
 		};
+
+		let removedIpfsGateways = {};
+		let addedIpfsGateways = {};
+
+		let ipfsGateways = {
+			default: deafulrsIpfsGateways,
+			removed: removedIpfsGateways,
+			added: addedIpfsGateways	
+		};
+
 
 		let shortcuts = {
 			addressbar: 'Ctrl+Shift+T',
@@ -57,7 +58,7 @@ function initSettings(details) {
 		let settings = {
 			metricsPermission: 'uninitialized',
 			ethereum: 'infura',
-			gateways: gateways,
+			ipfsGateways: ipfsGateways,
 			ipfs: 'random',
 			ipfs_gateway: '',
 			ipfs_other_gateway: '',
@@ -92,15 +93,24 @@ function loadSettingsSetSession(storage) {
 
 	WEB3ENS.connect_web3(ethereumNode);
 
+	ipfsGateways = storage.settings.ipfsGateways;
+  ipfsGatewaysList = {...ipfsGateways.default, ...ipfsGateways.added};
+
+
+  for (var prop in ipfsGateways.removed) {
+      delete ipfsGatewaysList[prop];
+  }
+
+
 	// set ipfs gateway
 	if (storage.settings.ipfs == ipfs_options.RANDOM) {
 		if (!ipfsGateway) {
-			var keys = Object.keys(storage.settings.gateways);
+			var keys = Object.keys(ipfsGatewaysList);
 			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
 
 			ipfsGateway = {
 				key: ipfsGatewayKey,
-				value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
+				value: 'https://' + ipfsGatewaysList[ipfsGatewayKey]
 			};
 		}
 	} else if (storage.settings.ipfs == ipfs_options.FORCE) {

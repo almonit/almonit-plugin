@@ -2,6 +2,7 @@ const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton'); //'let' in purpose
 var currentGateway = '';
+var ipfsGatewaysSettings = {};
 
 var removeChilds = function(node) {
     var last;
@@ -47,10 +48,19 @@ function loadSettings() {
                 document.getElementById('urlInput').value = settings.ethereum;
         }
 
+        ipfsGatewaysSettings = result.settings.ipfsGateways;
+        ipfsGateways = {...ipfsGatewaysSettings.default, ...ipfsGatewaysSettings.added};
+
+
+        for (var prop in ipfsGatewaysSettings.removed) {
+            delete ipfsGatewaysSettings[prop];
+        }
+
         // list of ipfs gateways
-        Object.keys(result.settings.gateways).forEach(function(key, index) {
-            addIpfsGate(key, result.settings.gateways[key]);
+        Object.keys(ipfsGateways).forEach(function(key, index) {
+            addIpfsGate(key, ipfsGateways[key]);
         });
+
 
         // ipfs gateway settings
         if (settings.ipfs == 'random')
@@ -154,6 +164,7 @@ function saveSettings(e) {
         metricsPermission: metricsPermission,
         ethereum: ethereum,
         gateways: gateways,
+        ipfsGateways: ipfsGatewaysSettings,
         ipfs: ipfs,
         ipfs_gateway: ipfs_gateway,
         ipfs_other_gateway: ipfs_other_gateway,
@@ -379,6 +390,7 @@ function openGatewayModal(e) {
 
         if (name != '' && url != '') {
             addIpfsGate(name, url);
+            ipfsGatewaysSettings.added[name] = url;
             hideGatewayModal();
             showGatewayModal();
         } else alert('Name and url can not be empty');
@@ -481,6 +493,14 @@ function removeGateway(child, item, e) {
         let gatewaysSelect = document.getElementById('ipfs_gateways');
         let gatewayToRemove = document.getElementById(JSON.stringify(item));
         gatewaysSelect.removeChild(gatewayToRemove);
+
+        //remove from ipfsGateways object
+        if (ipfsGatewaysSettings.default[item.key]) {
+            ipfsGatewaysSettings.removed[item.key] = ipfsGatewaysSettings.default[item.key]; 
+            delete ipfsGatewaysSettings.default[item.key];
+        }
+        else if (ipfsGatewaysSettings.added[item.key])
+            delete ipfsGatewaysSettings.added[item.key];
     }
 }
 
