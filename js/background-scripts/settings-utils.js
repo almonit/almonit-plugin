@@ -38,6 +38,12 @@ function initSettings(details) {
 	if (details.reason == 'install') {
 		let deafulrsIpfsGateways = {
 			Ipfs: 'ipfs.io',
+			Eternum: 'ipfs.eternum.io',
+			Infura: 'ipfs.infura.io',
+			Cloudflare: 'cloudflare-ipfs.com',
+			Temporal: 'gateway.temporal.cloud',
+			Pinata: 'gateway.pinata.cloud',
+			Permaweb: 'permaweb.io'
 		};
 
 		let removedIpfsGateways = {};
