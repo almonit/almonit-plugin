@@ -319,6 +319,30 @@ function separateIpfsUrl(url) {
 	return [fullPath, pathname, hash, subPath, query, fragment];
 }
 
+/**
+ * load a url into a variable and calls callback cb with this variable as a parameter
+ * @param  {[type]}   url [description]
+ * @param  {Function} cb  [description]
+ * @return {[type]}       [description]
+ */
+function loadHttpUrl(url, cb) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url, true);
+	xhr.onload = function (e) {
+	 if (xhr.readyState === 4) {
+	   if (xhr.status === 200) {
+	     cb(xhr.responseText);
+	   } else {
+	     console.error(xhr.statusText);
+	   }
+	 }
+	};
+	xhr.onerror = function (e) {
+	 console.error(xhr.statusText);
+	};
+	xhr.send(null);  
+}
+
 // extract a domain from url
 function urlDomain(data) {
 	var el = document.createElement('a');

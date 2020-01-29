@@ -409,11 +409,19 @@ function openGatewayModal(e) {
             // remove old version
             let gatewayToEdit = document.getElementById(JSON.stringify(item));
             gatewaysSelect.removeChild(gatewayToEdit);
+            //remove from ipfsGateways object
+            if (ipfsGatewaysSettings.default[item.key]) {
+                ipfsGatewaysSettings.removed[item.key] = ipfsGatewaysSettings.default[item.key]; 
+                delete ipfsGatewaysSettings.default[item.key];
+            }
+            else if (ipfsGatewaysSettings.added[item.key])
+                delete ipfsGatewaysSettings.added[item.key];
 
             //add gateway with new version
             name = document.getElementById('name_of_gateway').value;
             url = document.getElementById('URL_of_gateway').value;
             addIpfsGate(name, url);
+            ipfsGatewaysSettings.added[name] = url;
             hideGatewayModal();
             showGatewayModal();
         }
