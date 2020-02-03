@@ -4,6 +4,7 @@
 var ethereum;
 var ethereumNode;
 var metricsPermission;
+var autoGatewaysUpdate;
 
 /**
  * Backgroud functions related to settings
@@ -37,13 +38,13 @@ browser.runtime.onInstalled.addListener(initSettings);
 function initSettings(details) {
 	if (details.reason == 'install') {
 		let deafulrsIpfsGateways = {
-			Ipfs: 'ipfs.io',
-			Eternum: 'ipfs.eternum.io',
-			Infura: 'ipfs.infura.io',
-			Cloudflare: 'cloudflare-ipfs.com',
-			Temporal: 'gateway.temporal.cloud',
-			Pinata: 'gateway.pinata.cloud',
-			Permaweb: 'permaweb.io'
+			'ipfs.io': 'Ipfs',
+			// 'ipfs.eternum.io': 'Eternum',
+			// 'ipfs.infura.io': 'Infura',
+			// // 'cloudflare-ipfs.com': 'Cloudflare',
+			// // 'gateway.temporal.cloud': 'Temporal',
+			// // 'gateway.pinata.cloud': 'Pinata',
+			'permaweb.io': 'Permaweb'
 		};
 
 		let removedIpfsGateways = {};
@@ -63,6 +64,7 @@ function initSettings(details) {
 
 		let settings = {
 			metricsPermission: 'uninitialized',
+			autoGatewaysUpdate: true,
 			ethereum: 'infura',
 			ipfsGateways: ipfsGateways,
 			ipfs: 'random',
@@ -95,19 +97,31 @@ function loadSettingsSetSession(storage) {
 	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
 
-	metricsPermission = storage.settings.metricsPermission;
+	metricsPermission  = storage.settings.metricsPermission;
+	autoGatewaysUpdate = storage.settings.autoGatewaysUpdate;
 
 	WEB3ENS.connect_web3(ethereumNode);
 
-	ipfsGateways = storage.settings.ipfsGateways;
-  ipfsGatewaysList = {...ipfsGateways.default, ...ipfsGateways.added};
+	var ipfsGatewaysSettings = storage.settings.ipfsGateways;
+  
+  // add default gateways
+  var ipfsGatewaysList = {};
+  for (var gate in ipfsGatewaysSettings.default) {
+			ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
+    }
+  // var ipfsGatewaysList = ipfsGatewaysSettings.default
 
-
-  for (var prop in ipfsGateways.removed) {
-      delete ipfsGatewaysList[prop];
+  // delete removed gateways
+  for (var gate in ipfsGatewaysSettings.removed) {
+      delete ipfsGatewaysList[gate];
   }
 
+  // add "added gateways"
+  for (var gate in ipfsGatewaysSettings.added) {
+      ipfsGatewaysList[gate] = ipfsGatewaysSettings.added[gate];
+  }
 
+  
 	// set ipfs gateway
 	if (storage.settings.ipfs == ipfs_options.RANDOM) {
 		if (!ipfsGateway) {
@@ -116,7 +130,8 @@ function loadSettingsSetSession(storage) {
 
 			ipfsGateway = {
 				key: ipfsGatewayKey,
-				value: 'https://' + ipfsGatewaysList[ipfsGatewayKey]
+				name: ipfsGatewaysList[ipfsGatewayKey],
+				address: 'https://' + ipfsGatewayKey
 			};
 		}
 	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
@@ -124,12 +139,14 @@ function loadSettingsSetSession(storage) {
 
 		ipfsGateway = {
 			key: ipfsGateway.key,
-			value: 'https://' + ipfsGateway.value
+			name: ipfsGateway.name,
+			address: 'https://' + ipfsGateway.key
 		};
 	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
 		ipfsGateway = {
 			key: 'other',
-			value: storage.settings.ipfs_other_gateway
+			name: 'other',
+			address: storage.settings.ipfs_other_gateway
 		};
 	}
 

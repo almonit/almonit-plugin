@@ -27,12 +27,11 @@
         <form id="settingsForm" class="panel">
             <fieldset id="field_disabel_form">
                 <header>
-                    <h3>General</h3>
                     <p>Control what Almonit serves for you.</p>
                 </header>
                 <div class="pure-form pure-form-aligned scrollable">
                     <section>
-                        <h3 class="settings__label">Metrics</h3>
+                        <h3 class="settings__label">General</h3>
                         <div>
                             <label for="option-one" class="pure-checkbox">
                                 <input
@@ -41,10 +40,17 @@
                                     value=""
                                 />
                                 I would like to share my metrics privately. (<a
-                                    href="https://almonit.eth/about/index.html"
+                                    href="https://almonit.eth/#/privacy-policy"
                                     class="goto"
                                     >details</a
                                 >)
+                                <br>
+                                <input
+                                id="autoGatewaysUpdateCheckbox"
+                                type="checkbox"
+                                value=""
+                            />
+                            Enable automatic ipfs gateways  
                             </label>
                         </div>
                     </section>
@@ -144,7 +150,13 @@
                                     disabled
                                 />
                             </label>
-                            <br />
+                            <button
+                                class="pure-button pure-button-primary"
+                                type="button"
+                                id="restoreDefaultGatewaysButton"
+                            >
+                                Restore Default Gateways
+                            </button>
                         </div>
                     </section>
                     <section>
@@ -225,8 +237,8 @@
             </div>
         </div>
 
-        <div id="SettingsSavedMessage" class="modal-container">
-            <div id="gatewayModalPanel" class="modal-saved_msg">
+        <div id="SettingsMessage" class="modal-container">
+            <div id="SettingsMessageDiv" class="modal-saved_msg">
                 <h4>Settings saved</h4>
             </div>
         </div>

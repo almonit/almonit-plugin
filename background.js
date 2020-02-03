@@ -45,7 +45,7 @@ function listener(details) {
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	var ipfsHash = hextoIPFS(hex);
-	var ipfsAddress = ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
+	var ipfsAddress = ipfsGateway.address + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
@@ -87,15 +87,14 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 
 browser.webRequest.onCompleted.addListener(
   handleRequestComplete,
-  { urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] }
+  { urls: ['http://*/*ipfs*/*', 'https://*/*ipfs*/*'], types: ['main_frame'] }
 );
 
 function handleRequestComplete(e) {
 	let statusDigit = (''+e.statusCode)[0];
-	if (!checkedforUpdates && (statusDigit == 2) )  {
+	if (!checkedforUpdates && (statusDigit == 2) && autoGatewaysUpdate)  {
 		let [domain, path] = urlDomain(e.url);
 
-		var gatewayURL = "https://" + domain + "/ipfs/QmbMskndJWbWxuQFoRFZPhn5CdBygYRC7zzsQmB5NFSfYU";
 		checkedforUpdates = true;
 		initSettingsUpgrade(domain);
 	}
@@ -143,7 +142,7 @@ browser.webRequest.onErrorOccurred.addListener(logError, {
 
 function logError(e) {
 	let [domain, path] = urlDomain(e.url);
-	let currentGateway = normalizeUrl(ipfsGateway.value, {
+	let currentGateway = normalizeUrl(ipfsGateway.address, {
 		stripProtocol: true
 	});
 
@@ -164,7 +163,7 @@ function handleHeaderReceived(e) {
 	let statusCode = '' + e.statusCode;
 	if (statusCode.startsWith(5)) {
 		let [domain, path] = urlDomain(e.url);
-		let currentGateway = normalizeUrl(ipfsGateway.value, {
+		let currentGateway = normalizeUrl(ipfsGateway.address, {
 			stripProtocol: true
 		});
 
@@ -189,8 +188,25 @@ function handleGatewayError(storage, url, tab) {
 		storage.settings.ipfs == ipfs_options.RANDOM ||
 		storage.settings.ipfs == ipfs_options.FORCE
 	) {
+		var ipfsGatewaysSettings = storage.settings.ipfsGateways;
+  
+	  // add default gateways
+	  for (var gate in ipfsGatewaysSettings.default) {
+			ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
+    }
+
+	  // delete removed gateways
+	  for (var gate in ipfsGatewaysSettings.removed) {
+	      delete ipfsGatewaysList[gate];
+	  }
+
+	  // add "added gateways"
+	  for (var gate in ipfsGatewaysSettings.added) {
+	      ipfsGatewaysList[gate] = ipfsGateways.added[gate];
+	  }
+
 		var ipfsGatewayKey = '';
-		var keys = Object.keys(storage.settings.gateways);
+		var keys = Object.keys(ipfsGatewaysList);
 
 		// if keys.length < 1, don't do anything
 		if (keys.length > 1)
@@ -199,7 +215,8 @@ function handleGatewayError(storage, url, tab) {
 
 		ipfsGateway = {
 			key: ipfsGatewayKey,
-			value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
+			name: ipfsGatewaysList[ipfsGatewayKey],
+			address: 'https://' + ipfsGatewayKey
 		};
 	}
 
@@ -214,7 +231,7 @@ function handleGatewayError(storage, url, tab) {
 	let [fullPath, _, hash] = separateIpfsUrl(url);
 	if (localENS[hash]) {
 		var ipfsAddress =
-			ipfsGateway.value + fullPath;
+			ipfsGateway.address + fullPath;
 		browser.tabs.update(tab, { url: ipfsAddress });
 	}
 }
