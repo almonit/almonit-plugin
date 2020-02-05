@@ -39,17 +39,17 @@ function initSettings(details) {
 	if (details.reason == 'install') {
 		let deafulrsIpfsGateways = {
 			'ipfs.io': 'Ipfs',
-			// 'ipfs.eternum.io': 'Eternum',
-			// 'ipfs.infura.io': 'Infura',
-			// // 'cloudflare-ipfs.com': 'Cloudflare',
-			// // 'gateway.temporal.cloud': 'Temporal',
-			// // 'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb'
+			'ipfs.eternum.io': 'Eternum',
+			'cloudflare-ipfs.com': 'Cloudflare',
+			'hardbin.com': 'Hardbin',
+			'gateway.temporal.cloud': 'Temporal',
+			'gateway.pinata.cloud': 'Pinata',
+			'permaweb.io': 'Permaweb',
+			'ipfs.privacytools.io': 'Privacytools'
 		};
-
 		let removedIpfsGateways = {};
 		let addedIpfsGateways = {};
-
+		
 		let ipfsGateways = {
 			default: deafulrsIpfsGateways,
 			removed: removedIpfsGateways,
@@ -103,23 +103,8 @@ function loadSettingsSetSession(storage) {
 	WEB3ENS.connect_web3(ethereumNode);
 
 	var ipfsGatewaysSettings = storage.settings.ipfsGateways;
-  
-  // add default gateways
-  var ipfsGatewaysList = {};
-  for (var gate in ipfsGatewaysSettings.default) {
-			ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
-    }
-  // var ipfsGatewaysList = ipfsGatewaysSettings.default
-
-  // delete removed gateways
-  for (var gate in ipfsGatewaysSettings.removed) {
-      delete ipfsGatewaysList[gate];
-  }
-
-  // add "added gateways"
-  for (var gate in ipfsGatewaysSettings.added) {
-      ipfsGatewaysList[gate] = ipfsGatewaysSettings.added[gate];
-  }
+  var ipfsGatewaysList = 
+  			calcualteGatewayList(ipfsGatewaysSettings.default, ipfsGatewaysSettings.removed, ipfsGatewaysSettings.added);
 
   
 	// set ipfs gateway
@@ -155,4 +140,33 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
+}
+
+/**
+ * [Calculates a gateway list out of three given lists]
+ * @param  {[Object]} defaultGateways [list of default software gateways]
+ * @param  {[Object]} removedGateways [list of gateways the user manually added]
+ * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
+ * @return {[Object]}                 [list of gateways the software can use]
+ */
+function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
+  
+  // begin with default gateways
+  var ipfsGatewaysList = {};
+  for (var gate in defaultGateways) {
+			ipfsGatewaysList[gate] = defaultGateways[gate];
+    }
+
+  // delete removed gateways
+  for (var gate in removedGateways) {
+      delete ipfsGatewaysList[gate];
+  }
+
+  // add "added gateways"
+  for (var gate in addedGateways) {
+      ipfsGatewaysList[gate] = addedGateways[gate];
+  }
+
+  return ipfsGatewaysList;
+
 }

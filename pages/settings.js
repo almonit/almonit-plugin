@@ -55,22 +55,9 @@ function loadSettings() {
         }
 
         ipfsGatewaysSettings = result.settings.ipfsGateways;
+        ipfsGatewaysList = 
+                calcualteGatewayList(ipfsGatewaysSettings.default, ipfsGatewaysSettings.removed, ipfsGatewaysSettings.added);
 
-        // add default gateways
-        for (var gate in ipfsGatewaysSettings.default) {
-            ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
-        }
-
-        // delete removed gateways
-        for (var gate in ipfsGatewaysSettings.removed) {
-            delete ipfsGatewaysList[gate];
-        }
-
-        // add "added gateways"
-        // if deafult and added have the same key, then it will be rewritten
-        for (var gate in ipfsGatewaysSettings.added) {
-            ipfsGatewaysList[gate] = ipfsGatewaysSettings.added[gate];
-        }
 
         // add gateway to select input
         Object.keys(ipfsGatewaysList).forEach(function(key, index) {
@@ -79,12 +66,15 @@ function loadSettings() {
 
 
         // ipfs gateway settings
-        if (settings.ipfs == 'random')
+        switch(settings.ipfs) {
+        case 'random':
             document.forms['settingsForm'].gateway[0].checked = true;
-        else if (settings.ipfs == 'force_gateway') {
+            break;
+        case 'force_gateway':
             document.forms['settingsForm'].gateway[1].checked = true;
             document.getElementById('ipfs_gateways').disabled = false;
-        } else if (settings.ipfs == 'other_gateway') {
+            break;
+        case 'other_gateway':
             document.forms['settingsForm'].gateway[2].checked = true;
             document.getElementById('ipfs_other_gateway').disabled = false;
             document.getElementById('ipfs_other_gateway').value =
@@ -108,10 +98,10 @@ function loadSettings() {
 
     function loadCurrentSession(result) {
         select = document.getElementById('ipfs_gateways');
-        console.log("debug");
         if (result.session.ipfsGateway.key != 'other') {
             select.value = result.session.ipfsGateway.key;
-        } else select.value = select[0].id; //show first value in select, to keep it nonempty
+        } else 
+            select.value = select[0].id; //show first value to keep box not empty
 
         setCurrentIPFSGateway(result.session.ipfsGateway);
     }
@@ -126,23 +116,23 @@ function setCurrentIPFSGateway(gateway) {
 }
 
 function restoreDefaultGateways(e) {
-    // remove all gates from ipfsGatewaysList
+    // clear ipfsGatewaysList
     for (var gate in ipfsGatewaysList) 
         delete ipfsGatewaysList[gate];
 
-    // add only default gateways
+    // add default gateways
     for (var gate in ipfsGatewaysSettings.default) {
             ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
     }
    
-    // delete added and removed gates since we restore defaul
+    // clear added and removed gateways lists (they are empty by default)
     for (var gate in ipfsGatewaysSettings.added) 
         delete ipfsGatewaysSettings.added[gate];
 
     for (var gate in ipfsGatewaysSettings.removed) 
         delete ipfsGatewaysSettings.removed[gate];
 
-    // remove all old options
+    // clear select input
     var select = document.getElementById("ipfs_gateways");
     var length = select.options.length;
     for (i = 0; i < length; i++) {
@@ -173,18 +163,20 @@ function saveSettings(e) {
 
     var ipfs_gateway = {};
     var ipfs_other_gateway = '';
-    if (document.forms['settingsForm'].gateway.value == 'random')
+
+    switch (document.forms['settingsForm'].gateway.value) {
+    case 'random':
         var ipfs = 'random';
-    else if (document.forms['settingsForm'].gateway.value == 'force_gateway') {
+        break;
+    case 'force_gateway':
         var ipfs = 'force_gateway';
         ipfs_gateway.key = document.getElementById('ipfs_gateways').value;
         ipfs_gateway.name = ipfsGatewaysList[ipfs_gateway.key];
         document.getElementById('ipfs_other_gateway').value = '';
         setCurrentIPFSGateway(ipfs_gateway); //once saved, update current gateway in html
         ipfs_gateway = JSON.stringify(ipfs_gateway);
-    } else if (
-        document.forms['settingsForm'].gateway.value == 'other_gateway'
-    ) {
+        break;
+    case 'other_gateway':
         var ipfs = 'other_gateway';
         ipfs_other_gateway = document.getElementById('ipfs_other_gateway')
             .key;
@@ -434,25 +426,20 @@ function openGatewayModal(e) {
         name = document.getElementById('name_of_gateway').value;
         key = document.getElementById('URL_of_gateway').value;
 
-        if (name != '' && key != '') {
-            if (!ipfsGatewaysList[key]) {
-
-                addIpfsGate(key, name);
-
-                // update gateway lists
-                ipfsGatewaysSettings.added[key] = name;
-                if (ipfsGatewaysSettings.removed[key])
-                    delete ipfsGatewaysSettings.remove[key];
-
-                ipfsGatewaysList[key] = name;
-                
-                hideGatewayModal();
-                showGatewayModal();
-            }
-            else
-                alert('Gateway with this url already exists!')
-        } else 
+        if (name == '' || key == '') 
             alert('Name and url can not be empty!');
+        else if (ipfsGatewaysList[key]) 
+            alert('Gateway with this url already exists!')
+        else {
+            addIpfsGate(key, name);
+
+            // update gateway lists
+            ipfsGatewaysSettings.added[key] = name;
+            ipfsGatewaysList[key] = name;
+            
+            hideGatewayModal();
+            showGatewayModal();
+        }
     }
 
     /**
@@ -471,7 +458,7 @@ function openGatewayModal(e) {
             let gatewayToRemove = document.getElementById(item.key);
             gatewaysSelect.removeChild(gatewayToRemove);
 
-            //remove from ipfsGateways object
+            // remove from default list if gateway is there
             if (ipfsGatewaysSettings.default[item.key]) 
                 ipfsGatewaysSettings.removed[item.key] = true; 
             
@@ -567,10 +554,11 @@ function removeGateway(child, item, e) {
         let gatewayToRemove = document.getElementById(item.key);
         gatewaysSelect.removeChild(gatewayToRemove);
 
-        //remove from ipfsGatewaysSettings 
+        //if a default key, remove from removed gateways list 
         if (ipfsGatewaysSettings.default[item.key]) {
             ipfsGatewaysSettings.removed[item.key] = true; 
         }
+        // if key was manually added by the user, just remove it
         else if (ipfsGatewaysSettings.added[item.key])
             delete ipfsGatewaysSettings.added[item.key];
 
@@ -594,4 +582,32 @@ function msgAlert(msg, duration) {
     setTimeout(function() {
         msg.style.display = 'none';
     }, duration);
+}
+
+/**
+ * [Calculates a gateway list out of three given lists]
+ * @param  {[Object]} defaultGateways [list of default software gateways]
+ * @param  {[Object]} removedGateways [list of gateways the user manually added]
+ * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
+ * @return {[Object]}                 [list of gateways the software can use]
+ */
+function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
+  
+  // begin with default gateways
+  var ipfsGatewaysList = {};
+  for (var gate in defaultGateways) {
+            ipfsGatewaysList[gate] = defaultGateways[gate];
+    }
+
+  // delete removed gateways
+  for (var gate in removedGateways) {
+      delete ipfsGatewaysList[gate];
+  }
+
+  // add "added gateways"
+  for (var gate in addedGateways) {
+      ipfsGatewaysList[gate] = addedGateways[gate];
+  }
+
+  return ipfsGatewaysList;
 }

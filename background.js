@@ -85,6 +85,9 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	);
 }
 
+/**
+ * Anonymous default settings update (ipfs gateways list etc)
+ */
 browser.webRequest.onCompleted.addListener(
   handleRequestComplete,
   { urls: ['http://*/*ipfs*/*', 'https://*/*ipfs*/*'], types: ['main_frame'] }
@@ -153,6 +156,9 @@ function logError(e) {
 		);
 }
 
+/**
+ * Handle broken IPFS gateway
+ */
 browser.webRequest.onHeadersReceived.addListener(
 	handleHeaderReceived,
 	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
@@ -190,20 +196,8 @@ function handleGatewayError(storage, url, tab) {
 	) {
 		var ipfsGatewaysSettings = storage.settings.ipfsGateways;
   
-	  // add default gateways
-	  for (var gate in ipfsGatewaysSettings.default) {
-			ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
-    }
-
-	  // delete removed gateways
-	  for (var gate in ipfsGatewaysSettings.removed) {
-	      delete ipfsGatewaysList[gate];
-	  }
-
-	  // add "added gateways"
-	  for (var gate in ipfsGatewaysSettings.added) {
-	      ipfsGatewaysList[gate] = ipfsGateways.added[gate];
-	  }
+		var ipfsGatewaysList = 
+  			calcualteGatewayList(ipfsGatewaysSettings.default, ipfsGatewaysSettings.removed, ipfsGatewaysSettings.added);
 
 		var ipfsGatewayKey = '';
 		var keys = Object.keys(ipfsGatewaysList);
