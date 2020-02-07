@@ -10,14 +10,14 @@ var autoGatewaysUpdate;
  * Backgroud functions related to settings
  */
 const ipfs_options = Object.freeze({
-	RANDOM: 'random',
-	FORCE: 'force_gateway',
-	OTHER: 'other_gateway'
+	RANDOM: "random",
+	FORCE: "force_gateway",
+	OTHER: "other_gateway"
 });
 
 function loadSettings() {
 	// load plugin settings
-	promisify(browser.storage.local, 'get', ['settings']).then(
+	promisify(browser.storage.local, "get", ["settings"]).then(
 		loadSettingsSetSession,
 		err
 	);
@@ -36,49 +36,48 @@ browser.runtime.onInstalled.addListener(initSettings);
 
  */
 function initSettings(details) {
-	if (details.reason == 'install') {
+	if (details.reason == "install") {
 		let deafulrsIpfsGateways = {
-			'ipfs.io': 'Ipfs',
-			'ipfs.eternum.io': 'Eternum',
-			'cloudflare-ipfs.com': 'Cloudflare',
-			'hardbin.com': 'Hardbin',
-			'gateway.temporal.cloud': 'Temporal',
-			'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb',
-			'ipfs.privacytools.io': 'Privacytools'
+			"ipfs.io": "Ipfs",
+			"ipfs.eternum.io": "Eternum",
+			"cloudflare-ipfs.com": "Cloudflare",
+			"hardbin.com": "Hardbin",
+			"gateway.temporal.cloud": "Temporal",
+			"gateway.pinata.cloud": "Pinata",
+			"permaweb.io": "Permaweb",
+			"ipfs.privacytools.io": "Privacytools"
 		};
 		let removedIpfsGateways = {};
 		let addedIpfsGateways = {};
-		
+
 		let ipfsGateways = {
 			default: deafulrsIpfsGateways,
 			removed: removedIpfsGateways,
-			added: addedIpfsGateways	
+			added: addedIpfsGateways
 		};
 
-
 		let shortcuts = {
-			addressbar: 'Ctrl+Shift+T',
-			settings: 'Ctrl+Shift+O'
+			addressbar: "Ctrl+Shift+T",
+			settings: "Ctrl+Shift+O"
 		};
 
 		let settings = {
-			metricsPermission: 'uninitialized',
+			metricsPermission: "uninitialized",
 			autoGatewaysUpdate: true,
-			ethereum: 'infura',
+			ethereum: "infura",
 			ipfsGateways: ipfsGateways,
-			ipfs: 'random',
-			ipfs_gateway: '',
-			ipfs_other_gateway: '',
+			ipfs: "random",
+			ipfs_gateway: "",
+			ipfs_other_gateway: "",
 			shortcuts: shortcuts
 		};
 
-		promisify(browser.storage.local, 'set', [{ settings }]);
+		promisify(browser.storage.local, "set", [{ settings }]);
 		// save empty metrics
 		let savedMetrics = {};
-		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
+		promisify(browser.storage.local, "set", [{ savedMetrics }]);
 		setTimeout(() => {
-			browser.tabs.create({ url: 'https://almonit.eth' });
+			browser.tabs.create({ url: "https://almonit.eth" });
 		}, 1000);
 	}
 }
@@ -89,7 +88,7 @@ function initSettings(details) {
  */
 function loadSettingsSetSession(storage) {
 	if (!storage.settings) {
-		console.info('settings are preparing...');
+		console.info("settings are preparing...");
 		loadSettings();
 		return;
 	}
@@ -97,26 +96,28 @@ function loadSettingsSetSession(storage) {
 	ethereum = storage.settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
 
-	metricsPermission  = storage.settings.metricsPermission;
+	metricsPermission = storage.settings.metricsPermission;
 	autoGatewaysUpdate = storage.settings.autoGatewaysUpdate;
 
 	WEB3ENS.connect_web3(ethereumNode);
 
-	var ipfsGatewaysSettings = storage.settings.ipfsGateways;
-  var ipfsGatewaysList = 
-  			calcualteGatewayList(ipfsGatewaysSettings.default, ipfsGatewaysSettings.removed, ipfsGatewaysSettings.added);
+	let ipfsGatewaysSettings = storage.settings.ipfsGateways;
+	let ipfsGatewaysList = calcualteGatewayList(
+		ipfsGatewaysSettings.default,
+		ipfsGatewaysSettings.removed,
+		ipfsGatewaysSettings.added
+	);
 
-  
 	// set ipfs gateway
 	if (storage.settings.ipfs == ipfs_options.RANDOM) {
 		if (!ipfsGateway) {
-			var keys = Object.keys(ipfsGatewaysList);
-			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			let keys = Object.keys(ipfsGatewaysList);
+			let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
 
 			ipfsGateway = {
 				key: ipfsGatewayKey,
 				name: ipfsGatewaysList[ipfsGatewayKey],
-				address: 'https://' + ipfsGatewayKey
+				address: "https://" + ipfsGatewayKey
 			};
 		}
 	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
@@ -125,21 +126,21 @@ function loadSettingsSetSession(storage) {
 		ipfsGateway = {
 			key: ipfsGateway.key,
 			name: ipfsGateway.name,
-			address: 'https://' + ipfsGateway.key
+			address: "https://" + ipfsGateway.key
 		};
 	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
 		ipfsGateway = {
-			key: 'other',
-			name: 'other',
+			key: "other",
+			name: "other",
 			address: storage.settings.ipfs_other_gateway
 		};
 	}
 
 	// save session info
-	var session = {
+	let session = {
 		ipfsGateway: ipfsGateway
 	};
-	promisify(browser.storage.local, 'set', [{ session }]);
+	promisify(browser.storage.local, "set", [{ session }]);
 }
 
 /**
@@ -150,23 +151,21 @@ function loadSettingsSetSession(storage) {
  * @return {[Object]}                 [list of gateways the software can use]
  */
 function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
-  
-  // begin with default gateways
-  var ipfsGatewaysList = {};
-  for (var gate in defaultGateways) {
-			ipfsGatewaysList[gate] = defaultGateways[gate];
-    }
+	// begin with default gateways
+	let ipfsGatewaysList = {};
+	for (let gate in defaultGateways) {
+		ipfsGatewaysList[gate] = defaultGateways[gate];
+	}
 
-  // delete removed gateways
-  for (var gate in removedGateways) {
-      delete ipfsGatewaysList[gate];
-  }
+	// delete removed gateways
+	for (let gate in removedGateways) {
+		delete ipfsGatewaysList[gate];
+	}
 
-  // add "added gateways"
-  for (var gate in addedGateways) {
-      ipfsGatewaysList[gate] = addedGateways[gate];
-  }
+	// add "added gateways"
+	for (let gate in addedGateways) {
+		ipfsGatewaysList[gate] = addedGateways[gate];
+	}
 
-  return ipfsGatewaysList;
-
+	return ipfsGatewaysList;
 }

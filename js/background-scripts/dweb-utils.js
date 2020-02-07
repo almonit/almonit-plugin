@@ -15,15 +15,15 @@ function getENSContent(ensDomain, ensPath) {
 }
 
 function handleENSContent(hex, ensDomain, ensPath) {
-	if (hex.slice(0, 2) == '0x')
+	if (hex.slice(0, 2) == "0x")
 		return redirectENStoIPFS(hex.slice(2), ensDomain, ensPath);
-	else return err('ENS content exist but does not point to an IPFS address');
+	else return err("ENS content exist but does not point to an IPFS address");
 }
 
 function hextoIPFS(hex) {
-	var dig = Multihashes.fromHexString(hex);
-	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
-	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
+	let dig = Multihashes.fromHexString(hex);
+	let ipfsBuffer = Multihashes.encode(dig, 18, 32);
+	let ipfsHash = Multihashes.toB58String(ipfsBuffer);
 
 	return ipfsHash;
 }
