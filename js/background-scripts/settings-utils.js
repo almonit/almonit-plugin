@@ -4,6 +4,7 @@
 var ethereum;
 var ethereumNode;
 var metricsPermission;
+var autoGatewaysUpdate;
 
 /**
  * Backgroud functions related to settings
@@ -36,16 +37,23 @@ browser.runtime.onInstalled.addListener(initSettings);
  */
 function initSettings(details) {
 	if (details.reason == 'install') {
-		let gateways = {
-			Ipfs: 'ipfs.io',
-			Siderus: 'siderus.io',
-			Eternum: 'ipfs.eternum.io',
-			Infura: 'ipfs.infura.io',
-			Wahlers: 'ipfs.wa.hle.rs',
-			Cloudflare: 'cloudflare-ipfs.com',
-			Temporal: 'gateway.temporal.cloud',
-			Pinata: 'gateway.pinata.cloud',
-			Permaweb: 'permaweb.io'
+		let deafulrsIpfsGateways = {
+			'ipfs.io': 'Ipfs',
+			'ipfs.eternum.io': 'Eternum',
+			'cloudflare-ipfs.com': 'Cloudflare',
+			'hardbin.com': 'Hardbin',
+			'gateway.temporal.cloud': 'Temporal',
+			'gateway.pinata.cloud': 'Pinata',
+			'permaweb.io': 'Permaweb',
+			'ipfs.privacytools.io': 'Privacytools'
+		};
+		let removedIpfsGateways = {};
+		let addedIpfsGateways = {};
+
+		let ipfsGateways = {
+			default: deafulrsIpfsGateways,
+			removed: removedIpfsGateways,
+			added: addedIpfsGateways
 		};
 
 		let shortcuts = {
@@ -55,8 +63,9 @@ function initSettings(details) {
 
 		let settings = {
 			metricsPermission: 'uninitialized',
+			autoGatewaysUpdate: true,
 			ethereum: 'infura',
-			gateways: gateways,
+			ipfsGateways: ipfsGateways,
 			ipfs: 'random',
 			ipfs_gateway: '',
 			ipfs_other_gateway: '',
@@ -88,18 +97,27 @@ function loadSettingsSetSession(storage) {
 	ethereumNode = setEthereumNode(ethereum);
 
 	metricsPermission = storage.settings.metricsPermission;
+	autoGatewaysUpdate = storage.settings.autoGatewaysUpdate;
 
 	WEB3ENS.connect_web3(ethereumNode);
+
+	let ipfsGatewaysSettings = storage.settings.ipfsGateways;
+	let ipfsGatewaysList = calcualteGatewayList(
+		ipfsGatewaysSettings.default,
+		ipfsGatewaysSettings.removed,
+		ipfsGatewaysSettings.added
+	);
 
 	// set ipfs gateway
 	if (storage.settings.ipfs == ipfs_options.RANDOM) {
 		if (!ipfsGateway) {
-			var keys = Object.keys(storage.settings.gateways);
-			var ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
+			let keys = Object.keys(ipfsGatewaysList);
+			let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
 
 			ipfsGateway = {
 				key: ipfsGatewayKey,
-				value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
+				name: ipfsGatewaysList[ipfsGatewayKey],
+				address: 'https://' + ipfsGatewayKey
 			};
 		}
 	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
@@ -107,18 +125,47 @@ function loadSettingsSetSession(storage) {
 
 		ipfsGateway = {
 			key: ipfsGateway.key,
-			value: 'https://' + ipfsGateway.value
+			name: ipfsGateway.name,
+			address: 'https://' + ipfsGateway.key
 		};
 	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
 		ipfsGateway = {
 			key: 'other',
-			value: storage.settings.ipfs_other_gateway
+			name: 'other',
+			address: storage.settings.ipfs_other_gateway
 		};
 	}
 
 	// save session info
-	var session = {
+	let session = {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
+}
+
+/**
+ * [Calculates a gateway list out of three given lists]
+ * @param  {[Object]} defaultGateways [list of default software gateways]
+ * @param  {[Object]} removedGateways [list of gateways the user manually added]
+ * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
+ * @return {[Object]}                 [list of gateways the software can use]
+ */
+function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
+	// begin with default gateways
+	let ipfsGatewaysList = {};
+	for (let gate in defaultGateways) {
+		ipfsGatewaysList[gate] = defaultGateways[gate];
+	}
+
+	// delete removed gateways
+	for (let gate in removedGateways) {
+		delete ipfsGatewaysList[gate];
+	}
+
+	// add "added gateways"
+	for (let gate in addedGateways) {
+		ipfsGatewaysList[gate] = addedGateways[gate];
+	}
+
+	return ipfsGatewaysList;
 }

@@ -1,14 +1,17 @@
 /**
  * settings
  */
-var localENS = {}; // a local ENS of all names we discovered
-var ensDomain = ''; // domain in current call
-var ipfsGateway = false;
-let redirectAddress = null;
 
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
+const settingsUrl = 'settings.extension.almonit.eth';
+
+let localENS = {}; // a local ENS of all names we discovered
+let ipfsGateways = {};
+let ipfsGateway = false;
+let redirectAddress = null;
+let checkedforUpdates = false;
 
 /**
  * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
@@ -41,8 +44,8 @@ function listener(details) {
 // extract ipfs address from hex and redirects there
 // before redirecting, handling usage metrics
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
-	var ipfsHash = hextoIPFS(hex);
-	var ipfsAddress = ipfsGateway.value + '/ipfs/' + ipfsHash + ensPath;
+	let ipfsHash = hextoIPFS(hex);
+	let ipfsAddress = ipfsGateway.address + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
@@ -83,6 +86,56 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 }
 
 /**
+ * Anonymous default settings update (ipfs gateways list etc)
+ */
+browser.webRequest.onCompleted.addListener(handleRequestComplete, {
+	urls: ['http://*/*ipfs*/*', 'https://*/*ipfs*/*'],
+	types: ['main_frame']
+});
+
+function handleRequestComplete(e) {
+	let statusDigit = ('' + e.statusCode)[0];
+	if (!checkedforUpdates && statusDigit == 2 && autoGatewaysUpdate) {
+		let [domain, path] = urlDomain(e.url);
+
+		checkedforUpdates = true;
+		initSettingsUpgrade(domain);
+	}
+
+	return { responseHeaders: e.responseHeaders };
+}
+
+function initSettingsUpgrade(domain) {
+	WEB3ENS.getContenthash(settingsUrl).then(
+		function(address) {
+			let hex = address.slice(14);
+			let ipfsHash = hextoIPFS(hex);
+			let ipfsAddress = 'https://' + domain + '/ipfs/' + ipfsHash;
+			loadHttpUrl(ipfsAddress, settingsUpgrade);
+		},
+		function(error) {
+			err(error);
+		}
+	);
+}
+
+function settingsUpgrade(newSettings) {
+	try {
+		newSettings = JSON.parse(newSettings);
+		console.log('newSettings', newSettings);
+	} catch (e) {
+		return false;
+	}
+
+	ipfsGateways.default = newSettings;
+	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
+		let settings = item.settings;
+		settings.ipfsGateways.default = newSettings;
+		promisify(browser.storage.local, 'set', [{ settings }]);
+	});
+}
+
+/**
  * Error handling
  */
 browser.webRequest.onErrorOccurred.addListener(logError, {
@@ -92,7 +145,7 @@ browser.webRequest.onErrorOccurred.addListener(logError, {
 
 function logError(e) {
 	let [domain, path] = urlDomain(e.url);
-	let currentGateway = normalizeUrl(ipfsGateway.value, {
+	let currentGateway = normalizeUrl(ipfsGateway.address, {
 		stripProtocol: true
 	});
 
@@ -103,6 +156,9 @@ function logError(e) {
 		);
 }
 
+/**
+ * Handle broken IPFS gateway
+ */
 browser.webRequest.onHeadersReceived.addListener(
 	handleHeaderReceived,
 	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
@@ -113,7 +169,7 @@ function handleHeaderReceived(e) {
 	let statusCode = '' + e.statusCode;
 	if (statusCode.startsWith(5)) {
 		let [domain, path] = urlDomain(e.url);
-		let currentGateway = normalizeUrl(ipfsGateway.value, {
+		let currentGateway = normalizeUrl(ipfsGateway.address, {
 			stripProtocol: true
 		});
 
@@ -138,8 +194,16 @@ function handleGatewayError(storage, url, tab) {
 		storage.settings.ipfs == ipfs_options.RANDOM ||
 		storage.settings.ipfs == ipfs_options.FORCE
 	) {
-		var ipfsGatewayKey = '';
-		var keys = Object.keys(storage.settings.gateways);
+		let ipfsGatewaysSettings = storage.settings.ipfsGateways;
+
+		let ipfsGatewaysList = calcualteGatewayList(
+			ipfsGatewaysSettings.default,
+			ipfsGatewaysSettings.removed,
+			ipfsGatewaysSettings.added
+		);
+
+		let ipfsGatewayKey = '';
+		let keys = Object.keys(ipfsGatewaysList);
 
 		// if keys.length < 1, don't do anything
 		if (keys.length > 1)
@@ -148,12 +212,13 @@ function handleGatewayError(storage, url, tab) {
 
 		ipfsGateway = {
 			key: ipfsGatewayKey,
-			value: 'https://' + storage.settings.gateways[ipfsGatewayKey]
+			name: ipfsGatewaysList[ipfsGatewayKey],
+			address: 'https://' + ipfsGatewayKey
 		};
 	}
 
 	// save session info
-	var session = {
+	let session = {
 		ipfsGateway: ipfsGateway
 	};
 	promisify(browser.storage.local, 'set', [{ session }]);
@@ -162,8 +227,7 @@ function handleGatewayError(storage, url, tab) {
 
 	let [fullPath, _, hash] = separateIpfsUrl(url);
 	if (localENS[hash]) {
-		var ipfsAddress =
-			ipfsGateway.value + fullPath;
+		let ipfsAddress = ipfsGateway.address + fullPath;
 		browser.tabs.update(tab, { url: ipfsAddress });
 	}
 }
@@ -197,13 +261,13 @@ function messagefromFrontend(request, sender, sendResponse) {
 		promisify(browser.storage.local, 'get', ['settings']).then(function(
 			item
 		) {
-			var settings = item.settings;
+			let settings = item.settings;
 			settings.metricsPermission = request.permission;
 			promisify(browser.storage.local, 'set', [{ settings }]);
 		},
 		err);
 	} else if (!!request.settings) {
-		var settingsTab = browser.tabs.create({
+		let settingsTab = browser.tabs.create({
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
@@ -263,14 +327,38 @@ function setEthereumNode(eth) {
  * @return {[type]}      [description]
  */
 function separateIpfsUrl(url) {
-	var regx = /(\/ipfs\/)(\b\w{46}\b)(?:\/|)([\w\-\.]+[^#?\s]+|)(\?[\w\-\.]+[^#?\s]+|)(\#.+|)/gi;
+	const regx = /(\/ipfs\/)(\b\w{46}\b)(?:\/|)([\w\-\.]+[^#?\s]+|)(\?[\w\-\.]+[^#?\s]+|)(\#.+|)/gi;
 	const [fullPath, pathname, hash, subPath, query, fragment] = regx.exec(url);
 	return [fullPath, pathname, hash, subPath, query, fragment];
 }
 
+/**
+ * load a url into a variable and calls callback cb with this variable as a parameter
+ * @param  {[type]}   url [description]
+ * @param  {Function} cb  [description]
+ * @return {[type]}       [description]
+ */
+function loadHttpUrl(url, cb) {
+	let xhr = new XMLHttpRequest();
+	xhr.open('GET', url, true);
+	xhr.onload = function(e) {
+		if (xhr.readyState === 4) {
+			if (xhr.status === 200) {
+				cb(xhr.responseText);
+			} else {
+				console.error(xhr.statusText);
+			}
+		}
+	};
+	xhr.onerror = function(e) {
+		console.error(xhr.statusText);
+	};
+	xhr.send(null);
+}
+
 // extract a domain from url
 function urlDomain(data) {
-	var el = document.createElement('a');
+	let el = document.createElement('a');
 	el.href = data;
 	return [el.hostname, el.pathname + el.search + el.hash];
 }

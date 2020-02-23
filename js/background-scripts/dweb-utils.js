@@ -21,9 +21,9 @@ function handleENSContent(hex, ensDomain, ensPath) {
 }
 
 function hextoIPFS(hex) {
-	var dig = Multihashes.fromHexString(hex);
-	var ipfsBuffer = Multihashes.encode(dig, 18, 32);
-	var ipfsHash = Multihashes.toB58String(ipfsBuffer);
+	let dig = Multihashes.fromHexString(hex);
+	let ipfsBuffer = Multihashes.encode(dig, 18, 32);
+	let ipfsHash = Multihashes.toB58String(ipfsBuffer);
 
 	return ipfsHash;
 }
