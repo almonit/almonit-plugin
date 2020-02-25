@@ -8,7 +8,6 @@ const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
 const settingsUrl = 'settings.extension.almonit.eth';
 
 let localENS = {}; // a local ENS of all names we discovered
-let ipfsGateways = {};
 let ipfsGateway = false;
 let redirectAddress = null;
 let checkedforUpdates = false;
@@ -122,16 +121,25 @@ function initSettingsUpgrade(domain) {
 function settingsUpgrade(newSettings) {
 	try {
 		newSettings = JSON.parse(newSettings);
-		console.log('newSettings', newSettings);
 	} catch (e) {
 		return false;
 	}
 
-	ipfsGateways.default = newSettings;
 	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
 		let settings = item.settings;
+		let oldDefaultGateways = settings.ipfsGateways.default;
+
 		settings.ipfsGateways.default = newSettings;
-		promisify(browser.storage.local, 'set', [{ settings }]);
+
+		// check if current gateway is deleted in the udpate, if yes -- change it
+		if ( (ipfsGateway.key in oldDefaultGateways) && !(ipfsGateway.key in newSettings) ) {
+			settings.ipfs = 'random';
+			ipfsGateway = false;
+
+			promisify(browser.storage.local, 'set', [{ settings }]);
+			loadSettingsSetSession(settings);
+		} else
+			promisify(browser.storage.local, 'set', [{ settings }]);
 	});
 }
 
