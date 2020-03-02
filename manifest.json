@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Almonit",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "Almonit",
   "description": "Extension for Decentralized Web",
   "homepage_url": "https://almonit.eth",
