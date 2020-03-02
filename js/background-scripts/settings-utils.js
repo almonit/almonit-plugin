@@ -73,19 +73,18 @@ function initSettings(details) {
 		};
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
-		
+
 		// save empty metrics
 		let savedMetrics = {};
 		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
 		setTimeout(() => {
-			if (details.reason == 'update') { // if update first reload session
+			if (details.reason == 'update') {
+				// if update first reload session
 				var storage = {};
 				storage.settings = settings;
 				loadSettingsSetSession(storage);
-				browser.tabs.create({ url: 'https://almonit.eth' });
 			}
-			else 
-				browser.tabs.create({ url: 'https://almonit.eth' });
+			browser.tabs.create({ url: 'https://almonit.eth' });
 		}, 1000);
 	}
 }
