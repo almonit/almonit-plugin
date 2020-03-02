@@ -36,7 +36,7 @@ browser.runtime.onInstalled.addListener(initSettings);
 
  */
 function initSettings(details) {
-	if (details.reason == 'install') {
+	if (details.reason == 'install' || details.reason == 'update') {
 		let deafulrsIpfsGateways = {
 			'ipfs.io': 'Ipfs',
 			'ipfs.eternum.io': 'Eternum',
