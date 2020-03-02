@@ -1,6 +1,6 @@
 :root {
-  --panel-height: 700px;
-  --color-border: #cdcdcd;
+	--panel-height: 700px;
+	--color-border: #cdcdcd;
 }
 
 body {
@@ -10,7 +10,7 @@ body {
 	align-items: center;
 	color: #4a4a4a;
 	background-color: #f3f3f3;
-	font-family: "Montserrat", sans-serif;
+	font-family: 'Montserrat', sans-serif;
 }
 
 a {
@@ -31,7 +31,7 @@ a.goto {
 	margin-bottom: 10px;
 }
 
-.header_name{
+.header_name {
 	display: flex;
 	align-items: center;
 	margin: 0 20px;
@@ -43,7 +43,6 @@ a.goto {
 	width: auto;
 	height: auto;
 }
-
 
 .app-version {
 	margin-left: 5px;
@@ -60,16 +59,16 @@ a.goto {
 	border-radius: 5px;
 }
 
-.panel  header {
+.panel header {
 	padding: 0 30px;
 	border-bottom: 1px solid var(--color-border);
 }
 
-.panel  header > p {
+.panel header > p {
 	font-size: 10pt;
 }
 
-.panel__action{
+.panel__action {
 	border-top: 1px solid var(--color-border);
 }
 
@@ -77,7 +76,7 @@ a.goto {
 	width: auto;
 }
 
-.label__shortcut{
+.label__shortcut {
 	width: 170px !important;
 	text-align: left !important;
 	margin: 10px 0 !important;
@@ -90,30 +89,30 @@ fieldset {
 section {
 	display: grid;
 	grid-template-columns: 25% auto;
-  	grid-template-rows: auto auto;	
+	grid-template-rows: auto auto;
 	justify-content: flex-start;
 	align-items: center;
 	border-bottom: 1px solid var(--color-border);
 	padding: 15px 30px;
 }
 
-section:last-of-type{
+section:last-of-type {
 	border-bottom: 0;
 }
 
 /*only chromuim*/
 ::-webkit-scrollbar {
-    width: 5px;
+	width: 5px;
 }
 
 ::-webkit-scrollbar-track {
 	margin: 5px 0;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
 
 ::-webkit-scrollbar-thumb {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
-}	
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
 
 .scrollable {
 	height: calc(var(--panel-height) - 200px);
@@ -126,10 +125,15 @@ section:last-of-type{
 	color: #000;
 }
 
-#ipfs_gateways2{
-	margin-left: 10px;
+.action__gateway {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 0.5fr));
+	grid-gap: 7px;
 }
 
+#ipfs_gateways2 {
+	margin-left: 10px;
+}
 
 .pure-form-aligned .pure-control-group {
 	margin-bottom: 0;
@@ -139,7 +143,7 @@ section:last-of-type{
 	width: 220px;
 }
 .blacklist > li:hover::after {
-	content: "Remove";
+	content: 'Remove';
 	float: right;
 	font-size: 8pt;
 	line-height: 16pt;
@@ -155,7 +159,7 @@ section:last-of-type{
 }
 
 .modal-container {
-	background: rgba(0,0,0,0.4);
+	background: rgba(0, 0, 0, 0.4);
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -188,7 +192,7 @@ section:last-of-type{
 	box-sizing: border-box;
 }
 
-.modal .list-panel{
+.modal .list-panel {
 	background: #eee;
 	padding: 0 5px;
 	border-radius: 5px;
@@ -203,46 +207,46 @@ section:last-of-type{
 	cursor: pointer;
 }
 
-.modal .list-panel .add-gateway-button:first-letter{
+.modal .list-panel .add-gateway-button:first-letter {
 	color: green;
 }
 
 .modal .list-panel .add-gateway-button form {
 	display: grid;
 	grid-template-columns: 40% 40% 20%;
-  	grid-template-rows: 40px;
-  	align-items: center;
-  	column-gap: .5rem;
+	grid-template-rows: 40px;
+	align-items: center;
+	column-gap: 0.5rem;
 	box-sizing: border-box;
 	padding: 0 30px 0 10px;
 }
 
 .modal ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
 }
 
 .modal li {
-  height: 40px;
-  line-height: 40px;
-  display: grid;
-  grid-template-columns: 70% 15% 15%;
-  grid-template-rows: 40px;
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.4);
+	height: 40px;
+	line-height: 40px;
+	display: grid;
+	grid-template-columns: 70% 15% 15%;
+	grid-template-rows: 40px;
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.4);
 }
 
 .modal li:first-child {
 	border-top: 1px dashed rgba(0, 0, 0, 0.4);
 }
 
-.modal li:hover > .edit-gateway-button, 
+.modal li:hover > .edit-gateway-button,
 .modal li:hover > .remove-gateway-button {
 	display: inherit;
 }
 
 .modal li .edit-gateway-button,
-.modal li .remove-gateway-button{
+.modal li .remove-gateway-button {
 	display: none;
 	text-align: right;
 	margin-right: 20px;
@@ -251,18 +255,18 @@ section:last-of-type{
 	cursor: pointer;
 }
 
-.modal li .edit-gateway-button{
+.modal li .edit-gateway-button {
 	color: blue;
 }
 
-.modal li .edit-gateway-button:hover{
+.modal li .edit-gateway-button:hover {
 	color: #9999ff;
 }
 
-.modal li .remove-gateway-button{
+.modal li .remove-gateway-button {
 	color: red;
 }
 
-.modal li .remove-gateway-button:hover{
+.modal li .remove-gateway-button:hover {
 	color: #ff9999;
 }
