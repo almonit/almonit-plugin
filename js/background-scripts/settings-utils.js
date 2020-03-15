@@ -87,10 +87,11 @@ function initSettings() {
 		};
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
-		
+
 		// save empty metrics
 		let savedMetrics = {};
 		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
+
 		setTimeout(() => { 
 				browser.tabs.create({ url: 'https://almonit.eth' });
 		}, 1000);
