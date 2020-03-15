@@ -29,14 +29,28 @@ function err(msg) {
 
 loadSettings();
 
-browser.runtime.onInstalled.addListener(initSettings);
+browser.runtime.onInstalled.addListener(onNewVersion);
+
+
+function onNewVersion(details) {
+	switch (details.reason) {
+		case 'install':
+			initSettings();
+		break;
+		case 'update':
+			promisify(browser.storage.local, 'get', ['settings']).then(
+				updateSettings,
+				err
+			);
+	}
+}
+
 /**
  * [Initiate plugin settings when first installed]
  * @param  {[string]} details [reason that function was called]
 
  */
-function initSettings(details) {
-	if (details.reason == 'install' || details.reason == 'update') {
+function initSettings() {
 		let deafulrsIpfsGateways = {
 			'ipfs.io': 'Ipfs',
 			'ipfs.eternum.io': 'Eternum',
@@ -77,16 +91,56 @@ function initSettings(details) {
 		// save empty metrics
 		let savedMetrics = {};
 		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
-		setTimeout(() => {
-			if (details.reason == 'update') { // if update first reload session
-				var storage = {};
-				storage.settings = settings;
-				loadSettingsSetSession(storage);
-				browser.tabs.create({ url: 'https://almonit.eth' });
-			}
-			else 
+		setTimeout(() => { 
 				browser.tabs.create({ url: 'https://almonit.eth' });
 		}, 1000);
+}
+/**
+ * [Update settings when extension version is updated]
+ * @param  {[type]}
+ * @return {[type]}
+ */
+function updateSettings(storage) {
+	// version < 0.0.8 didn't have ipfsGateways key in settings.
+	// remove this after version 0.0.12, where we assume users version already >= 0.0.8
+	// remvoe also the part about it in function loadSettingsSetSession
+	if (!('ipfsGateways' in storage.settings)) {
+		let deafulrsIpfsGateways = {
+			'ipfs.io': 'Ipfs',
+			'ipfs.eternum.io': 'Eternum',
+			'cloudflare-ipfs.com': 'Cloudflare',
+			'hardbin.com': 'Hardbin',
+			'gateway.temporal.cloud': 'Temporal',
+			'gateway.pinata.cloud': 'Pinata',
+			'permaweb.io': 'Permaweb',
+			'ipfs.privacytools.io': 'Privacytools'
+		};
+		let removedIpfsGateways = {};
+		let addedIpfsGateways = {};
+
+		let ipfsGateways = {
+			default: deafulrsIpfsGateways,
+			removed: removedIpfsGateways,
+			added: addedIpfsGateways
+		};
+
+		let OldSettings = storage.settings;
+
+		let settings = {
+			metricsPermission: OldSettings.metricsPermission,
+			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
+			ethereum: OldSettings.ethereum,
+			ipfsGateways: ipfsGateways,
+			ipfs: OldSettings.ipfs,
+			ipfs_gateway: OldSettings.ipfs_gateway,
+			ipfs_other_gateway: OldSettings.ipfs_other_gateway,
+			shortcuts: OldSettings.shortcuts
+		};
+
+		promisify(browser.storage.local, 'set', [{ settings }]);
+
+		//reload session after settings update.
+		loadSettingsSetSession(storage);
 	}
 }
 
@@ -95,7 +149,7 @@ function initSettings(details) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
-	if (!storage.settings) {
+	if (!storage.settings || !('ipfsGateways' in storage.settings)) {
 		console.info('settings are preparing...');
 		loadSettings();
 		return;
