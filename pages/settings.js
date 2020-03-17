@@ -555,7 +555,7 @@ function removeGateway(child, item, e) {
         let gatewayToRemove = document.getElementById(item.key);
         gatewaysSelect.removeChild(gatewayToRemove);
 
-        //if a default key, remove from removed gateways list
+        //if a default key, add to removed gateways list
         if (ipfsGatewaysSettings.default[item.key]) {
             ipfsGatewaysSettings.removed[item.key] = true;
         }

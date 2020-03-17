@@ -9,7 +9,7 @@ var autoGatewaysUpdate;
 /**
  * Backgroud functions related to settings
  */
-const ipfs_options = Object.freeze({
+const gateway_options = Object.freeze({
 	RANDOM: 'random',
 	FORCE: 'force_gateway',
 	OTHER: 'other_gateway'
@@ -51,7 +51,7 @@ function onNewVersion(details) {
 
  */
 function initSettings() {
-		let deafulrsIpfsGateways = {
+		let deafultIpfsGateways = {
 			'ipfs.io': 'Ipfs',
 			'ipfs.eternum.io': 'Eternum',
 			'cloudflare-ipfs.com': 'Cloudflare',
@@ -65,8 +65,8 @@ function initSettings() {
 		let addedIpfsGateways = {};
 
 		let ipfsGateways = {
-			default: deafulrsIpfsGateways,
-			removed: removedIpfsGateways,
+			default: deafultIpfsGateways,
+			removed: removedIpfsGateways
 			added: addedIpfsGateways
 		};
 
@@ -106,7 +106,7 @@ function updateSettings(storage) {
 	// remove this after version 0.0.12, where we assume users version already >= 0.0.8
 	// remvoe also the part about it in function loadSettingsSetSession
 	if (!('ipfsGateways' in storage.settings)) {
-		let deafulrsIpfsGateways = {
+		let deafultIpfsGateways = {
 			'ipfs.io': 'Ipfs',
 			'ipfs.eternum.io': 'Eternum',
 			'cloudflare-ipfs.com': 'Cloudflare',
@@ -120,7 +120,7 @@ function updateSettings(storage) {
 		let addedIpfsGateways = {};
 
 		let ipfsGateways = {
-			default: deafulrsIpfsGateways,
+			default: deafultIpfsGateways,
 			removed: removedIpfsGateways,
 			added: addedIpfsGateways
 		};
@@ -172,7 +172,7 @@ function loadSettingsSetSession(storage) {
 	);
 
 	// set ipfs gateway
-	if (storage.settings.ipfs == ipfs_options.RANDOM) {
+	if (storage.settings.ipfs == gateway_options.RANDOM) {
 		if (!ipfsGateway) {
 			let keys = Object.keys(ipfsGatewaysList);
 			let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
@@ -183,7 +183,7 @@ function loadSettingsSetSession(storage) {
 				address: 'https://' + ipfsGatewayKey
 			};
 		}
-	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
+	} else if (storage.settings.ipfs == gateway_options.FORCE) {
 		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
 
 		ipfsGateway = {
@@ -191,7 +191,7 @@ function loadSettingsSetSession(storage) {
 			name: ipfsGateway.name,
 			address: 'https://' + ipfsGateway.key
 		};
-	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
+	} else if (storage.settings.ipfs == gateway_options.OTHER) {
 		ipfsGateway = {
 			key: 'other',
 			name: 'other',
