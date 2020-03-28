@@ -1,32 +1,53 @@
-// gateways manage module
-
+// gateways manager module
 class Gateways {
 
 	/**
 	 * Constructor
+	 * @param  {Object} data [data for Gateways object]
 	 */
-	constructor() {
-		this.deafult = {};
-		this.custom = {};
-		this.removed = {};
-
+	constructor(data = null) {
+		console.log("constructing");
 		this.gatewayOptions = Object({
 			RANDOM: 'random',
 			FORCE: 'force_gateway',
 			OTHER: 'other_gateway'
 		});
+
+		this.default = {};
+		this.custom = {};
+		this.removed = {};
 		
 		this.option = this.gatewayOptions['RANDOM'];
-		this.forcedGatway = null;
 		this.currentGateway = null;
 
+		if (data !== null)
+			this.loadData(data);
+	}
+
+	/**
+	 * loads data of Gatways objcet
+	 * @param  {Object} data [data of Gatways object]
+	 */
+	loadData(data) {
+		this.setDefaultGateways(data.default);
+		this.setCustomGateways(data.custom);
+		this.setRemovedGateways(data.removed);
+
+		this.option = data.option;
+		this.currentGateway = data.currentGateway;
 	}	
 
 	// overrides value if key already exists
-	addDefault(key, name, addres) {
-		this.deafult[key] = {};
-		this.deafult[key]["name"] = name;
-		this.deafult[key]["address"] = address;
+	addDefault(key, name, address) {
+		let gateway = {};
+
+		gateway.key = key;
+		gateway.name = name;
+		gateway.address = address;
+
+		this.default[key] = gateway;
+
+		return gateway;
 	}
 
 	removeDefault(key) {
@@ -41,13 +62,27 @@ class Gateways {
 	 * @param {object} gatewaysList object of gateways 
 	 */
 	setDefaultGateways(gatewaysList) {
-		this.default = gatewaysList;
+		if ( this.currentGateway && 
+			 (this.currentGateway.key in this.default) &&
+		     !(this.currentGateway.key in gatewaysList) ){
+			this.default = gatewaysList;	
+			this.option = this.gatewayOptions['RANDOM'];
+			this.currentGateway = getRandom();
+		}  else
+			this.default = gatewaysList;
 	}
 
+
 	addCustom(key, name, address) {
-		this.custom[key] = {};
-		this.custom[key]["name"] = name;
-		this.custom[key]["address"] = address;
+		let gateway = {};
+
+		gateway.key = key;
+		gateway.name = name;
+		gateway.address = address;
+
+		this.custom[key] = gateway;
+		
+		return gateway;
 	}
 
 	removeCustom(key) {
@@ -78,13 +113,28 @@ class Gateways {
 		this.removed = gatewaysList;			
 	}
 
+	modifyGateway(key, name, address) {
+		// remove from default list if gateway is there
+         if (this.default[key])
+             this.removed[key] = true;
+
+        let gateway = {};
+		gateway.key = key;
+		gateway.name = name;
+		gateway.address = address;
+
+		this.custom[key] = gateway;
+
+		return gateway;
+	}
+
 	getRandom() {
-		let fullGatewayList = getGatewaysList();
+		let fullGatewayList = this.getGatewaysList();
 
 		let keys = Object.keys(fullGatewayList);
 		let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
 
-		this.currentGateway = fullGatewayList[ipfsGatewayKey];
+		return fullGatewayList[ipfsGatewayKey];
 	}
 
 	/**
@@ -92,22 +142,33 @@ class Gateways {
 	 * @param {string} option
 	 * @param {string} gateway optional for OTHER or FORCE options, must be of gateway structure
 	 */
-	setGatewayOptions(option, gateway = null) {
+	setGatewayOptions(option, gatewayKeyOrAddress = null) {
+		console.log("option: ", option);
 		if (option in this.gatewayOptions) {
 			switch (option) {
 				case "RANDOM":
 					this.option = this.gatewayOptions[option];
 					break;
 				case "FORCE":
-					if (gateway !== null) {//TODO: check if gateway in list!
-						this.currentGateway = gateway; 
-						this.option = this.gatewayOptions[option];
+					if (gatewayKeyOrAddress !== null) {
+						let gatewasyList = this.getGatewaysList();
+						if (gatewayKeyOrAddress in gatewasyList) {
+							this.currentGateway = gatewasyList[gatewayKeyOrAddress]; 
+							this.option = this.gatewayOptions[option];
+						} else
+							throw "gatewayKeyOrAddress is not in Gateways list"
 					}
 					else
 						throw "specify 'gateway' with 'FORCE' option."; 
+					break;
 				case "OTHER":
-					if (gateway !== null) {
-						this.currentGateway = gateway; 
+					if (gatewayKeyOrAddress !== null) {
+						let otherGateyway = {};
+						otherGateyway.key = "other";
+						otherGateyway.name = "other";
+						otherGateyway.address = gatewayKeyOrAddress;
+
+						this.currentGateway = otherGateyway; 
 						this.option = this.gatewayOptions[option];	
 					}
 					else
@@ -117,8 +178,14 @@ class Gateways {
 			throw "Option is invalid."
 	}
 
-	setCurrentGateway(keyOrGateway) {
-		if (keyOrGateway in this.custom) 
+	/**
+	 * Sets current gateway]
+	 * @param {this.gatewayOptions} keyOrGateway if null sets random
+	 */
+	setCurrentGateway(keyOrGateway = null) {
+		if (keyOrGateway == null)
+			this.currentGateway = this.getRandom();
+		else if (keyOrGateway in this.custom) 
 			this.currentGateway = this.custom[keyOrGateway];
 		else if ( (keyOrGateway in this.default) && !(keyOrGateway in this.removed) ) 
 			this.currentGateway =  this.default[keyOrGateway];
@@ -126,10 +193,6 @@ class Gateways {
 			this.currentGateway =  keyOrGateway;
 		else
 			throw "Error: bad function parameter";
-	}
-
-	getCurrentgateway() {
-		return this.currentGateway;
 	}
 
 	getGatewaysList() {
@@ -147,7 +210,23 @@ class Gateways {
 	    // add "added gateways"
 	    for (let gateway in this.custom) {
 	        fullGatewaysList[gateway] = this.custom[gateway];
-	    }	
+	    }
+
+	    return fullGatewaysList;	
+	}
+
+	isGatewayInList(key) {
+		let list = this.getGatewaysList();
+		if (key in list)
+			return true;
+		else
+			return false;
+	}
+
+	restoreToDeafult() {
+		//TODO: CHCEK THAT CURRENT IS NOT IN CUSTOM!!!!
+		this.custom = {};
+		this.removed = {};
 	}
 
 }

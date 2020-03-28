@@ -17,6 +17,7 @@
       "js/web3-wrapper/dist/main.js",
       "js/metrics.js",
       "js/socket.io.js",
+      "js/gateways.js",
       "js/normalize-url.js",
       "js/background-scripts/settings-utils.js",
       "js/background-scripts/dweb-utils.js",

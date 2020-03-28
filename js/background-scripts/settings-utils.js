@@ -10,7 +10,7 @@ var autoGatewaysUpdate;
  * Backgroud functions related to settings
  */
 const gateway_options = Object.freeze({
-	RANDOM: 'random',
+	RANDOM: 'randofm',
 	FORCE: 'force_gateway',
 	OTHER: 'other_gateway'
 });
@@ -42,7 +42,7 @@ function onNewVersion(details) {
 				updateSettings,
 				err
 			);
-	}
+1	}
 }
 
 /**
@@ -51,24 +51,19 @@ function onNewVersion(details) {
 
  */
 function initSettings() {
-		let deafultIpfsGateways = {
-			'ipfs.io': 'Ipfs',
-			'ipfs.eternum.io': 'Eternum',
-			'cloudflare-ipfs.com': 'Cloudflare',
-			'hardbin.com': 'Hardbin',
-			'gateway.temporal.cloud': 'Temporal',
-			'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb',
-			'ipfs.privacytools.io': 'Privacytools'
-		};
-		let removedIpfsGateways = {};
-		let addedIpfsGateways = {};
+		let ipfsGateways = new Gateways();
 
-		let ipfsGateways = {
-			default: deafultIpfsGateways,
-			removed: removedIpfsGateways
-			added: addedIpfsGateways
-		};
+		// let defaultIpfsGateways = {
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
+		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
+		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
+		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
+		ipfsGateways.addDefault('permaweb.io', 'Permaweb', 'https://permaweb.io');
+		ipfsGateways.addDefault('ipfs.privacytools.io', 'Privacytools', 'https://ipfs.privacytools.io');
+
+		ipfsGateways.setGatewayOptions("RANDOM");
 
 		let shortcuts = {
 			addressbar: 'Ctrl+Shift+T',
@@ -80,9 +75,6 @@ function initSettings() {
 			autoGatewaysUpdate: true,
 			ethereum: 'infura',
 			ipfsGateways: ipfsGateways,
-			ipfs: 'random',
-			ipfs_gateway: '',
-			ipfs_other_gateway: '',
 			shortcuts: shortcuts
 		};
 
@@ -102,28 +94,22 @@ function initSettings() {
  * @return {[type]}
  */
 function updateSettings(storage) {
-	// version < 0.0.8 didn't have ipfsGateways key in settings.
-	// remove this after version 0.0.12, where we assume users version already >= 0.0.8
-	// remvoe also the part about it in function loadSettingsSetSession
-	if (!('ipfsGateways' in storage.settings)) {
-		let deafultIpfsGateways = {
-			'ipfs.io': 'Ipfs',
-			'ipfs.eternum.io': 'Eternum',
-			'cloudflare-ipfs.com': 'Cloudflare',
-			'hardbin.com': 'Hardbin',
-			'gateway.temporal.cloud': 'Temporal',
-			'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb',
-			'ipfs.privacytools.io': 'Privacytools'
-		};
-		let removedIpfsGateways = {};
-		let addedIpfsGateways = {};
+	// for version < 0.0.9, remove after version 0.0.13
+	// remvoe also from function loadSettingsSetSession
+	if ('ipfs_gateway' in storage.settings) {
+		let ipfsGateways = new Gateways();
 
-		let ipfsGateways = {
-			default: deafultIpfsGateways,
-			removed: removedIpfsGateways,
-			added: addedIpfsGateways
-		};
+		// let defaultIpfsGateways = {
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io');
+		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
+		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://hardbin.com');
+		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
+		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
+		ipfsGateways.addDefault('permaweb.io', 'Permaweb', 'https://permaweb.io');
+		ipfsGateways.addDefault('ipfs.privacytools.io', 'Privacytools', 'https://ipfs.privacytools.io');
+
+		ipfsGateways.setGatewayOptions("RANDOM");
 
 		let OldSettings = storage.settings;
 
@@ -132,9 +118,6 @@ function updateSettings(storage) {
 			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
 			ethereum: OldSettings.ethereum,
 			ipfsGateways: ipfsGateways,
-			ipfs: OldSettings.ipfs,
-			ipfs_gateway: OldSettings.ipfs_gateway,
-			ipfs_other_gateway: OldSettings.ipfs_other_gateway,
 			shortcuts: OldSettings.shortcuts
 		};
 
@@ -150,85 +133,24 @@ function updateSettings(storage) {
  * @param  {json} storage [current settings in browser storage]
  */
 function loadSettingsSetSession(storage) {
-	if (!storage.settings || !('ipfsGateways' in storage.settings)) {
-		console.info('settings are preparing...');
+	let settings = storage.settings;
+
+	if (!settings || ('ipfs_gateway' in settings) ) {
 		loadSettings();
 		return;
 	}
 	// load settings
-	ethereum = storage.settings.ethereum;
+	ethereum = settings.ethereum;
 	ethereumNode = setEthereumNode(ethereum);
 
-	metricsPermission = storage.settings.metricsPermission;
-	autoGatewaysUpdate = storage.settings.autoGatewaysUpdate;
+	metricsPermission = settings.metricsPermission;
+	autoGatewaysUpdate = settings.autoGatewaysUpdate;
 
 	WEB3ENS.connect_web3(ethereumNode);
 
-	let ipfsGatewaysSettings = storage.settings.ipfsGateways;
-	let ipfsGatewaysList = calcualteGatewayList(
-		ipfsGatewaysSettings.default,
-		ipfsGatewaysSettings.removed,
-		ipfsGatewaysSettings.added
-	);
-
-	// set ipfs gateway
-	if (storage.settings.ipfs == gateway_options.RANDOM) {
-		if (!ipfsGateway) {
-			let keys = Object.keys(ipfsGatewaysList);
-			let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
-
-			ipfsGateway = {
-				key: ipfsGatewayKey,
-				name: ipfsGatewaysList[ipfsGatewayKey],
-				address: 'https://' + ipfsGatewayKey
-			};
-		}
-	} else if (storage.settings.ipfs == gateway_options.FORCE) {
-		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
-
-		ipfsGateway = {
-			key: ipfsGateway.key,
-			name: ipfsGateway.name,
-			address: 'https://' + ipfsGateway.key
-		};
-	} else if (storage.settings.ipfs == gateway_options.OTHER) {
-		ipfsGateway = {
-			key: 'other',
-			name: 'other',
-			address: storage.settings.ipfs_other_gateway
-		};
-	}
-
-	// save session info
-	let session = {
-		ipfsGateway: ipfsGateway
-	};
-	promisify(browser.storage.local, 'set', [{ session }]);
-}
-
-/**
- * [Calculates a gateway list out of three given lists]
- * @param  {[Object]} defaultGateways [list of default software gateways]
- * @param  {[Object]} removedGateways [list of gateways the user manually added]
- * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
- * @return {[Object]}                 [list of gateways the software can use]
- */
-function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
-	// begin with default gateways
-	let ipfsGatewaysList = {};
-	for (let gate in defaultGateways) {
-		ipfsGatewaysList[gate] = defaultGateways[gate];
-	}
-
-	// delete removed gateways
-	for (let gate in removedGateways) {
-		delete ipfsGatewaysList[gate];
-	}
-
-	// add "added gateways"
-	for (let gate in addedGateways) {
-		ipfsGatewaysList[gate] = addedGateways[gate];
-	}
-
-	return ipfsGatewaysList;
+	// set current gateway for this session and update settings storage
+	settings.ipfsGateways = new Gateways(settings.ipfsGateways); //turn data into Gateways object
+	settings.ipfsGateways.setCurrentGateway();
+	promisify(browser.storage.local, 'set', [{ settings }]);
+	ipfsGateways = settings.ipfsGateways;
 }

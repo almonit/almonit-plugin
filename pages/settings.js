@@ -1,9 +1,10 @@
 const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
 let addGatewayButton = document.getElementById('addGatewayButton'); //'let' in purpose
-let currentGateway = '';
-let ipfsGatewaysSettings = {};
-let ipfsGatewaysList = {};
+// let currentGateway = '';
+// let ipfsGatewaysSettings = {};
+// let ipfsGatewaysList = {};
+let ipfsGateways;
 
 let removeChilds = function(node) {
     let last;
@@ -22,6 +23,7 @@ function loadSettings() {
      * @param {Object}      result      [async result of local storage]
      */
     function loadCurrentSettings(result) {
+        console.log("loading settings");
         settings = result.settings;
 
         // init values
@@ -49,7 +51,7 @@ function loadSettings() {
         switch (settings.ethereum) {
             case 'infura':
                 ethereumSelect[0].checked = true;
-                break;
+                break;ah, etwe
             case 'local':
                 ethereumSelect[1].checked = true;
                 break;
@@ -59,20 +61,17 @@ function loadSettings() {
                 document.getElementById('urlInput').value = settings.ethereum;
         }
 
-        ipfsGatewaysSettings = result.settings.ipfsGateways;
-        ipfsGatewaysList = calcualteGatewayList(
-            ipfsGatewaysSettings.default,
-            ipfsGatewaysSettings.removed,
-            ipfsGatewaysSettings.added
-        );
+        ipfsGateways = new Gateways(settings.ipfsGateways);
 
         // add gateway to select input
+        let ipfsGatewaysList = ipfsGateways.getGatewaysList();
         Object.keys(ipfsGatewaysList).forEach(function(key, index) {
-            addIpfsGate(key, ipfsGatewaysList[key]);
+            addGatewayToSelectbox('ipfs_gateways', ipfsGatewaysList[key]);
         });
 
         // ipfs gateway settings
-        switch (settings.ipfs) {
+        console.log("ipfsGateways.option: ", ipfsGateways.option);
+        switch (ipfsGateways.option) {
             case 'random':
                 document.forms['settingsForm'].gateway[0].checked = true;
                 break;
@@ -84,7 +83,7 @@ function loadSettings() {
                 document.forms['settingsForm'].gateway[2].checked = true;
                 document.getElementById('ipfs_other_gateway').disabled = false;
                 document.getElementById('ipfs_other_gateway').value =
-                    settings.ipfs_other_gateway;
+                    ipfsGateways.currentGateway.address;
         }
 
         // shortcuts
@@ -93,48 +92,57 @@ function loadSettings() {
         document.getElementById('shortcutSettingsInput').value =
             settings.shortcuts.settings;
 
-        // load session paramters
-        let getSession = promisify(browser.storage.local, 'get', ['session']);
-        getSession.then(loadCurrentSession, onError);
+        let IpfsSelectbox = document.getElementById('ipfs_gateways');
+        if (ipfsGateways.option != 'other') {
+            IpfsSelectbox.value = ipfsGateways.currentGateway.key;
+        } else 
+            IpfsSelectbox.value = select[0].id; //we show first value to keep box non-empty
+
+        setCurrentIPFSGateway(ipfsGateways);
     }
 
     function onError(error) {
         console.log(`Error: ${error}`);
     }
 
-    function loadCurrentSession(result) {
-        select = document.getElementById('ipfs_gateways');
-        if (result.session.ipfsGateway.key != 'other') {
-            select.value = result.session.ipfsGateway.key;
-        } else select.value = select[0].id; //show first value to keep box not empty
+    // function loadCurrentSession(result) {
+    //     select = document.getElementById('ipfs_gateways');
+    //     if (result.session.ipfsGateway.key != 'other') {
+    //         select.value = result.session.ipfsGateway.key;
+    //     } else select.value = select[0].id; //show first value to keep box not empty
 
-        setCurrentIPFSGateway(result.session.ipfsGateway);
-    }
+    //     setCurrentIPFSGateway(result.session.ipfsGateway);
+    // }
 
     let getSettings = promisify(browser.storage.local, 'get', ['settings']);
     getSettings.then(loadCurrentSettings, onError);
 }
 
-function setCurrentIPFSGateway(gateway) {
-    currentGateway = gateway.name + ': ' + gateway.key;
+function setCurrentIPFSGateway() {
+    if (ipfsGateways.option != 'other') 
+        currentGateway = ipfsGateways.currentGateway.name + ': ' + ipfsGateways.currentGateway.key;
+    else //for 'other' the key and name both set to 'other', so we use 'adddres'
+        currentGateway = gateways.currentGateway.name + ': ' + gatewaysetCurrentIPFSGateway.currentGateway.address;
     document.getElementById('current_gateway').textContent = currentGateway;
 }
 
 function restoreDefaultGateways(e) {
-    // clear ipfsGatewaysList
-    for (let gate in ipfsGatewaysList) delete ipfsGatewaysList[gate];
+    ipfsGateways.restoreToDeafult();
 
-    // add default gateways
-    for (let gate in ipfsGatewaysSettings.default) {
-        ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
-    }
+    // // clear ipfsGatewaysList
+    // for (let gate in ipfsGatewaysList) delete ipfsGatewaysList[gate];
 
-    // clear added and removed gateways lists (they are empty by default)
-    for (let gate in ipfsGatewaysSettings.added)
-        delete ipfsGatewaysSettings.added[gate];
+    // // add default gateways
+    // for (let gate in ipfsGatewaysSettings.default) {
+    //     ipfsGatewaysList[gate] = ipfsGatewaysSettings.default[gate];
+    // }
 
-    for (let gate in ipfsGatewaysSettings.removed)
-        delete ipfsGatewaysSettings.removed[gate];
+    // // clear added and removed gateways lists (they are empty by default)
+    // for (let gate in ipfsGatewaysSettings.added)
+    //     delete ipfsGatewaysSettings.added[gate];
+
+    // for (let gate in ipfsGatewaysSettings.removed)
+    //     delete ipfsGatewaysSettings.removed[gate];
 
     // clear select input
     let select = document.getElementById('ipfs_gateways');
@@ -144,8 +152,9 @@ function restoreDefaultGateways(e) {
     }
 
     // add gateway to select input
+    let ipfsGatewaysList = ipfsGateways.getGatewaysList();
     Object.keys(ipfsGatewaysList).forEach(function(key, index) {
-        addIpfsGate(key, ipfsGatewaysList[key]);
+        addGatewayToSelectbox('ipfs_gateways', ipfsGatewaysList[key]);
     });
 
     msgAlert('Default IPFS gateways list restored', 1000);
@@ -165,27 +174,26 @@ function saveSettings(e) {
             ? document.forms['settingsForm'].ethereum.value
             : document.getElementById('urlInput').value;
 
-    let ipfs_gateway = {};
-    let ipfs_other_gateway = '';
+    // let ipfs_gateway = {};
+    // let ipfs_other_gateway = '';
 
     switch (document.forms['settingsForm'].gateway.value) {
         case 'random':
-            var ipfs = 'random';
+            ipfsGateways.setGatewayOptions('RANDOM');
             break;
         case 'force_gateway':
-            var ipfs = 'force_gateway';
-            ipfs_gateway.key = document.getElementById('ipfs_gateways').value;
-            ipfs_gateway.name = ipfsGatewaysList[ipfs_gateway.key];
+            let key = document.getElementById('ipfs_gateways').value;
+            ipfsGateways.setGatewayOptions('FORCE', key);
+
+            // update view
             document.getElementById('ipfs_other_gateway').value = '';
-            setCurrentIPFSGateway(ipfs_gateway); //once saved, update current gateway in html
-            ipfs_gateway = JSON.stringify(ipfs_gateway);
+            setCurrentIPFSGateway(); 
             break;
         case 'other_gateway':
-            var ipfs = 'other_gateway';
-            ipfs_other_gateway = document.getElementById('ipfs_other_gateway')
-                .key;
-            select.value = select[0].id;
-            setCurrentIPFSGateway({ key: ipfs_other_gateway, name: 'other' }); //once saved, update current gateway in html
+            let other = document.getElementById('ipfs_other_gateway').key;
+            ipfsGateways.setGatewayOptions('OTHER', other);
+            select.value = select[0].id; //not to have gateway select box empty
+            setCurrentIPFSGateway(); 
     }
 
     let AutoGatewaysUpdate = document.querySelector(
@@ -202,10 +210,10 @@ function saveSettings(e) {
         metricsPermission: metricsPermission,
         autoGatewaysUpdate: AutoGatewaysUpdate,
         ethereum: ethereum,
-        ipfsGateways: ipfsGatewaysSettings,
-        ipfs: ipfs,
-        ipfs_gateway: ipfs_gateway,
-        ipfs_other_gateway: ipfs_other_gateway,
+        ipfsGateways: ipfsGateways,
+        // ipfs: ipfs,
+        // ipfs_gateway: ipfs_gateway,
+        // ipfs_other_gateway: ipfs_other_gateway,
         shortcuts: shortcuts
     };
     promisify(browser.storage.local, 'set', [{ settings }]);
@@ -312,13 +320,14 @@ function openGatewayModal(e) {
     showGatewayModal();
 
     function showGatewayModal() {
+        let ipfsGatewaysList = ipfsGateways.getGatewaysList();
         Object.keys(ipfsGatewaysList).forEach(function(gate, i) {
             const gatewayLI = document.createElement('li');
             const gatewayTextSpan = document.createElement('span');
             const gatewayEditButtonSpan = document.createElement('span');
             const gatewayRemoveButtonSpan = document.createElement('span');
             gatewayTextSpan.appendChild(
-                document.createTextNode(ipfsGatewaysList[gate] + ': ' + gate)
+                document.createTextNode(ipfsGatewaysList[gate].name + ': ' + ipfsGatewaysList[gate].key)
             );
             gatewayEditButtonSpan.appendChild(document.createTextNode('Edit'));
             gatewayRemoveButtonSpan.appendChild(
@@ -334,7 +343,7 @@ function openGatewayModal(e) {
                 element: gatewayEditButtonSpan,
                 evtFunc: createGatewayForm.bind(
                     null,
-                    { key: gate, name: ipfsGatewaysList[gate] },
+                    { key: gate, name: ipfsGatewaysList[gate].name },
                     'Edit',
                     editGateway
                 )
@@ -343,7 +352,7 @@ function openGatewayModal(e) {
                 'click',
                 createGatewayForm.bind(
                     null,
-                    { key: gate, name: ipfsGatewaysList[gate] },
+                    { key: gate, name: ipfsGatewaysList[gate].name },
                     'Save',
                     editGateway
                 )
@@ -353,7 +362,7 @@ function openGatewayModal(e) {
                 'click',
                 removeGateway.bind(null, gatewayList.children[i], {
                     key: gate,
-                    name: ipfsGatewaysList[gate]
+                    name: ipfsGatewaysList[gate].name
                 })
             );
 
@@ -361,7 +370,7 @@ function openGatewayModal(e) {
                 element: gatewayRemoveButtonSpan,
                 evtFunc: removeGateway.bind(null, {
                     key: gate,
-                    name: ipfsGatewaysList[gate]
+                    name: ipfsGatewaysList[gate].name
                 })
             };
         });
@@ -426,18 +435,17 @@ function openGatewayModal(e) {
      */
     function addGateway(e) {
         e.stopPropagation();
-        name = document.getElementById('name_of_gateway').value;
-        key = document.getElementById('URL_of_gateway').value;
+        let name = document.getElementById('name_of_gateway').value;
+        let key = document.getElementById('URL_of_gateway').value;
+        let address = 'https://' + key;
 
         if (name == '' || key == '') alert('Name and url can not be empty!');
-        else if (ipfsGatewaysList[key])
+        else if (ipfsGateways.isGatewayInList(key))
             alert('Gateway with this url already exists!');
         else {
-            addIpfsGate(key, name);
 
-            // update gateway lists
-            ipfsGatewaysSettings.added[key] = name;
-            ipfsGatewaysList[key] = name;
+            let gateway = ipfsGateways.addCustom(key, name, address);
+            addGatewayToSelectbox('ipfs_gateways', gateway);
 
             hideGatewayModal();
             showGatewayModal();
@@ -449,9 +457,11 @@ function openGatewayModal(e) {
      * @param  {[Object]}   item    [Gateway object]
      */
     function editGateway(e, item) {
+
+
         if (currentGateway == item.name + ': ' + item.value)
             alert("Can't edit current gateway");
-        else if (ipfsGatewaysList[item.value])
+        else if (ipfsGateways.isGatewayInList(item.value))
             alert('Gateway with this url already exists!');
         else if (item.name == '' || item.key == '') {
             alert('Name and url can not be empty!');
@@ -460,20 +470,17 @@ function openGatewayModal(e) {
             let gatewayToRemove = document.getElementById(item.key);
             gatewaysSelect.removeChild(gatewayToRemove);
 
-            // remove from default list if gateway is there
-            if (ipfsGatewaysSettings.default[item.key])
-                ipfsGatewaysSettings.removed[item.key] = true;
-
-            delete ipfsGatewaysSettings.added[item.key];
-            delete ipfsGatewaysList[item.key];
-
             //add gateway with new version
-            name = document.getElementById('name_of_gateway').value;
-            key = document.getElementById('URL_of_gateway').value;
+            let name = document.getElementById('name_of_gateway').value;
+            let key = document.getElementById('URL_of_gateway').value;
+            let address = 'https://' + key;
 
-            ipfsGatewaysSettings.added[key] = name;
-            ipfsGatewaysList[key] = name;
-            addIpfsGate(key, name);
+            let gateway = ipfsGateways.modifyGateway(key, name, address);
+
+            // ipfsGatewaysSettings.added[key] = name;
+            // ipfsGatewaysList[key] = name;
+            
+            addGatewayToSelectbox('ipfs_gateways', gateway);
 
             hideGatewayModal();
             showGatewayModal();
@@ -485,12 +492,13 @@ document
     .getElementById('manageGatewaysButton')
     .addEventListener('click', openGatewayModal);
 
-function addIpfsGate(key, name) {
+// function addIpfsGate(, key, name) {
+function addGatewayToSelectbox(selectboxID, gateway) {
     let option = document.createElement('option');
-    let gateways = document.getElementById('ipfs_gateways');
-    option.text = name + ': ' + key;
-    option.value = key;
-    option.id = key;
+    let gateways = document.getElementById(selectboxID);
+    option.text = gateway.name + ': ' + gateway.key;
+    option.value = gateway.key;
+    option.id = gateway.key;
     gateways.add(option);
 }
 
@@ -556,15 +564,16 @@ function removeGateway(child, item, e) {
         gatewaysSelect.removeChild(gatewayToRemove);
 
         //if a default key, add to removed gateways list
-        if (ipfsGatewaysSettings.default[item.key]) {
-            ipfsGatewaysSettings.removed[item.key] = true;
-        }
-        // if key was manually added by the user, just remove it
-        else if (ipfsGatewaysSettings.added[item.key])
-            delete ipfsGatewaysSettings.added[item.key];
+        ipfsGateways.removeGateway(item.key);
+        // if (ipfsGatewaysSettings.default[item.key]) {
+        //     ipfsGatewaysSettings.removed[item.key] = true;
+        // }
+        // // if key was manually added by the user, just remove it
+        // else if (ipfsGatewaysSettings.added[item.key])
+        //     delete ipfsGatewaysSettings.added[item.key];
 
-        //remove from ipfsGateways
-        delete ipfsGatewaysList[item.key];
+        // //remove from ipfsGateways
+        // delete ipfsGatewaysList[item.key];
     }
 }
 
@@ -592,22 +601,22 @@ function msgAlert(msg, duration) {
  * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
  * @return {[Object]}                 [list of gateways the software can use]
  */
-function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
-    // begin with default gateways
-    let ipfsGatewaysList = {};
-    for (let gate in defaultGateways) {
-        ipfsGatewaysList[gate] = defaultGateways[gate];
-    }
+// function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
+//     // begin with default gateways
+//     let ipfsGatewaysList = {};
+//     for (let gate in defaultGateways) {
+//         ipfsGatewaysList[gate] = defaultGateways[gate];
+//     }
 
-    // delete removed gateways
-    for (let gate in removedGateways) {
-        delete ipfsGatewaysList[gate];
-    }
+//     // delete removed gateways
+//     for (let gate in removedGateways) {
+//         delete ipfsGatewaysList[gate];
+//     }
 
-    // add "added gateways"
-    for (let gate in addedGateways) {
-        ipfsGatewaysList[gate] = addedGateways[gate];
-    }
+//     // add "added gateways"
+//     for (let gate in addedGateways) {
+//         ipfsGatewaysList[gate] = addedGateways[gate];
+//     }
 
-    return ipfsGatewaysList;
-}
+//     return ipfsGatewaysList;
+// }
