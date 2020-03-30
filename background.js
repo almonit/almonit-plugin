@@ -243,7 +243,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
-		loadSettings();
+		loadSettings(false);
 	} else if (!!request.resolveUrl) {
 		const { ensDomain, ensPath } = redirectAddress;
 		WEB3ENS.getContenthash(ensDomain)

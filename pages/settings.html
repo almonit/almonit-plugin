@@ -127,8 +127,8 @@
                                 <input
                                     id="gateway-one"
                                     type="radio"
-                                    name="gateway"
-                                    value="random"
+                                    name="ipfs"
+                                    value="ipfsRandom"
                                     checked
                                 />
                                 Use random gateway (decentrazliation via
@@ -138,26 +138,26 @@
                                 <input
                                     id="gateway-two"
                                     type="radio"
-                                    name="gateway"
-                                    value="force_gateway"
+                                    name="ipfs"
+                                    value="ipfsForce"
                                     checked
                                 />
                                 Force gateway
                                 <br /><br />
-                                <select id="ipfs_gateways" disabled></select>
+                                <select id="ipfsGateways" disabled></select>
                             </label>
                             <label for="gateway-three" class="pure-checkbox">
                                 <input
                                     id="gateway-three"
                                     type="radio"
-                                    name="gateway"
-                                    value="other_gateway"
+                                    name="ipfs"
+                                    value="ipfsOther"
                                     checked
                                 />
                                 Other (e.g., localhost)
                                 <br /><br />
                                 <input
-                                    id="ipfs_other_gateway"
+                                    id="ipfsOtherGateway"
                                     placeholder="http://localhost:8080/"
                                     type="text"
                                     disabled
@@ -233,7 +233,7 @@
                     <div id="addGatewayPanel" class="add-gateway-button">
                         <span id="addGatewayButton"> + Add new gateway</span>
                     </div>
-                    <ul id="gatewayList"></ul>
+                    <ul id="modalGatewaysList"></ul>
                 </div>
                 <button
                     class="pure-button pure-button-primary button-submit"

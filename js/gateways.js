@@ -6,7 +6,6 @@ class Gateways {
 	 * @param  {Object} data [data for Gateways object]
 	 */
 	constructor(data = null) {
-		console.log("constructing");
 		this.gatewayOptions = Object({
 			RANDOM: 'random',
 			FORCE: 'force_gateway',
@@ -143,7 +142,6 @@ class Gateways {
 	 * @param {string} gateway optional for OTHER or FORCE options, must be of gateway structure
 	 */
 	setGatewayOptions(option, gatewayKeyOrAddress = null) {
-		console.log("option: ", option);
 		if (option in this.gatewayOptions) {
 			switch (option) {
 				case "RANDOM":
@@ -199,11 +197,11 @@ class Gateways {
 		let fullGatewaysList = {};
 
 		for (let gateway in this.default) {
-        fullGatewaysList[gateway] = this.default[gateway];
+	        fullGatewaysList[gateway] = this.default[gateway];
 	    }
 
 	    // delete removed gateways
-	    for (let gateway in this.resmoved) {
+	    for (let gateway in this.removed) {
 	        delete fullGatewaysList[gateway];
 	    }
 

@@ -15,10 +15,10 @@ const gateway_options = Object.freeze({
 	OTHER: 'other_gateway'
 });
 
-function loadSettings() {
+function loadSettings(updateGateway = true) {
 	// load plugin settings
 	promisify(browser.storage.local, 'get', ['settings']).then(
-		loadSettingsSetSession,
+		res => loadSettingsSetSession(res,updateGateway),
 		err
 	);
 }
@@ -122,7 +122,7 @@ function updateSettings(storage) {
 		};
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
-
+haha,
 		//reload session after settings update.
 		loadSettingsSetSession(storage);
 	}
@@ -132,7 +132,7 @@ function updateSettings(storage) {
  * [Load settings]
  * @param  {json} storage [current settings in browser storage]
  */
-function loadSettingsSetSession(storage) {
+function loadSettingsSetSession(storage, updateGateway = true) {
 	let settings = storage.settings;
 
 	if (!settings || ('ipfs_gateway' in settings) ) {
@@ -150,7 +150,8 @@ function loadSettingsSetSession(storage) {
 
 	// set current gateway for this session and update settings storage
 	settings.ipfsGateways = new Gateways(settings.ipfsGateways); //turn data into Gateways object
-	settings.ipfsGateways.setCurrentGateway();
+	if (updateGateway)
+		settings.ipfsGateways.setCurrentGateway();
 	promisify(browser.storage.local, 'set', [{ settings }]);
 	ipfsGateways = settings.ipfsGateways;
 }
