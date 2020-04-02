@@ -2,7 +2,6 @@
  * Global variables
  */
 var ethereum;
-var ethereumNode;
 var metricsPermission;
 var autoGatewaysUpdate;
 
@@ -51,9 +50,18 @@ function onNewVersion(details) {
 
  */
 function initSettings() {
+
+		// ethereum
+		let ethereumGateways = new Gateways();
+
+		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
+		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+
+		ethereumGateways.setGatewayOptions("RANDOM");
+
+		// ipfs
 		let ipfsGateways = new Gateways();
 
-		// let defaultIpfsGateways = {
 		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
 		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
 		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
@@ -73,7 +81,7 @@ function initSettings() {
 		let settings = {
 			metricsPermission: 'uninitialized',
 			autoGatewaysUpdate: true,
-			ethereum: 'infura',
+			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
 			shortcuts: shortcuts
 		};
@@ -97,13 +105,14 @@ function updateSettings(storage) {
 	// for version < 0.0.9, remove after version 0.0.13
 	// remvoe also from function loadSettingsSetSession
 	if ('ipfs_gateway' in storage.settings) {
+
+		// ipfs
 		let ipfsGateways = new Gateways();
 
-		// let defaultIpfsGateways = {
-		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io');
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
 		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
 		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
-		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://hardbin.com');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
 		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
 		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
 		ipfsGateways.addDefault('permaweb.io', 'Permaweb', 'https://permaweb.io');
@@ -111,12 +120,20 @@ function updateSettings(storage) {
 
 		ipfsGateways.setGatewayOptions("RANDOM");
 
+		// ethereum
+		let ethereumGateways = new Gateways();
+
+		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
+		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+
+		ethereumGateways.setGatewayOptions("RANDOM");
+
 		let OldSettings = storage.settings;
 
 		let settings = {
 			metricsPermission: OldSettings.metricsPermission,
 			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
-			ethereum: OldSettings.ethereum,
+			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
 			shortcuts: OldSettings.shortcuts
 		};
@@ -139,19 +156,23 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 		loadSettings();
 		return;
 	}
-	// load settings
-	ethereum = settings.ethereum;
-	ethereumNode = setEthereumNode(ethereum);
 
 	metricsPermission = settings.metricsPermission;
 	autoGatewaysUpdate = settings.autoGatewaysUpdate;
 
-	WEB3ENS.connect_web3(ethereumNode);
-
-	// set current gateway for this session and update settings storage
-	settings.ipfsGateways = new Gateways(settings.ipfsGateways); //turn data into Gateways object
-	if (updateGateway)
+	//turn data into Gateways object 
+	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+	settings.ethereumGateways = new Gateways(settings.ethereumGateways); 
+	
+	if (updateGateway) {
 		settings.ipfsGateways.setCurrentGateway();
+		settings.ethereumGateways.setCurrentGateway();
+	}
+
+
 	promisify(browser.storage.local, 'set', [{ settings }]);
 	ipfsGateways = settings.ipfsGateways;
+	ethereumGateways = settings.ethereumGateways;
+
+	WEB3ENS.connect_web3(ethereumGateways.currentGateway.address);
 }

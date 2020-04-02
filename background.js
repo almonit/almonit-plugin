@@ -5,10 +5,11 @@
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
-const settingsUrl = 'settings.extension.almonit.eth';
+const settingsUrl = 'updatesettings.extension.almonit.eth';
 
 let localENS = {}; // a local ENS of all names we discovered
 let ipfsGateways = false;
+let ethereumGateways = false;
 let redirectAddress = null;
 let checkedforUpdates = false;
 
@@ -127,12 +128,16 @@ function settingsUpgrade(newSettings) {
 
 	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
 		let settings = item.settings;
-		// settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+		settings.ethereumGateways = new Gateways(settings.ipfsGateways);
 
-		// settings.ipfsGateways.setDefaultGateways(newSettings);
-		// promisify(browser.storage.local, 'set', [{ settings }]);
+		settings.ipfsGateways.setDefaultGateways(newSettings.ipfs);
+		settings.ethereumGateways.setDefaultGateways(newSettings.ethereum);
 
-		// ipfsgateways = settings.ipfsGateways;
+		promisify(browser.storage.local, 'set', [{ settings }]);
+
+		ethereumGateways = settings.ipfsGateways;
+		ethereumGateways = settings.ipfsGateways;
 	});
 }
 
@@ -278,20 +283,6 @@ function messagefromFrontend(request, sender, sendResponse) {
 /**
  * auxillary functions
  */
-function setEthereumNode(eth) {
-	switch (eth) {
-		case 'infura':
-			var ethNode =
-				'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17';
-			break;
-		case 'local':
-			var ethNode = 'http://localhost:8545';
-			break;
-		default:
-			var ethNode = eth;
-	}
-	return ethNode;
-}
 
 /**
  * [separateIpfsUrl separates ipfs path from url
