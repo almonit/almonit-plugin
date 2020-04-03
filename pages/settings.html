@@ -61,37 +61,70 @@
                     <section>
                         <h3 class="settings__label">Ethereum</h3>
                         <div>
-                            <label for="ethereum-one" class="pure-checkbox">
+                            <fieldset class="pure-control-group">
+                                <label for="gateways">Current Gateway:</label>
+                                <b>
+                                    <pre id="ethereumCurrentGateway">
+                                        Current gateway placeholder
+                                    </pre>
+                                </b>
+                            </fieldset>
+                            <div class="action__gateway">
+                                <button
+                                    class="pure-button pure-button-primary"
+                                    type="button"
+                                    id="manageEthereumGatewaysButton"
+                                >
+                                    Manage Gateways
+                                </button>
+                                <button
+                                    class="pure-button pure-button-secondary"
+                                    type="button"
+                                    id="restoreDefaultEthereumGatewaysButton"
+                                >
+                                    Restore Default Gateways
+                                </button>
+                            </div>
+                            <br /><br />
+                            <label for="gateway-one" class="pure-checkbox">
                                 <input
-                                    id="ethereum-one"
+                                    id="gateway-one"
                                     type="radio"
                                     name="ethereum"
-                                    value="infura"
+                                    value="ethereumRandom"
                                     checked
                                 />
-                                Infura
+                                Use random gateway (decentrazliation via
+                                randomization)
                             </label>
-                            <label for="ethereum-two" class="pure-checkbox">
+                            <label for="gateway-two" class="pure-checkbox">
                                 <input
-                                    id="ethereum-two"
+                                    id="gateway-two"
                                     type="radio"
                                     name="ethereum"
-                                    value="local"
+                                    value="ethereumForce"
                                     checked
                                 />
-                                Local: http://localhost:8545
-                            </label>
-                            <label for="ethereum-three" class="pure-checkbox">
-                                <input
-                                    id="ethereum-three"
-                                    type="radio"
-                                    name="ethereum"
-                                    value="other"
-                                    checked
-                                />
-                                Other
+                                Force gateway
                                 <br /><br />
-                                <input id="urlInput" type="text" disabled />
+                                <select id="ethereumGateways" disabled></select>
+                            </label>
+                            <label for="gateway-three" class="pure-checkbox">
+                                <input
+                                    id="gateway-three"
+                                    type="radio"
+                                    name="ethereum"
+                                    value="ethereumOther"
+                                    checked
+                                />
+                                Other (e.g., localhost)
+                                <br /><br />
+                                <input
+                                    id="ethereumOtherGateway"
+                                    placeholder="http://localhost:8545"
+                                    type="text"
+                                    disabled
+                                />
                             </label>
                         </div>
                     </section>
@@ -101,7 +134,7 @@
                             <fieldset class="pure-control-group">
                                 <label for="gateways">Current Gateway:</label>
                                 <b>
-                                    <pre id="current_gateway">
+                                    <pre id="ipfsCurrentGateway">
                                         Current gateway placeholder
                                     </pre>
                                 </b>
@@ -110,14 +143,14 @@
                                 <button
                                     class="pure-button pure-button-primary"
                                     type="button"
-                                    id="manageGatewaysButton"
+                                    id="manageIpfsGatewaysButton"
                                 >
                                     Manage Gateways
                                 </button>
                                 <button
                                     class="pure-button pure-button-secondary"
                                     type="button"
-                                    id="restoreDefaultGatewaysButton"
+                                    id="restoreDefaultIpfsGatewaysButton"
                                 >
                                     Restore Default Gateways
                                 </button>
