@@ -222,11 +222,15 @@ class Gateways {
 	}
 
 	restoreToDeafult() {
-		//TODO: CHCEK THAT CURRENT IS NOT IN CUSTOM!!!!
 		this.custom = {};
 		this.removed = {};
-	}
 
+		if (this.option !== this.gatewayOptions['OTHER'])
+			if (this.currentGateway.key in this.custom) {
+				this.option = this.gatewayOptions['RANDOM'];
+				this.setCurrentGateway();
+			}
+	}
 }
 
 
