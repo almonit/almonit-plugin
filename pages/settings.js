@@ -121,10 +121,6 @@ function loadSettings() {
         setCurrentGateway(gws, label);
     }
 
-    function onError(error) {
-        console.log(`Error: ${error}`);
-    }
-
     let getSettings = promisify(browser.storage.local, 'get', ['settings']);
     getSettings.then(loadCurrentSettings, onError);
 }
@@ -175,7 +171,7 @@ function saveSettings(e) {
 function setCurrentGateway(gws, label) {
     let currentGateway;
     if (gws.option != 'other') 
-        currentGateway = gws.currentGateway.name + ': ' + gws.currentGateway.key;
+        currentGateway = gws.currentGateway.name;
     else //for 'other' the key and name both set to 'other', so we use 'adddres'
         currentGateway = gws.currentGateway.name + ': ' + gws.currentGateway.address;
     document.getElementById(label + 'CurrentGateway').textContent = currentGateway;
@@ -473,9 +469,7 @@ function openGatewayModal(e, gws, label) {
      */
     function editGateway(e, item, gws, label) {
 
-        let currentGateway = document.getElementById(label + 'CurrentGateway').textContent;
-
-        if (currentGateway == item.name + ': ' + item.value)
+        if (gws.currentGateway.key == item.key)
             alert("Can't edit current gateway");
         else if (gws.isGatewayInList(item.value))
             alert('Gateway with this url already exists!');
@@ -510,11 +504,9 @@ function openGatewayModal(e, gws, label) {
 function removeGateway(child, item, gws, label, e) {
     e.stopPropagation();
 
-    let currentGateway = document.getElementById(label + 'CurrentGateway').textContent;
-
     if (modalGatewaysList.children.length == 1)
         alert("Can't remove gateway, list must include at least one gateway.");
-    else if (currentGateway == item.name + ': ' + item.key)
+    else if (gws.currentGateway.key == item.key)
         alert(
             item.key +
                 ' is the current gateway. Please first change the' +
@@ -577,4 +569,8 @@ function msgAlert(msg, duration) {
     setTimeout(function() {
         msg.style.display = 'none';
     }, duration);
+}
+
+function onError(error) {
+    console.log(`Error: ${error}`);
 }

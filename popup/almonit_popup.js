@@ -1,5 +1,5 @@
-const url = document.getElementById('url');
-const shuffleBtn = document.getElementById('shuffleBtn');
+const SearchBtn   = document.getElementById('SearchBtn');
+var   searchInput = document.getElementById('SearchInput');
 
 if (!isFirefox) {
 	window.addEventListener('click', function(e) {
@@ -12,82 +12,44 @@ if (!isFirefox) {
 	});
 }
 
-const urlText = new WordShuffler(url, {
-	textColor: '#0078e7',
-	timeOffset: 2,
-	needUpdate: false
-});
+SearchBtn.addEventListener('click', search);
 
-// const buttonText = new WordShuffler(shuffleBtn, {
-// 	textColor: '#fff',
-// 	timeOffset: 4,
-// 	needUpdate: false
-// });
+searchInput.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+  	search();
+    event.preventDefault();
+  }
+}); 
 
-const uniqueRandoms = [];
+function search() {
+	browser.tabs.create({
+		url: `https://almonit.eth/#/results/?q=${searchInput.value}`
+	});
 
-function getRandomInt(max) {
-	if (!uniqueRandoms.length) {
-		for (let i = 0; i < max; i++) {
-			uniqueRandoms.push(i);
-		}
-	}
-	const index = Math.floor(Math.random() * uniqueRandoms.length);
-	const val = uniqueRandoms[index];
-
-	uniqueRandoms.splice(index, 1);
-
-	return val;
+	searchInput.value = "";
 }
 
-function randomSuggestion() {
-	const urlList = [
-		'blog.almonit.eth',
-		'portalnetwork.eth',
-		'mycrypto.dappnode.eth',
-		'doracle.eth',
-		'pricefeed.doracle.eth',
-		'kitsune-wallet.eth',
-		'pac-txt.eth',
-		'digitallyrare.eth',
-		'game.portalnetwork.eth',
-		'web3casino.eth',
-		'lilsiri.eth',
-		'pepesza.eth',
-		'monkybrain.eth',
-		'christophershen.eth',
-		'phyrextsai.eth',
-		'cv.gnelson.eth',
-		'maxl.eth',
-		'mattcondon.eth',
-		'hadriencroubois.eth',
-		'web.destiner.eth',
-		'alexfisher.eth',
-		'johnkane.eth',
-		'waydereitsma.eth',
-		'obernardovieira.eth',
-		'hozt.portalnetworkweb.eth',
-		'badger.merklework.eth',
-		'ownpaste.eth',
-		'liquid-long.keydonix.eth',
-		'liquid-close.keydonix.eth',
-		'turmsamt.eth',
-		'ensmanager.matoken.eth',
-		'atmarketplace.eth',
-		'tornadocash.eth',
-		'amoebacore.eth',
-		'eternalword.eth',
-		'nathanclayforcongress.eth',
-		'bradsherman.eth',
-		'oppailand.eth'
-	];
+let getSettings = promisify(browser.storage.local, 'get', ['settings']);
+getSettings.then(loadCurrentSettings, onError);
 
-	return urlList[getRandomInt(urlList.length)];
+function loadCurrentSettings (result) {
+	let settings = result.settings;
+
+	document.getElementById('ethereumGatewayOption').innerText 
+		= settings.ethereumGateways.option;
+	document.getElementById('ethereumCurrentGateway').innerText 
+	= settings.ethereumGateways.currentGateway.name;
+
+	document.getElementById('ipfsGatewayOption').innerText 
+		= settings.ipfsGateways.option;
+	document.getElementById('ipfsCurrentGateway').innerText 
+	= settings.ipfsGateways.currentGateway.name;
+
+
+
 }
 
-shuffleBtn.addEventListener('click', function() {
-	const rs = randomSuggestion();
-	url.href = `http://${rs}`;
-	urlText.restart(rs);
-	//buttonText.restart();
-});
+function onError(error) {
+    console.log(`Error: ${error}`);
+}

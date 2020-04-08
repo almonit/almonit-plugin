@@ -24,14 +24,21 @@
         </header>
         <main>
             <section>
-                <h3>Discover something new!</h3>
-                <a href="" id="url">Just shuffle :)</a>
+                <input id="SearchInput" type="text"/> 
+                <button id="SearchBtn" class="pure-button pure-button-primary"> 
+                    Search
+                </button>
+            <section>
+                <h3>Session info</h3>
+                <b> Web3 (<span id="ethereumGatewayOption">Test </span>): </b> 
+                    <span id="ethereumCurrentGateway">Infura</span> 
+                <br>
+                <b> IPFS (<span id="ipfsGatewayOption">Forced</span>); </b> 
+                    <span id="ipfsCurrentGateway">gateway.pinata.cloud</span>
             </section>
         </main>
         <footer>
-            <button id="shuffleBtn" class="pure-button pure-button-primary">
-                Shuffle
-            </button>
+            
         </footer>
         <script src="../js/check-browser.js"></script>
         <script src="../js/promisify.js"></script>
