@@ -16,5 +16,9 @@ module.exports = {
 
 	getContent: function(name) {
 		return web3.eth.ens.getContent(name);
-	}
+	},
+
+	getSkynet: function(name) {
+		return web3.eth.ens.getText(name,"skynet");
+    }
 };

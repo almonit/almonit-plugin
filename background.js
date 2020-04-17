@@ -9,6 +9,7 @@ const settingsUrl = 'updatesettings.extension.almonit.eth';
 
 let localENS = {}; // a local ENS of all names we discovered
 let ipfsGateways = false;
+let skynetGateways = false;
 let ethereumGateways = false;
 let redirectAddress = null;
 let checkedforUpdates = false;
@@ -32,10 +33,19 @@ function listener(details) {
 	return WEB3ENS.getContenthash(ensDomain)
 		.then(
 			function(address) {
-				return handleENSContenthash(address, ensDomain, ensPath);
+				if (address !== "0x")
+					return handleENSContenthash(address, ensDomain, ensPath);
+				else {
+					return getSkynet(ensDomain, ensPath);
+				}
 			},
 			function(error) {
-				return getENSContent(ensDomain, ensPath);
+				return WEB3ENS.getContent(ensDomain).then(
+					function(content) {
+						return handleENSContent(content, ensDomain, ensPath);
+					}
+				)
+			.catch(notFound.bind(null, ensDomain));
 			}
 		)
 		.catch(notFound.bind(null, ensDomain));
@@ -128,16 +138,20 @@ function settingsUpgrade(newSettings) {
 
 	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
 		let settings = item.settings;
-		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
-		settings.ethereumGateways = new Gateways(settings.ipfsGateways);
 
-		settings.ipfsGateways.setDefaultGateways(newSettings.ipfs);
-		settings.ethereumGateways.setDefaultGateways(newSettings.ethereum);
+		settings.ethereumGateways = new Gateways(settings.ethereumGateways);
+		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+		settings.skynetGatways = new Gateways(settings.skynetGatways);
+
+		settings.ethereumGateways.setDefaultGateways(newSettings.ethereumGateways);
+		settings.ipfsGateways.setDefaultGateways(newSettings.ipfsGateways);
+		settings.skynetGatways.setDefaultGateways(newSettings.skynetGatways);
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
 
-		ethereumGateways = settings.ipfsGateways;
-		ethereumGateways = settings.ipfsGateways;
+		ethereumGateways = settings.ethereumGateways;
+		ipfsGateways = settings.ipfsGateways;
+		skynetGateways = settings.ipfsGateways;
 	});
 }
 
@@ -215,6 +229,7 @@ function handleGatewayError(storage, url, tab) {
 browser.runtime.onMessage.addListener(messagefromFrontend);
 
 function messagefromFrontend(request, sender, sendResponse) {
+	console.log("request: ", request);
 	request = Array.isArray(request) ? request[0] : request;
 	if (!!request.normalizeURL) {
 		const normalizedUrl = normalizeUrl(request.normalizeURL, {

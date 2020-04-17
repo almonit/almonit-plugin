@@ -68,10 +68,23 @@ function initSettings() {
 		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
 		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
 		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
-		ipfsGateways.addDefault('permaweb.io', 'Permaweb', 'https://permaweb.io');
-		ipfsGateways.addDefault('ipfs.privacytools.io', 'Privacytools', 'https://ipfs.privacytools.io');
 
 		ipfsGateways.setGatewayOptions("RANDOM");
+
+		// skynet
+		let skynetGateways = new Gateways();
+
+		skynetGateways.addDefault('siasky.net', 'Siasky', 'https://siasky.net');
+		skynetGateways.addDefault('skydrain.net', 'Skydrain', 'https://skydrain.net');
+		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
+		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
+		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
+		skynetGateways.addDefault('skynet.luxor.tech', 'Luxor', 'https://skynet.luxor.tech');
+		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
+		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
+		
+
+		skynetGateways.setGatewayOptions("RANDOM");
 
 		let shortcuts = {
 			addressbar: 'Ctrl+Shift+T',
@@ -83,6 +96,7 @@ function initSettings() {
 			autoGatewaysUpdate: true,
 			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
+			skynetGateways: skynetGateways,
 			shortcuts: shortcuts
 		};
 
@@ -106,6 +120,14 @@ function updateSettings(storage) {
 	// remvoe also from function loadSettingsSetSession
 	if ('ipfs_gateway' in storage.settings) {
 
+		// ethereum
+		let ethereumGateways = new Gateways();
+
+		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
+		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+
+		ethereumGateways.setGatewayOptions("RANDOM");
+
 		// ipfs
 		let ipfsGateways = new Gateways();
 
@@ -115,18 +137,23 @@ function updateSettings(storage) {
 		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
 		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
 		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
-		ipfsGateways.addDefault('permaweb.io', 'Permaweb', 'https://permaweb.io');
-		ipfsGateways.addDefault('ipfs.privacytools.io', 'Privacytools', 'https://ipfs.privacytools.io');
 
 		ipfsGateways.setGatewayOptions("RANDOM");
 
-		// ethereum
-		let ethereumGateways = new Gateways();
+		// skynet
+		let skynetGateways = new Gateways();
 
-		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
-		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+		skynetGateways.addDefault('siasky.net', 'Siasky', 'https://siasky.net');
+		skynetGateways.addDefault('skydrain.net', 'Skydrain', 'https://skydrain.net');
+		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
+		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
+		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
+		skynetGateways.addDefault('skynet.luxor.tech', 'Luxor', 'https://skynet.luxor.tech');
+		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
+		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
+		
 
-		ethereumGateways.setGatewayOptions("RANDOM");
+		skynetGateways.setGatewayOptions("RANDOM");
 
 		let OldSettings = storage.settings;
 
@@ -135,6 +162,7 @@ function updateSettings(storage) {
 			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
 			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
+			skynetGateways: skynetGateways,
 			shortcuts: OldSettings.shortcuts
 		};
 
@@ -161,18 +189,22 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 	autoGatewaysUpdate = settings.autoGatewaysUpdate;
 
 	//turn data into Gateways object 
-	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
 	settings.ethereumGateways = new Gateways(settings.ethereumGateways); 
+	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+	settings.skynetGateways = new Gateways(settings.skynetGateways);
 	
 	if (updateGateway) {
-		settings.ipfsGateways.setCurrentGateway();
 		settings.ethereumGateways.setCurrentGateway();
+		settings.ipfsGateways.setCurrentGateway();
+		settings.skynetGateways.setCurrentGateway();
 	}
 
 
 	promisify(browser.storage.local, 'set', [{ settings }]);
-	ipfsGateways = settings.ipfsGateways;
+
 	ethereumGateways = settings.ethereumGateways;
+	ipfsGateways = settings.ipfsGateways;
+	skynetGateways = settings.skynetGateways;
 
 	WEB3ENS.connect_web3(ethereumGateways.currentGateway.address);
 }

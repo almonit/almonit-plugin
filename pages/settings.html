@@ -54,7 +54,7 @@
                                     type="checkbox"
                                     value=""
                                 />
-                                Enable automatic ipfs gateways
+                                Enable automatic settings update
                             </label>
                         </div>
                     </section>
@@ -194,6 +194,78 @@
                                 <br /><br />
                                 <input
                                     id="ipfsOtherGateway"
+                                    placeholder="http://localhost:8080/"
+                                    type="text"
+                                    disabled
+                                />
+                            </label>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="settings__label">Skynet</h3>
+                        <div>
+                            <fieldset class="pure-control-group">
+                                <label for="gateways">Current Gateway:</label>
+                                <b>
+                                    <span id="skynetCurrentGateway">
+                                        Current gateway placeholder
+                                    </span>
+                                </b>
+                            </fieldset>
+                            <div class="action__gateway">
+                                <button
+                                    class="pure-button pure-button-primary"
+                                    type="button"
+                                    id="manageSkynetGatewaysButton"
+                                >
+                                    Manage Gateways
+                                </button>
+                                <button
+                                    class="pure-button pure-button-secondary"
+                                    type="button"
+                                    id="restoreDefaultSkynetGatewaysButton"
+                                >
+                                    Restore Default Gateways
+                                </button>
+                            </div>
+                            <br /><br />
+                            <div id="skynetRadioButtons">
+                            <label for="skynetGateway-one" class="pure-checkbox">
+                                <input
+                                    id="skynetGateway-one"
+                                    type="radio"
+                                    name="skynet"
+                                    value="ipfsRandom"
+                                    checked
+                                />
+                                Use random gateway (decentrazliation via
+                                randomization)
+                            </label>
+                            <label for="skynetGateway-two" class="pure-checkbox">
+                                <input
+                                    id="skynetGateway-two"
+                                    type="radio"
+                                    name="skynet"
+                                    value="skynetForce"
+                                    checked
+                                />
+                                Force gateway
+                                <br /><br />
+                                <select id="skynetGateways" disabled></select>
+                            </label>
+                            <label for="skynetGateway-three" class="pure-checkbox">
+                                <input
+                                    id="skynetGateway-three"
+                                    type="radio"
+                                    name="skynet"
+                                    value="skynetOther"
+                                    checked
+                                />
+                                Other (e.g., localhost)
+                                <br /><br />
+                                <input
+                                    id="skynetOtherGateway"
                                     placeholder="http://localhost:8080/"
                                     type="text"
                                     disabled

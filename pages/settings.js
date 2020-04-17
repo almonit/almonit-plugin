@@ -1,7 +1,8 @@
 const htmlMime = 'text/html';
 const addGatewayPanel = document.getElementById('addGatewayPanel');
-var ipfsGateways;
 var ethereumGateways;
+var ipfsGateways;
+var skynetGateways;
 
 /**
  * Click events
@@ -20,26 +21,34 @@ document
 document
     .getElementById('restoreDefaultEthereumGatewaysButton')
     .addEventListener('click', e => restoreDefaultGateways(e, ethereumGateways, 'ethereum'));
-
 document
     .getElementById('restoreDefaultIpfsGatewaysButton')
     .addEventListener('click', e => restoreDefaultGateways(e, ipfsGateways, 'ipfs'));
+document
+    .getElementById('restoreDefaultSkynetGatewaysButton')
+    .addEventListener('click', e => restoreDefaultGateways(e, skynetGateways, 'skynet'));
 
 document
     .getElementById('manageEthereumGatewaysButton')
     .addEventListener('click', e=> openGatewayModal(e, ethereumGateways, 'ethereum'));  
-
 document
     .getElementById('manageIpfsGatewaysButton')
     .addEventListener('click', e=> openGatewayModal(e, ipfsGateways, 'ipfs'));
+document
+    .getElementById('manageSkynetGatewaysButton')
+    .addEventListener('click', e=> openGatewayModal(e, skynetGateways, 'skynet'));
+
 
 document
     .getElementById('ethereumRadioButtons')
     .addEventListener('click', e => radioGroupListener(e, 'ethereum'));
-
 document
     .getElementById('ipfsRadioButtons')
     .addEventListener('click', e => radioGroupListener(e, 'ipfs'));
+document
+    .getElementById('skynetRadioButtons')
+    .addEventListener('click', e => radioGroupListener(e, 'skynet'));
+
 
 
 /**
@@ -59,8 +68,9 @@ function loadSettings() {
         settings = result.settings;
 
         // init
-        document.getElementById('ipfsOtherGateway').value = '';
         document.getElementById('ethereumOtherGateway').value = '';
+        document.getElementById('ipfsOtherGateway').value = '';
+        document.getElementById('skynetOtherGateway').value = '';
 
         // metrics
         if (settings.metricsPermission !== true) {
@@ -80,9 +90,11 @@ function loadSettings() {
         // gateways settings
         ethereumGateways = new Gateways(settings.ethereumGateways);
         ipfsGateways = new Gateways(settings.ipfsGateways);
+        skynetGateways = new Gateways(settings.skynetGateways);
 
         loadGateways(ethereumGateways, 'ethereum');
         loadGateways(ipfsGateways, 'ipfs');
+        loadGateways(skynetGateways, 'skynet');
 
         // shortcuts
         document.getElementById('shortcutBarInput').value =
@@ -139,6 +151,7 @@ function saveSettings(e) {
 
     updateGatewaysValuesByForm(ethereumGateways, 'ethereum');
     updateGatewaysValuesByForm(ipfsGateways, 'ipfs');
+    updateGatewaysValuesByForm(skynetGateways, 'skynet');
 
     let AutoGatewaysUpdate = document.querySelector(
         '#autoGatewaysUpdateCheckbox'
@@ -155,6 +168,7 @@ function saveSettings(e) {
         autoGatewaysUpdate: AutoGatewaysUpdate,
         ethereumGateways: ethereumGateways,
         ipfsGateways: ipfsGateways,
+        skynetGateways: skynetGateways,
         shortcuts: shortcuts
     };
     promisify(browser.storage.local, 'set', [{ settings }]);
