@@ -1,16 +1,17 @@
 /**
  * settings
  */
-
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
-const settingsUrl = 'updatesettings.extension.almonit.eth';
+const settingsUrl = 'update.extension.almonit.eth';
 
 let localENS = {}; // a local ENS of all names we discovered
+
 let ipfsGateways = false;
 let skynetGateways = false;
 let ethereumGateways = false;
+
 let redirectAddress = null;
 let checkedforUpdates = false;
 
@@ -49,50 +50,6 @@ function listener(details) {
 			}
 		)
 		.catch(notFound.bind(null, ensDomain));
-}
-
-// extract ipfs address from hex and redirects there
-// before redirecting, handling usage metrics
-function redirectENStoIPFS(hex, ensDomain, ensPath) {
-	let ipfsHash = hextoIPFS(hex);
-	let ipfsAddress = ipfsGateways.currentGateway.address + '/ipfs/' + ipfsHash + ensPath;
-
-	localENS[ipfsHash] = ensDomain;
-
-	// update metrics and redirect to ipfs
-	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
-		function(item) {
-			if (Object.entries(item).length != 0) {
-				// increate counter
-				promisify(browser.storage.local, 'set', [
-					{
-						usageCounter: item.usageCounter + 1
-					}
-				]);
-
-				// update metrics (if permissioned)
-				if (metricsPermission) metrics.add(ensDomain);
-				return {
-					redirectUrl: ipfsAddress
-				};
-			} else {
-				// init counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-
-				// forward to "subscribe to metrics page" upon first usage
-				// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-				promisify(browser.storage.local, 'set', [
-					{ ENSRedirectUrl: ipfsAddress }
-				]);
-				return {
-					redirectUrl: browser.extension.getURL(
-						'pages/privacy_metrics_subscription.html'
-					)
-				};
-			}
-		},
-		err
-	);
 }
 
 /**
@@ -141,11 +98,11 @@ function settingsUpgrade(newSettings) {
 
 		settings.ethereumGateways = new Gateways(settings.ethereumGateways);
 		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
-		settings.skynetGatways = new Gateways(settings.skynetGatways);
+		settings.skynetGateways = new Gateways(settings.skynetGateways);
 
 		settings.ethereumGateways.setDefaultGateways(newSettings.ethereumGateways);
 		settings.ipfsGateways.setDefaultGateways(newSettings.ipfsGateways);
-		settings.skynetGatways.setDefaultGateways(newSettings.skynetGatways);
+		settings.skynetGateways.setDefaultGateways(newSettings.skynetGateways);
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
 
@@ -229,7 +186,6 @@ function handleGatewayError(storage, url, tab) {
 browser.runtime.onMessage.addListener(messagefromFrontend);
 
 function messagefromFrontend(request, sender, sendResponse) {
-	console.log("request: ", request);
 	request = Array.isArray(request) ? request[0] : request;
 	if (!!request.normalizeURL) {
 		const normalizedUrl = normalizeUrl(request.normalizeURL, {

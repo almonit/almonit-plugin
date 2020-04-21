@@ -79,7 +79,6 @@ function initSettings() {
 		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
 		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
 		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
-		skynetGateways.addDefault('skynet.luxor.tech', 'Luxor', 'https://skynet.luxor.tech');
 		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
 		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
 		
@@ -148,7 +147,6 @@ function updateSettings(storage) {
 		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
 		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
 		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
-		skynetGateways.addDefault('skynet.luxor.tech', 'Luxor', 'https://skynet.luxor.tech');
 		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
 		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
 		
