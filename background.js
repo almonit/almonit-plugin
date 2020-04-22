@@ -1,14 +1,17 @@
 /**
  * settings
  */
-
 const PAGE_404 = browser.runtime.getURL('pages/error.html');
 const PAGE_REDIRECT = browser.runtime.getURL('pages/redirect.html');
 const PAGE_SETTINGS = browser.runtime.getURL('pages/settings.html');
-const settingsUrl = 'settings.extension.almonit.eth';
+const settingsUrl = 'update.extension.almonit.eth';
 
 let localENS = {}; // a local ENS of all names we discovered
-let ipfsGateway = false;
+
+let ipfsGateways = false;
+let skynetGateways = false;
+let ethereumGateways = false;
+
 let redirectAddress = null;
 let checkedforUpdates = false;
 
@@ -31,57 +34,22 @@ function listener(details) {
 	return WEB3ENS.getContenthash(ensDomain)
 		.then(
 			function(address) {
-				return handleENSContenthash(address, ensDomain, ensPath);
+				if (address !== "0x")
+					return handleENSContenthash(address, ensDomain, ensPath);
+				else {
+					return getSkynet(ensDomain, ensPath);
+				}
 			},
 			function(error) {
-				return getENSContent(ensDomain, ensPath);
+				return WEB3ENS.getContent(ensDomain).then(
+					function(content) {
+						return handleENSContent(content, ensDomain, ensPath);
+					}
+				)
+			.catch(notFound.bind(null, ensDomain));
 			}
 		)
 		.catch(notFound.bind(null, ensDomain));
-}
-
-// extract ipfs address from hex and redirects there
-// before redirecting, handling usage metrics
-function redirectENStoIPFS(hex, ensDomain, ensPath) {
-	let ipfsHash = hextoIPFS(hex);
-	let ipfsAddress = ipfsGateway.address + '/ipfs/' + ipfsHash + ensPath;
-
-	localENS[ipfsHash] = ensDomain;
-
-	// update metrics and redirect to ipfs
-	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
-		function(item) {
-			if (Object.entries(item).length != 0) {
-				// increate counter
-				promisify(browser.storage.local, 'set', [
-					{
-						usageCounter: item.usageCounter + 1
-					}
-				]);
-
-				// update metrics (if permissioned)
-				if (metricsPermission) metrics.add(ensDomain);
-				return {
-					redirectUrl: ipfsAddress
-				};
-			} else {
-				// init counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-
-				// forward to "subscribe to metrics page" upon first usage
-				// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-				promisify(browser.storage.local, 'set', [
-					{ ENSRedirectUrl: ipfsAddress }
-				]);
-				return {
-					redirectUrl: browser.extension.getURL(
-						'pages/privacy_metrics_subscription.html'
-					)
-				};
-			}
-		},
-		err
-	);
 }
 
 /**
@@ -127,19 +95,20 @@ function settingsUpgrade(newSettings) {
 
 	promisify(browser.storage.local, 'get', ['settings']).then(function(item) {
 		let settings = item.settings;
-		let oldDefaultGateways = settings.ipfsGateways.default;
 
-		settings.ipfsGateways.default = newSettings;
+		settings.ethereumGateways = new Gateways(settings.ethereumGateways);
+		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+		settings.skynetGateways = new Gateways(settings.skynetGateways);
 
-		// check if current gateway is deleted in the udpate, if yes -- change it
-		if ( (ipfsGateway.key in oldDefaultGateways) && !(ipfsGateway.key in newSettings) ) {
-			settings.ipfs = 'random';
-			ipfsGateway = false;
+		settings.ethereumGateways.setDefaultGateways(newSettings.ethereumGateways);
+		settings.ipfsGateways.setDefaultGateways(newSettings.ipfsGateways);
+		settings.skynetGateways.setDefaultGateways(newSettings.skynetGateways);
 
-			promisify(browser.storage.local, 'set', [{ settings }]);
-			loadSettingsSetSession(settings);
-		} else
-			promisify(browser.storage.local, 'set', [{ settings }]);
+		promisify(browser.storage.local, 'set', [{ settings }]);
+
+		ethereumGateways = settings.ethereumGateways;
+		ipfsGateways = settings.ipfsGateways;
+		skynetGateways = settings.ipfsGateways;
 	});
 }
 
@@ -153,7 +122,7 @@ browser.webRequest.onErrorOccurred.addListener(logError, {
 
 function logError(e) {
 	let [domain, path] = urlDomain(e.url);
-	let currentGateway = normalizeUrl(ipfsGateway.address, {
+	let currentGateway = normalizeUrl(ipfsGateways.currentGateway.address, {
 		stripProtocol: true
 	});
 
@@ -177,7 +146,7 @@ function handleHeaderReceived(e) {
 	let statusCode = '' + e.statusCode;
 	if (statusCode.startsWith(5)) {
 		let [domain, path] = urlDomain(e.url);
-		let currentGateway = normalizeUrl(ipfsGateway.address, {
+		let currentGateway = normalizeUrl(ipfsGateways.currentGateway.address, {
 			stripProtocol: true
 		});
 
@@ -192,51 +161,22 @@ function handleHeaderReceived(e) {
 }
 
 function handleGatewayError(storage, url, tab) {
-	// this step may change only session options and not user settings
-	if (storage.settings.ipfs == ipfs_options.OTHER) {
-		ipfsGateway = {
-			key: 'other',
-			value: storage.settings.ipfs_other_gateway
-		};
-	} else if (
-		storage.settings.ipfs == ipfs_options.RANDOM ||
-		storage.settings.ipfs == ipfs_options.FORCE
-	) {
-		let ipfsGatewaysSettings = storage.settings.ipfsGateways;
+	// if RANDOM choose a new gateway, otherwise do nothing
+	if (storage.settings.ipfsGateways.option == 'random') {
+		let settings = storage.settings;
+		
+		// set a new current gateway and update settings storage
+		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+		settings.ipfsGateways.setCurrentGateway();
+		promisify(browser.storage.local, 'set', [{ settings }]);
+		ipfsGateways = settings.ipfsGateways;
 
-		let ipfsGatewaysList = calcualteGatewayList(
-			ipfsGatewaysSettings.default,
-			ipfsGatewaysSettings.removed,
-			ipfsGatewaysSettings.added
-		);
-
-		let ipfsGatewayKey = '';
-		let keys = Object.keys(ipfsGatewaysList);
-
-		// if keys.length < 1, don't do anything
-		if (keys.length > 1)
-			do ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
-			while (ipfsGatewayKey == ipfsGateway.key);
-
-		ipfsGateway = {
-			key: ipfsGatewayKey,
-			name: ipfsGatewaysList[ipfsGatewayKey],
-			address: 'https://' + ipfsGatewayKey
-		};
-	}
-
-	// save session info
-	let session = {
-		ipfsGateway: ipfsGateway
-	};
-	promisify(browser.storage.local, 'set', [{ session }]);
-
-	//redirect
-
-	let [fullPath, _, hash] = separateIpfsUrl(url);
-	if (localENS[hash]) {
-		let ipfsAddress = ipfsGateway.address + fullPath;
-		browser.tabs.update(tab, { url: ipfsAddress });
+		//redirect
+		let [fullPath, _, hash] = separateIpfsUrl(url);
+		if (localENS[hash]) {
+			let ipfsAddress = ipfsGateways.currentGateway.address + fullPath;
+			browser.tabs.update(tab, { url: ipfsAddress });
+		}
 	}
 }
 
@@ -279,7 +219,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 			url: PAGE_SETTINGS
 		});
 	} else if (!!request.reloadSettings) {
-		loadSettings();
+		loadSettings(false);
 	} else if (!!request.resolveUrl) {
 		const { ensDomain, ensPath } = redirectAddress;
 		WEB3ENS.getContenthash(ensDomain)
@@ -314,20 +254,6 @@ function messagefromFrontend(request, sender, sendResponse) {
 /**
  * auxillary functions
  */
-function setEthereumNode(eth) {
-	switch (eth) {
-		case 'infura':
-			var ethNode =
-				'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17';
-			break;
-		case 'local':
-			var ethNode = 'http://localhost:8545';
-			break;
-		default:
-			var ethNode = eth;
-	}
-	return ethNode;
-}
 
 /**
  * [separateIpfsUrl separates ipfs path from url

@@ -1,6 +1,6 @@
 :root {
-	--panel-height: 700px;
-	--color-border: #cdcdcd;
+	--panel-height: 80vh;
+	--color-border: #717171;
 }
 
 body {
@@ -51,21 +51,74 @@ a.goto {
 
 .panel {
 	position: relative;
-	width: 60%;
+	width: 80%;
 	height: var(--panel-height);
 	min-width: 500px;
-	background: #fff;
-	border: 1px solid var(--color-border);
-	border-radius: 5px;
 }
 
 .panel header {
-	padding: 0 30px;
-	border-bottom: 1px solid var(--color-border);
+	padding: 0 9px;
 }
 
 .panel header > p {
 	font-size: 10pt;
+}
+
+.tabs {
+	display: flex;
+}
+
+.tabs .tab {
+	position: relative;
+	height: 20px;
+	padding: 5px 10px;
+	background: var(--color-border);
+	color: white;
+	cursor: pointer;
+	border: 1px solid var(--color-border);
+	border-bottom: none;
+	font-size: 10pt;
+	display: flex;
+	align-items: center;
+	transition: all .2s;
+}
+
+.tabs > .tab + .tab {
+	margin-left: 5px;
+}
+
+.tabs .tab.active {
+	background: white;
+	color: black;
+	cursor: default;
+	height: 24px;
+	padding-bottom: 4px;
+	margin-bottom: -2px;
+	z-index: 2;
+	border: 1px solid var(--color-border);
+	border-bottom: none;
+}
+
+.tab-icon {
+	width: 21px;
+	height: 21px;
+	margin-right: 7px;
+}
+
+.tab-panels {
+	background: #fff;
+	border: 1px solid var(--color-border);
+	border-radius: 5px;
+	border-top-left-radius: 0;
+}
+
+.tab-panel {
+	display: none;
+}
+.tab-panel.active {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .panel__action {
@@ -89,9 +142,10 @@ fieldset {
 section {
 	display: grid;
 	grid-template-columns: 25% auto;
-	grid-template-rows: auto auto;
+	grid-template-rows: auto;
 	justify-content: flex-start;
 	align-items: center;
+	height: 100%;
 	border-bottom: 1px solid var(--color-border);
 	padding: 15px 30px;
 }
@@ -154,7 +208,7 @@ section:last-of-type {
 
 .button-submit {
 	position: absolute;
-	bottom: 30px;
+	bottom: 42px;
 	right: 30px;
 }
 
@@ -179,6 +233,7 @@ section:last-of-type {
 	border: 1px solid var(--color-border);
 	padding: 10px 35px;
 	box-sizing: border-box;
+	z-index: 3;
 }
 
 .modal-saved_msg {
@@ -238,6 +293,12 @@ section:last-of-type {
 
 .modal li:first-child {
 	border-top: 1px dashed rgba(0, 0, 0, 0.4);
+}
+
+.modal li > .gateway-title {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .modal li:hover > .edit-gateway-button,

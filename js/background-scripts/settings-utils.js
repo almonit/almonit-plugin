@@ -2,23 +2,22 @@
  * Global variables
  */
 var ethereum;
-var ethereumNode;
 var metricsPermission;
 var autoGatewaysUpdate;
 
 /**
  * Backgroud functions related to settings
  */
-const ipfs_options = Object.freeze({
-	RANDOM: 'random',
+const gateway_options = Object.freeze({
+	RANDOM: 'randofm',
 	FORCE: 'force_gateway',
 	OTHER: 'other_gateway'
 });
 
-function loadSettings() {
+function loadSettings(updateGateway = true) {
 	// load plugin settings
 	promisify(browser.storage.local, 'get', ['settings']).then(
-		loadSettingsSetSession,
+		res => loadSettingsSetSession(res,updateGateway),
 		err
 	);
 }
@@ -42,7 +41,7 @@ function onNewVersion(details) {
 				updateSettings,
 				err
 			);
-	}
+1	}
 }
 
 /**
@@ -51,24 +50,40 @@ function onNewVersion(details) {
 
  */
 function initSettings() {
-		let deafulrsIpfsGateways = {
-			'ipfs.io': 'Ipfs',
-			'ipfs.eternum.io': 'Eternum',
-			'cloudflare-ipfs.com': 'Cloudflare',
-			'hardbin.com': 'Hardbin',
-			'gateway.temporal.cloud': 'Temporal',
-			'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb',
-			'ipfs.privacytools.io': 'Privacytools'
-		};
-		let removedIpfsGateways = {};
-		let addedIpfsGateways = {};
 
-		let ipfsGateways = {
-			default: deafulrsIpfsGateways,
-			removed: removedIpfsGateways,
-			added: addedIpfsGateways
-		};
+		// ethereum
+		let ethereumGateways = new Gateways();
+
+		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
+		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+
+		ethereumGateways.setGatewayOptions("RANDOM");
+
+		// ipfs
+		let ipfsGateways = new Gateways();
+
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
+		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
+		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
+		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
+
+		ipfsGateways.setGatewayOptions("RANDOM");
+
+		// skynet
+		let skynetGateways = new Gateways();
+
+		skynetGateways.addDefault('siasky.net', 'Siasky', 'https://siasky.net');
+		skynetGateways.addDefault('skydrain.net', 'Skydrain', 'https://skydrain.net');
+		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
+		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
+		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
+		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
+		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
+		
+
+		skynetGateways.setGatewayOptions("RANDOM");
 
 		let shortcuts = {
 			addressbar: 'Ctrl+Shift+T',
@@ -78,11 +93,9 @@ function initSettings() {
 		let settings = {
 			metricsPermission: 'uninitialized',
 			autoGatewaysUpdate: true,
-			ethereum: 'infura',
+			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
-			ipfs: 'random',
-			ipfs_gateway: '',
-			ipfs_other_gateway: '',
+			skynetGateways: skynetGateways,
 			shortcuts: shortcuts
 		};
 
@@ -102,44 +115,57 @@ function initSettings() {
  * @return {[type]}
  */
 function updateSettings(storage) {
-	// version < 0.0.8 didn't have ipfsGateways key in settings.
-	// remove this after version 0.0.12, where we assume users version already >= 0.0.8
-	// remvoe also the part about it in function loadSettingsSetSession
-	if (!('ipfsGateways' in storage.settings)) {
-		let deafulrsIpfsGateways = {
-			'ipfs.io': 'Ipfs',
-			'ipfs.eternum.io': 'Eternum',
-			'cloudflare-ipfs.com': 'Cloudflare',
-			'hardbin.com': 'Hardbin',
-			'gateway.temporal.cloud': 'Temporal',
-			'gateway.pinata.cloud': 'Pinata',
-			'permaweb.io': 'Permaweb',
-			'ipfs.privacytools.io': 'Privacytools'
-		};
-		let removedIpfsGateways = {};
-		let addedIpfsGateways = {};
+	// for version < 0.0.9, remove after version 0.0.13
+	// remvoe also from function loadSettingsSetSession
+	if ('ipfs_gateway' in storage.settings) {
 
-		let ipfsGateways = {
-			default: deafulrsIpfsGateways,
-			removed: removedIpfsGateways,
-			added: addedIpfsGateways
-		};
+		// ethereum
+		let ethereumGateways = new Gateways();
+
+		ethereumGateways.addDefault('mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17', 'Infura', 'https://mainnet.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17');
+		ethereumGateways.addDefault('cloudflare-eth.com', 'Cloudflare', 'https://cloudflare-eth.com');
+
+		ethereumGateways.setGatewayOptions("RANDOM");
+
+		// ipfs
+		let ipfsGateways = new Gateways();
+
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
+		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
+		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
+		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
+		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
+
+		ipfsGateways.setGatewayOptions("RANDOM");
+
+		// skynet
+		let skynetGateways = new Gateways();
+
+		skynetGateways.addDefault('siasky.net', 'Siasky', 'https://siasky.net');
+		skynetGateways.addDefault('skydrain.net', 'Skydrain', 'https://skydrain.net');
+		skynetGateways.addDefault('sialoop.net', 'Sialoop', 'https://sialoop.net');
+		skynetGateways.addDefault('siacdn.com', 'Siacdn', 'https://siacdn.com');
+		skynetGateways.addDefault('skynethub.io', 'Skynethub', 'https://skynethub.io');
+		skynetGateways.addDefault('skynet.tutemwesi.com', 'Tutemwesi', 'https://skynet.tutemwesi.com');
+		skynetGateways.addDefault('vault.lightspeedhosting.com', 'Lightspeed Hosting', 'https://vault.lightspeedhosting.com');
+		
+
+		skynetGateways.setGatewayOptions("RANDOM");
 
 		let OldSettings = storage.settings;
 
 		let settings = {
 			metricsPermission: OldSettings.metricsPermission,
 			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
-			ethereum: OldSettings.ethereum,
+			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
-			ipfs: OldSettings.ipfs,
-			ipfs_gateway: OldSettings.ipfs_gateway,
-			ipfs_other_gateway: OldSettings.ipfs_other_gateway,
+			skynetGateways: skynetGateways,
 			shortcuts: OldSettings.shortcuts
 		};
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
-
+haha,
 		//reload session after settings update.
 		loadSettingsSetSession(storage);
 	}
@@ -149,86 +175,34 @@ function updateSettings(storage) {
  * [Load settings]
  * @param  {json} storage [current settings in browser storage]
  */
-function loadSettingsSetSession(storage) {
-	if (!storage.settings || !('ipfsGateways' in storage.settings)) {
-		console.info('settings are preparing...');
+function loadSettingsSetSession(storage, updateGateway = true) {
+	let settings = storage.settings;
+
+	if (!settings || ('ipfs_gateway' in settings) ) {
 		loadSettings();
 		return;
 	}
-	// load settings
-	ethereum = storage.settings.ethereum;
-	ethereumNode = setEthereumNode(ethereum);
 
-	metricsPermission = storage.settings.metricsPermission;
-	autoGatewaysUpdate = storage.settings.autoGatewaysUpdate;
+	metricsPermission = settings.metricsPermission;
+	autoGatewaysUpdate = settings.autoGatewaysUpdate;
 
-	WEB3ENS.connect_web3(ethereumNode);
-
-	let ipfsGatewaysSettings = storage.settings.ipfsGateways;
-	let ipfsGatewaysList = calcualteGatewayList(
-		ipfsGatewaysSettings.default,
-		ipfsGatewaysSettings.removed,
-		ipfsGatewaysSettings.added
-	);
-
-	// set ipfs gateway
-	if (storage.settings.ipfs == ipfs_options.RANDOM) {
-		if (!ipfsGateway) {
-			let keys = Object.keys(ipfsGatewaysList);
-			let ipfsGatewayKey = keys[(keys.length * Math.random()) << 0];
-
-			ipfsGateway = {
-				key: ipfsGatewayKey,
-				name: ipfsGatewaysList[ipfsGatewayKey],
-				address: 'https://' + ipfsGatewayKey
-			};
-		}
-	} else if (storage.settings.ipfs == ipfs_options.FORCE) {
-		ipfsGateway = JSON.parse(storage.settings.ipfs_gateway);
-
-		ipfsGateway = {
-			key: ipfsGateway.key,
-			name: ipfsGateway.name,
-			address: 'https://' + ipfsGateway.key
-		};
-	} else if (storage.settings.ipfs == ipfs_options.OTHER) {
-		ipfsGateway = {
-			key: 'other',
-			name: 'other',
-			address: storage.settings.ipfs_other_gateway
-		};
+	//turn data into Gateways object 
+	settings.ethereumGateways = new Gateways(settings.ethereumGateways); 
+	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
+	settings.skynetGateways = new Gateways(settings.skynetGateways);
+	
+	if (updateGateway) {
+		settings.ethereumGateways.setCurrentGateway();
+		settings.ipfsGateways.setCurrentGateway();
+		settings.skynetGateways.setCurrentGateway();
 	}
 
-	// save session info
-	let session = {
-		ipfsGateway: ipfsGateway
-	};
-	promisify(browser.storage.local, 'set', [{ session }]);
-}
 
-/**
- * [Calculates a gateway list out of three given lists]
- * @param  {[Object]} defaultGateways [list of default software gateways]
- * @param  {[Object]} removedGateways [list of gateways the user manually added]
- * @param  {[Object]} addedGateways   [list of gateways the user manually removed]
- * @return {[Object]}                 [list of gateways the software can use]
- */
-function calcualteGatewayList(defaultGateways, removedGateways, addedGateways) {
-	// begin with default gateways
-	let ipfsGatewaysList = {};
-	for (let gate in defaultGateways) {
-		ipfsGatewaysList[gate] = defaultGateways[gate];
-	}
+	promisify(browser.storage.local, 'set', [{ settings }]);
 
-	// delete removed gateways
-	for (let gate in removedGateways) {
-		delete ipfsGatewaysList[gate];
-	}
+	ethereumGateways = settings.ethereumGateways;
+	ipfsGateways = settings.ipfsGateways;
+	skynetGateways = settings.skynetGateways;
 
-	// add "added gateways"
-	for (let gate in addedGateways) {
-		ipfsGatewaysList[gate] = addedGateways[gate];
-	}
-
-	return ipfsGatewaysList;
+	WEB3ENS.connect_web3(ethereumGateways.currentGateway.address);
 }
