@@ -108,7 +108,7 @@ function settingsUpgrade(newSettings) {
 
 		ethereumGateways = settings.ethereumGateways;
 		ipfsGateways = settings.ipfsGateways;
-		skynetGateways = settings.ipfsGateways;
+		skynetGateways = settings.skynetGateways;
 	});
 }
 
