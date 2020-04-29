@@ -62,7 +62,7 @@ function initSettings() {
 		// ipfs
 		let ipfsGateways = new Gateways();
 
-		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
+		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io');
 		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
 		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
 		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
@@ -132,10 +132,14 @@ function updateSettings(storage) {
 
 		ipfsGateways.addDefault('ipfs.io', 'Ipfs', 'https://ipfs.io/');
 		ipfsGateways.addDefault('ipfs.eternum.io', 'Eternum', 'https://ipfs.eternum.io');
+		ipfsGateways.addDefault('ipfs.infura.io', 'Infura', 'https://ipfs.infura.io');
 		ipfsGateways.addDefault('cloudflare-ipfs.com', 'Cloudflare', 'https://cloudflare-ipfs.com');
-		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://cloudflare-ipfs.com');
 		ipfsGateways.addDefault('gateway.temporal.cloud', 'Temporal', 'https://gateway.temporal.cloud');
 		ipfsGateways.addDefault('gateway.pinata.cloud', 'Pinata', 'https://gateway.pinata.cloud');
+		ipfsGateways.addDefault('hardbin.com', 'Hardbin', 'https://hardbin.com');
+		ipfsGateways.addDefault('ninetailed.ninja', 'Nine Tailed Ninja', 'https://ninetailed.ninja');
+		ipfsGateways.addDefault('dweb.link', 'Dweb Link', 'https://dweb.link');
+		ipfsGateways.addDefault('ipfs.privacytools.io', 'PrivacyTools', 'https://ipfs.privacytools.io');
 
 		ipfsGateways.setGatewayOptions("RANDOM");
 
@@ -205,4 +209,30 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 	skynetGateways = settings.skynetGateways;
 
 	WEB3ENS.connect_web3(ethereumGateways.currentGateway.address);
+
+	// catch webRequests to correct broken gateways
+	// we catch only 'default' gateways as there's permission only for these in manifest.json
+	var ipfsGatewaystoCatch = [];
+	var skynetGatewaystoCatch = [];
+
+	for (gw in ipfsGateways.default) {
+		ipfsGatewaystoCatch.push(ipfsGateways.default[gw].address + '/ipfs*')
+	}
+
+	for (gw in skynetGateways.default) {
+		skynetGatewaystoCatch.push(skynetGateways.default[gw].address + '/*')
+	}
+
+	browser.webRequest.onHeadersReceived.addListener(
+		(e) => handleHeaderReceived(e, skynetGateways, 'skynetGateways'),
+		{ urls: skynetGatewaystoCatch, types: ['main_frame'] },
+		['blocking', 'responseHeaders']
+	);
+
+	browser.webRequest.onHeadersReceived.addListener(
+		(e) => handleHeaderReceived(e, ipfsGateways, 'ipfsGateways'),
+		{ urls: ipfsGatewaystoCatch, types: ['main_frame'] },
+		['blocking', 'responseHeaders']
+	);
+
 }

@@ -31,7 +31,7 @@
     "activeTab",
     "http://*.eth/*",
     "https://*.eth/*",
-    "http://*/*ipfs*",
+     "http://*/*ipfs*",
     "https://*/*ipfs*",
     "storage"
   ],

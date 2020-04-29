@@ -134,25 +134,19 @@ function logError(e) {
 }
 
 /**
- * Handle broken IPFS gateway
+ * Handle broken gateways
  */
-browser.webRequest.onHeadersReceived.addListener(
-	handleHeaderReceived,
-	{ urls: ['http://*/*ipfs*', 'https://*/*ipfs*'], types: ['main_frame'] },
-	['blocking', 'responseHeaders']
-);
-
-function handleHeaderReceived(e) {
+function handleHeaderReceived(e, gws, label) {
 	let statusCode = '' + e.statusCode;
 	if (statusCode.startsWith(5)) {
 		let [domain, path] = urlDomain(e.url);
-		let currentGateway = normalizeUrl(ipfsGateways.currentGateway.address, {
+		let currentGateway = normalizeUrl(gws.currentGateway.address, {
 			stripProtocol: true
 		});
 
 		if (domain == currentGateway)
 			promisify(browser.storage.local, 'get', ['settings']).then(
-				storage => handleGatewayError(storage, e.url, e.tabId),
+				storage => handleGatewayError(storage, gws, label, e.url, e.tabId),
 				err
 			);
 	}
@@ -160,22 +154,21 @@ function handleHeaderReceived(e) {
 	return { responseHeaders: e.responseHeaders };
 }
 
-function handleGatewayError(storage, url, tab) {
+function handleGatewayError(storage, gws, label, url, tab) {
 	// if RANDOM choose a new gateway, otherwise do nothing
-	if (storage.settings.ipfsGateways.option == 'random') {
+	if (gws.option == 'random') {
 		let settings = storage.settings;
 		
 		// set a new current gateway and update settings storage
-		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
-		settings.ipfsGateways.setCurrentGateway();
+		gws.setCurrentGateway();
+		settings[label] = gws;
 		promisify(browser.storage.local, 'set', [{ settings }]);
-		ipfsGateways = settings.ipfsGateways;
 
 		//redirect
 		let [fullPath, _, hash] = separateIpfsUrl(url);
 		if (localENS[hash]) {
-			let ipfsAddress = ipfsGateways.currentGateway.address + fullPath;
-			browser.tabs.update(tab, { url: ipfsAddress });
+			let gwAddress = gws.currentGateway.address + fullPath;
+			browser.tabs.update(tab, { url: gwAddress });
 		}
 	}
 }

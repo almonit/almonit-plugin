@@ -53,9 +53,7 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 
 // retrieve general ENS content field
 function getSkynet(ensDomain, ensPath) {
-	console.log("domain:", ensDomain)
 	return WEB3ENS.getSkynet(ensDomain).then(function(content) {
-		console.log("Skynet CID: ", content);
 		return redirectENStoSkynet(content, ensDomain, ensPath);
 	}, notFound.bind(null, ensDomain));
 }
