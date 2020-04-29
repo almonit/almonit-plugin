@@ -10,7 +10,8 @@ var web3 = '';
 
 module.exports = {
 	connect_web3: function(node) {
-		if (web3 == '') web3 = new Web3(node);
+		web3 = ''; //clear web3 variable 
+		web3 = new Web3(node);
 	},
 
 	getContenthash: function(name) {
