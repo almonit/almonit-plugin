@@ -215,31 +215,29 @@ function messagefromFrontend(request, sender, sendResponse) {
 		loadSettings(false);
 	} else if (!!request.resolveUrl) {
 		const { ensDomain, ensPath } = redirectAddress;
+
+		// if error in retrieving Contenthash, try general ENS content field
 		WEB3ENS.getContenthash(ensDomain)
 			.then(
 				function(address) {
-					const resolvedUrl = handleENSContenthash(
-						address,
-						ensDomain,
-						ensPath
-					);
-					resolvedUrl.then(({ redirectUrl }) =>
-						sendResponse(redirectUrl)
-					);
+					if (address !== "0x") {
+						const resolvedUrl = handleENSContenthash(address, ensDomain, ensPath);
+						resolvedUrl.then( ({ redirectUrl }) => sendResponse(redirectUrl) );
+					}
+					else {
+						const resolvedUrl = getSkynet(ensDomain, ensPath);
+						resolvedUrl.then( ({ redirectUrl }) => sendResponse(redirectUrl) );
+					}
 				},
 				function(error) {
 					const resolvedUrl = getENSContent(ensDomain, ensPath);
-					resolvedUrl.then(({ redirectUrl }) =>
-						sendResponse(redirectUrl)
-					);
+					resolvedUrl.then( ({ redirectUrl }) => sendResponse(redirectUrl) )
+				.catch(() => { sendResponse(PAGE_404 + '?fallback=' + ensDomain);}) 
+				.finally(() => { redirectAddress = null;});
 				}
 			)
-			.catch(() => {
-				sendResponse(PAGE_404 + '?fallback=' + ensDomain);
-			})
-			.finally(() => {
-				redirectAddress = null;
-			});
+			.catch(() => { sendResponse(PAGE_404 + '?fallback=' + ensDomain);})
+			.finally(() => { redirectAddress = null;});
 	}
 	return true;
 }

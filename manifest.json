@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Almonit",
-  "version": "0.0.10alpha",
+  "version": "0.0.10",
   "author": "Almonit",
   "description": "Extension for Decentralized Web",
   "homepage_url": "https://almonit.eth",
@@ -11,6 +11,7 @@
 
   "background": {
     "scripts": [
+      "resources/gateways.json",
       "js/check-browser.js",
       "js/promisify.js",
       "js/multihashes-min.js",

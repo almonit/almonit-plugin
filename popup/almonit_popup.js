@@ -38,21 +38,29 @@ function loadCurrentSettings(result) {
 	let settings = result.settings;
 
 	document.getElementById('ethereumGatewayOption').innerText =
-		settings.ethereumGateways.option;
+		settings.ethereumGateways.option === 'force_gateway'
+			? 'forced'
+			: settings.ethereumGateways.option === 'other_gateway'
+				? 'other'
+				: settings.ethereumGateways.option;
 	document.getElementById('ethereumCurrentGateway').innerText =
 		settings.ethereumGateways.currentGateway.name;
 
 	document.getElementById('ipfsGatewayOption').innerText =
 		settings.ipfsGateways.option === 'force_gateway'
 			? 'forced'
-			: settings.ipfsGateways.option;
+			: settings.ipfsGateways.option === 'other_gateway'
+				? 'other'
+				: settings.ipfsGateways.option;
 	document.getElementById('ipfsCurrentGateway').innerText =
 		settings.ipfsGateways.currentGateway.name;
 
 	document.getElementById('siaGatewayOption').innerText =
 		settings.skynetGateways.option === 'force_gateway'
 			? 'forced'
-			: settings.skynetGateways.option;
+			: settings.skynetGateways.option === 'other_gateway'
+				? 'other'
+				: settings.skynetGateways.option;
 	document.getElementById('siaCurrentGateway').innerText =
 		settings.skynetGateways.currentGateway.name;
 }
