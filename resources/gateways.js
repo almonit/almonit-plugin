@@ -48,11 +48,6 @@ var gatewaysDataJSON = `{
       "key": "ninetailed.ninja",
       "name": "Nine Tailed Ninja",
       "address": "https://ninetailed.ninja"
-    },
-    "ipfs.privacytools.io": {
-      "key": "ipfs.privacytools.io",
-      "name": "PrivacyTools",
-      "address": "https://ipfs.privacytools.io"
     }
   },
 
@@ -70,7 +65,7 @@ var gatewaysDataJSON = `{
     "sialoop.net": { 
       "key": "sialoop.net",
       "name": "Sialoop",
-      "address": "'https://sialoop.net"
+      "address": "https://sialoop.net"
     },
     "siacdn.com": { 
       "key": "siacdn.com",

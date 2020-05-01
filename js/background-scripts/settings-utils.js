@@ -5,6 +5,9 @@ var ethereum;
 var metricsPermission;
 var autoGatewaysUpdate;
 
+var reloadingEffortsNumber = 0;
+const REALOADINGEFFORTMAN = 100;
+
 /**
  * Backgroud functions related to settings
  */
@@ -100,6 +103,7 @@ function updateSettings(storage) {
 	// for version < 0.0.9, remove after version 0.0.13
 	// remvoe also from function loadSettingsSetSession
 	if ('ipfs_gateway' in storage.settings) {
+		let oldSettings = storage.settings;
 
 		// ethereum
 		var ethereumGateways = new Gateways();
@@ -109,29 +113,10 @@ function updateSettings(storage) {
 		// ipfs
 		var ipfsGateways = new Gateways();
 		ipfsGateways.setDefaultGateways(gatewaysData.ipfsGateways);
+		ipfsGateways.setGatewayOptions("RANDOM");
 
-		// transfer custom gateways
-		for (key in settings.ipfsGateways.added)
-			ipfsGateways.addCustom(key, settings.ipfsGateways.added[key], "https://" + key);
-
-		// transfer removed gateways
-		for (key in settings.ipfsGateways.removed)
-			ipfsGateways.removeGateway(key);			
-
-		switch (settings.ipfs) {
-			case "random": 
-				ipfsGateways.setGatewayOptions("RANDOM");
-				break;
-			case "force_gateway":
-				ipfsGateways.setGatewayOptions("FORCE");
-				ipfsGateways.setGatewayOptions("FORCE", settings.ipfs_gateway.key);
-				// set current gateway to the forced one
-				break;
-			case "other_gateway":
-				ipfsGateways.setGatewayOptions("OTHER");
-				ipfsGateways.setGatewayOptions("OTHER",settings.ipfs_other_gateway);
-				// set current gateway to other
-		}
+		// TODO NEXT VERSION: TRANSFTER CUSTOM GATEWAYS
+		// TODO NEXT VERSION: FIX KEEPING FORCED AND OTHER GATEWAY WHEN UPGRADING IN NEXT VERSION
 
 		// skynet
 		var skynetGateways = new Gateways();
@@ -139,15 +124,13 @@ function updateSettings(storage) {
 		skynetGateways.setGatewayOptions("RANDOM");
 		
 
-		var OldSettings = storage.settings;
-
 		var settings = {
-			metricsPermission: OldSettings.metricsPermission,
-			autoGatewaysUpdate: OldSettings.autoGatewaysUpdate,
+			metricsPermission: oldSettings.metricsPermission,
+			autoGatewaysUpdate: oldSettings.autoGatewaysUpdate,
 			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
 			skynetGateways: skynetGateways,
-			shortcuts: OldSettings.shortcuts
+			shortcuts: oldSettings.shortcuts
 		};
 
 	} else { // just update gateway lists
@@ -175,7 +158,9 @@ function updateSettings(storage) {
 function loadSettingsSetSession(storage, updateGateway = true) {
 	let settings = storage.settings;
 
-	if (!settings || ('ipfs_gateway' in settings) ) {
+	if ( (!settings || ('ipfs_gateway' in settings) || (Object.keys(settings).length === 0)) 
+			&& (reloadingEffortsNumber < REALOADINGEFFORTMAN) ) {
+		reloadingEffortsNumber = reloadingEffortsNumber + 1;
 		loadSettings();
 		return;
 	}
