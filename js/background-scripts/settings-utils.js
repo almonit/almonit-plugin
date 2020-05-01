@@ -44,7 +44,7 @@ function onNewVersion(details) {
 
  */
 function initSettings() {
-		//gatewaysDataJSON is defined in resources/gateways.json
+		//gatewaysDataJSON is defined in resources/gateways.js
 		let gatewaysData = JSON.parse(gatewaysDataJSON);
 
 		// ethereum
@@ -94,7 +94,7 @@ function initSettings() {
  * @return {[type]}
  */
 function updateSettings(storage) {
-	//gatewaysDataJSON is defined in resources/gateways.json
+	//gatewaysDataJSON is defined in resources/gateways.js
 	let gatewaysData = JSON.parse(gatewaysDataJSON);
 
 	// for version < 0.0.9, remove after version 0.0.13

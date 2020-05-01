@@ -11,7 +11,7 @@
 
   "background": {
     "scripts": [
-      "resources/gateways.json",
+      "resources/gateways.js",
       "js/check-browser.js",
       "js/promisify.js",
       "js/multihashes-min.js",
