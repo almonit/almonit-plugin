@@ -70,7 +70,7 @@ var gatewaysDataJSON = `{
     "siacdn.com": { 
       "key": "siacdn.com",
       "name": "Siacdn",
-      "address": "https://siacdn.com"
+      "address": "https://www.siacdn.com"
     },
     "skynethub": { 
       "key": "skynethub",
