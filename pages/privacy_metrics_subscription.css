@@ -1,6 +1,5 @@
 :root {
-  --panel-height: 700px;
-  --color-border: #cdcdcd;
+	--color-text: #4a4a4a;
 }
 
 body {
@@ -8,17 +7,53 @@ body {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	color: #4a4a4a;
-	background-color: #f3f3f3;
+	height: 100vh;
+	color: var(--color-text);
 	font-family: "Montserrat", sans-serif;
+	overflow: hidden;
+}
+
+center {
+	font-size: 14pt;
 }
 
 .panel__action {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	font-size: 10.5pt;
+	margin-top: 42px;
 }
 
-.pure-button{
+.pure-button {
 	margin: 0 10px;
+}
+
+.metric-details {
+	margin-top: 28px;
+	font-size: 14pt;
+}
+.metric-list {
+	line-height: 2.1rem;
+	font-size: 10.5pt;
+}
+
+.fadeInBottom {
+	animation-name: fadeInBottom;
+	animation-duration: 1.4s;
+	animation-fill-mode: both;
+	background: radial-gradient(#e2c87d95, #33333390);
+	background-size: 180% 100%;
+}
+
+@keyframes fadeInBottom {
+	from {
+		opacity: 0;
+		transform: translateY(10%);
+		background-position: 0% 50%;
+	}
+	to {
+		opacity: 1;
+		background-position: 100% 50%;
+	}
 }
