@@ -175,6 +175,10 @@ main > section > a {
 	align-items: center;
 }
 
+.session-status {
+	min-width: 140px;
+}
+
 .gateway-icon {
 	width: 14px;
 	height: 14px;
