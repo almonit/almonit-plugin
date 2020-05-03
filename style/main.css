@@ -113,6 +113,9 @@
 	width: calc(100% + 34px) !important;
 	border: 15px solid black !important;
 	box-sizing: border-box !important;
+	display: initial !important;
+	margin: initial !important;
+	max-width: initial !important;
 }
 
 @media only screen and (max-width: 1030px) {

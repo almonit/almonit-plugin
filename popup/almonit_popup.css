@@ -123,6 +123,7 @@ main > section > a {
 	background-color: #efefef;
 	border: 1px solid #efefef !important;
 	outline: none;
+	height: 33px;
 }
 
 .input-seach:focus {

@@ -66,6 +66,7 @@ a.goto {
 
 .tabs {
 	display: flex;
+	height: 32px;
 }
 
 .tabs .tab {
@@ -92,7 +93,7 @@ a.goto {
 	color: black;
 	cursor: default;
 	height: 24px;
-	padding-bottom: 4px;
+	padding-bottom: 3px;
 	margin-bottom: -2px;
 	z-index: 2;
 	border: 1px solid var(--color-border);
@@ -119,10 +120,6 @@ a.goto {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-}
-
-.panel__action {
-	border-top: 1px solid var(--color-border);
 }
 
 .pure-form-aligned .pure-control-group label {
