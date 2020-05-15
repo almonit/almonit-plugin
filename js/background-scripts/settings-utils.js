@@ -134,7 +134,7 @@ function updateSettings(storage) {
 		};
 
 	} else { // just update gateway lists
-		var settings = item.settings;
+		var settings = storage.settings;
 
 		settings.ethereumGateways = new Gateways(settings.ethereumGateways);
 		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
@@ -142,7 +142,7 @@ function updateSettings(storage) {
 
 		settings.ethereumGateways.setDefaultGateways(gatewaysData.ethereumGateways);
 		settings.ipfsGateways.setDefaultGateways(gatewaysData.ipfsGateways);
-		settings.skynetGateways.setDefaultGateways(gatewaysData53.skynetGateways);
+		settings.skynetGateways.setDefaultGateways(gatewaysData.skynetGateways);
 
 	}
 

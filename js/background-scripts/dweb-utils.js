@@ -54,6 +54,9 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 // retrieve general ENS content field
 function getSkynet(ensDomain, ensPath) {
 	return WEB3ENS.getSkynet(ensDomain).then(function(content) {
+		if (content == "") 
+			return;
+
 		return redirectENStoSkynet(content, ensDomain, ensPath);
 	}, notFound.bind(null, ensDomain));
 }
