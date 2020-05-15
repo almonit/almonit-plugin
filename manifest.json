@@ -52,18 +52,6 @@
     "storage"
   ],
 
-  "content_scripts": [
-    {
-      "matches": ["*://*/ipfs/*"],
-      "js": [
-        "js/check-browser.js",
-        "js/promisify.js",
-        "frontend.js"
-      ],
-      "css": ["style/main.css"]
-    }
-  ],
-
   "web_accessible_resources": ["resources/*.png", "pages/*"],
 
   "options_ui": {
