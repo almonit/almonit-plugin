@@ -66,7 +66,7 @@ class Gateways {
 		     !(this.currentGateway.key in gatewaysList) ){
 			this.default = gatewaysList;	
 			this.option = this.gatewayOptions['RANDOM'];
-			this.currentGateway = getRandom();
+			this.currentGateway = this.getRandom();
 		}  else
 			this.default = gatewaysList;
 	}
