@@ -29,7 +29,6 @@
   "permissions": [
     "webRequest",
     "webRequestBlocking",
-    "activeTab",
     "http://*.eth/*",
     "https://*.eth/*",
     "https://ipfs.io/ipfs*",
