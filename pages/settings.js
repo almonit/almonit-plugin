@@ -142,9 +142,10 @@ function loadSettings() {
         }
 
         let selectbox = document.getElementById(label + 'Gateways');
-        if (gws.option != 'other') {
+        if (gws.option != 'other_gateway') {
             selectbox.value = gws.currentGateway.key;
-        } else selectbox.value = select[0].id; //we show first value to keep box non-empty
+        } else 
+            selectbox.value = selectbox[0].id; //we show first value to keep box non-empty
 
         setCurrentGateway(gws, label);
     }
@@ -198,7 +199,8 @@ function saveSettings(e) {
 
 function setCurrentGateway(gws, label) {
     let currentGateway;
-    if (gws.option != 'other') currentGateway = gws.currentGateway.name;
+    if (gws.option != 'other_gateway') 
+        currentGateway = gws.currentGateway.name;
     //for 'other' the key and name both set to 'other', so we use 'adddres'
     else
         currentGateway =
@@ -247,9 +249,14 @@ function updateGatewaysValuesByForm(gws, label) {
         case label + 'Other':
             let other = document.getElementById(label + 'OtherGateway').value;
             gws.setGatewayOptions('OTHER', other);
-            let selectbox = document.getElementById(label + 'Gateways');
-            selectbox.value = selectbox[0].id; //not to have gateway select box empty
     }
+
+    //update selection in selectBox 
+    let selectbox = document.getElementById(label + 'Gateways');
+    if (gws.option != 'other_gateway') {
+        selectbox.value = gws.currentGateway.key;
+    } else 
+        selectbox.value = selectbox[0].id; //we show first value to keep box non-empty
 
     setCurrentGateway(gws, label);
 }

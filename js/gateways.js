@@ -145,7 +145,10 @@ class Gateways {
 		if (option in this.gatewayOptions) {
 			switch (option) {
 				case "RANDOM":
+					let oldOption = this.option;
 					this.option = this.gatewayOptions[option];
+					if (oldOption == this.gatewayOptions['OTHER'])
+						this.currentGateway = this.getRandom();
 					break;
 				case "FORCE":
 					if (gatewayKeyOrAddress !== null) {
