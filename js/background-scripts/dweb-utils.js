@@ -42,7 +42,7 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 				]);
 				return {
 					redirectUrl: browser.extension.getURL(
-						'pages/privacy_metrics_subscription.html'
+						'pages/welcome_screen.html'
 					)
 				};
 			}
@@ -93,7 +93,7 @@ function redirectENStoSkynet(CID, ensDomain, ensPath) {
 				]);
 				return {
 					redirectUrl: browser.extension.getURL(
-						'pages/privacy_metrics_subscription.html'
+						'pages/welcome_screen.html'
 					)
 				};
 			}
