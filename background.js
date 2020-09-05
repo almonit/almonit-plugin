@@ -16,13 +16,14 @@ let redirectAddress = null;
 let checkedforUpdates = false;
 
 /**
- * Catch '.ens' requests, read ipfs address from Ethereum and redirect to ENS
+ * Catch '.eth' requests, read ipfs address from Ethereum and redirect to ENS
  */
 browser.webRequest.onBeforeRequest.addListener(
 	listener,
 	{ urls: ['http://*.eth/*', 'https://*.eth/*'], types: ['main_frame'] },
 	['blocking']
 );
+
 
 function listener(details) {
 	const [ensDomain, ensPath] = urlDomain(details.url);
@@ -187,26 +188,6 @@ function messagefromFrontend(request, sender, sendResponse) {
 		sendResponse({ response: normalizedUrl });
 	} else if (localENS[request.ipfsAddress]) {
 		sendResponse({ response: localENS[request.ipfsAddress] });
-	} else if (!!request.permission) {
-		let ipfsLocation = request.first_site.lastIndexOf('ipfs');
-		let ipfsAddress = request.first_site.substring(
-			ipfsLocation + 5,
-			request.first_site.length
-		);
-		metrics.add(localENS[ipfsAddress]);
-
-		//update local settings
-		metricsPermission = request.permission;
-
-		//update stored settings
-		promisify(browser.storage.local, 'get', ['settings']).then(function(
-			item
-		) {
-			let settings = item.settings;
-			settings.metricsPermission = request.permission;
-			promisify(browser.storage.local, 'set', [{ settings }]);
-		},
-		err);
 	} else if (!!request.settings) {
 		let settingsTab = browser.tabs.create({
 			url: PAGE_SETTINGS
@@ -240,6 +221,37 @@ function messagefromFrontend(request, sender, sendResponse) {
 			.finally(() => { redirectAddress = null;});
 	}
 	return true;
+}
+
+/**
+ * Catch '.teth' requests, from Ethereum Rinkeby ENS contract
+ */
+browser.webRequest.onBeforeRequest.addListener(
+	tethListener,
+	{ urls: ['http://*.teth/*', 'https://*.teth/*'], types: ['main_frame'] },
+	['blocking']
+);
+
+// tethListener is simpler than listener, since we allow in Rinkeby only ENS IPFS contenthash 
+function tethListener(details) {
+	let [tethDomain, tethPath] = urlDomain(details.url);
+
+	//replace .teth (that our extension uses) TLD to .test TLD (that ENS in Rinkeby is using)
+	tethDomain = tethDomain.replace(".teth", ".test")
+	
+	if (!isFirefox) {
+		redirectAddress = { tethDomain, tethPath };
+		return { redirectUrl: PAGE_REDIRECT };
+	}
+	
+	return WEB3ENS.getContenthashRinkebyTestnet(tethDomain)
+		.then(
+			function(address) {
+				if (address !== "0x")
+					return handleENSContenthash(address, tethDomain, tethPath);
+			}
+		)
+		.catch(notFound.bind(null, tethDomain));
 }
 
 /**

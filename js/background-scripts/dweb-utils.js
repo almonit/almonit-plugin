@@ -7,45 +7,28 @@ function handleENSContenthash(address, ensDomain, ensPath) {
 	return redirectENStoIPFS(address.slice(14), ensDomain, ensPath);
 }
 
-// extract ipfs address from hex and redirects there
-// before redirecting, handling usage metrics
+// create IPFS link and redicrect to it
 function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	let ipfsHash = hextoIPFS(hex);
 	let ipfsAddress = ipfsGateways.currentGateway.address + '/ipfs/' + ipfsHash + ensPath;
 
 	localENS[ipfsHash] = ensDomain;
 
-	// update metrics and redirect to ipfs
+	// increase counter
+	// Note: counter is not used at the moment, it's counted (locally) for future features
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
 			if (Object.entries(item).length != 0) {
 				// increate counter
-				promisify(browser.storage.local, 'set', [
-					{
-						usageCounter: item.usageCounter + 1
-					}
-				]);
-
-				// update metrics (if permissioned)
-				if (metricsPermission) metrics.add(ensDomain);
-				return {
-					redirectUrl: ipfsAddress
-				};
+				promisify(browser.storage.local, 'set', [{ usageCounter: item.usageCounter + 1 }]);
 			} else {
 				// init counter
 				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-
-				// forward to "subscribe to metrics page" upon first usage
-				// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-				promisify(browser.storage.local, 'set', [
-					{ ENSRedirectUrl: ipfsAddress }
-				]);
-				return {
-					redirectUrl: browser.extension.getURL(
-						'pages/welcome_screen.html'
-					)
-				};
 			}
+
+			return {
+					redirectUrl: ipfsAddress
+			};
 		},
 		err
 	);
@@ -61,42 +44,26 @@ function getSkynet(ensDomain, ensPath) {
 	}, notFound.bind(null, ensDomain));
 }
 
+// create Skynet link and redicrect to it
 function redirectENStoSkynet(CID, ensDomain, ensPath) {
 	let skynetAddress = skynetGateways.currentGateway.address + '/' + CID + ensPath;
 
 	localENS[skynetAddress] = ensDomain;
 
-	// update metrics and redirect to ipfs
+	// increate counter
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
 			if (Object.entries(item).length != 0) {
 				// increate counter
-				promisify(browser.storage.local, 'set', [
-					{
-						usageCounter: item.usageCounter + 1
-					}
-				]);
-
-				// update metrics (if permissioned)
-				if (metricsPermission) metrics.add(ensDomain);
-				return {
-					redirectUrl: skynetAddress
-				};
+				promisify(browser.storage.local, 'set', [{ usageCounter: item.usageCounter + 1 }]);
 			} else {
 				// init counter
 				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-
-				// forward to "subscribe to metrics page" upon first usage
-				// save variables to storage to allow subscription page redirect to the right ENS+IPFS page
-				promisify(browser.storage.local, 'set', [
-					{ ENSRedirectUrl: skynetAddress }
-				]);
-				return {
-					redirectUrl: browser.extension.getURL(
-						'pages/welcome_screen.html'
-					)
-				};
 			}
+
+			return {
+					redirectUrl: ipfsAddress
+			};
 		},
 		err
 	);

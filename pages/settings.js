@@ -87,11 +87,6 @@ function loadSettings() {
         document.getElementById('ipfsOtherGateway').value = '';
         document.getElementById('skynetOtherGateway').value = '';
 
-        // metrics
-        if (settings.metricsPermission !== true) {
-            document.querySelector('#metricCheckbox').checked = false;
-        } else document.querySelector('#metricCheckbox').checked = true;
-
         // autoupdated (enabled by default)
         if (settings.autoGatewaysUpdate !== false) {
             document.querySelector(
@@ -101,6 +96,16 @@ function loadSettings() {
             document.querySelector(
                 '#autoGatewaysUpdateCheckbox'
             ).checked = false;
+
+        // Rinkeby testnet ENS support (disabled by default)
+        if (settings.rinkebyTestnet !== true) {
+            document.querySelector(
+                '#rinkebyTestnetCheckbox'
+            ).checked = false;
+        } else
+            document.querySelector(
+                '#rinkebyTestnetCheckbox'
+            ).checked = true;
 
         // gateways settings
         ethereumGateways = new Gateways(settings.ethereumGateways);
@@ -162,14 +167,16 @@ function saveSettings(e) {
     e.preventDefault();
 
     // collect settings data
-    let metricsPermission = document.querySelector('#metricCheckbox').checked;
-
     updateGatewaysValuesByForm(ethereumGateways, 'ethereum');
     updateGatewaysValuesByForm(ipfsGateways, 'ipfs');
     updateGatewaysValuesByForm(skynetGateways, 'skynet');
 
     let AutoGatewaysUpdate = document.querySelector(
         '#autoGatewaysUpdateCheckbox'
+    ).checked;
+
+    let RinkebyTestnet = document.querySelector(
+        '#rinkebyTestnetCheckbox'
     ).checked;
 
     let shortcuts = {
@@ -179,12 +186,13 @@ function saveSettings(e) {
 
     // create, save and send 'reloadSettings' settings
     let settings = {
-        metricsPermission: metricsPermission,
         autoGatewaysUpdate: AutoGatewaysUpdate,
+        rinkebyTestnet: RinkebyTestnet,
         ethereumGateways: ethereumGateways,
         ipfsGateways: ipfsGateways,
         skynetGateways: skynetGateways,
-        shortcuts: shortcuts
+        shortcuts: shortcuts,
+        version: browser.runtime.getManifest().version
     };
     promisify(browser.storage.local, 'set', [{ settings }]);
 

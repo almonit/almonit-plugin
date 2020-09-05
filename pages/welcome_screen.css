@@ -29,13 +29,9 @@ center {
 	margin: 0 10px;
 }
 
-.metric-details {
+.almonit-song {
 	margin-top: 28px;
 	font-size: 14pt;
-}
-.metric-list {
-	line-height: 2.1rem;
-	font-size: 10.5pt;
 }
 
 .fadeInBottom {

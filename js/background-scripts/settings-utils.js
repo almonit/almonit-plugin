@@ -2,8 +2,10 @@
  * Global variables
  */
 var ethereum;
-var metricsPermission;
 var autoGatewaysUpdate;
+
+var rinkebyTestnet;
+var rinkebyTestnetInfuraNode = "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
 
 var reloadingEffortsNumber = 0;
 const REALOADINGEFFORTMAN = 100;
@@ -73,24 +75,25 @@ function initSettings() {
 		};
 
 		let settings = {
-			metricsPermission: 'uninitialized',
 			autoGatewaysUpdate: true,
+			rinkebyTestnet: false,
 			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
 			skynetGateways: skynetGateways,
-			shortcuts: shortcuts
+			shortcuts: shortcuts,
+			version: browser.runtime.getManifest().version
 		};
 
 		promisify(browser.storage.local, 'set', [{ settings }]);
 
-		// save empty metrics
-		let savedMetrics = {};
-		promisify(browser.storage.local, 'set', [{ savedMetrics }]);
-
 		setTimeout(() => { 
-				browser.tabs.create({ url: 'https://almonit.eth' });
+				browser.tabs.create({ url: 'pages/welcome_screen.html' });
 		}, 1000);
 }
+
+
+// TODO: fix this to remove metrics from settings
+// TODO: fix to add rinkebyTestnet here
 /**
  * [Update settings when extension version is updated]
  * @param  {[type]}
@@ -100,51 +103,47 @@ function updateSettings(storage) {
 	//gatewaysDataJSON is defined in resources/gateways.js
 	let gatewaysData = JSON.parse(gatewaysDataJSON);
 
-	// for version < 0.0.9, remove after version 0.0.13
+	// for version < 0.0.9, remove after version 0.1.5
 	// remvoe also from function loadSettingsSetSession
-	if ('ipfs_gateway' in storage.settings) {
-		let oldSettings = storage.settings;
+	let oldSettings = storage.settings;
 
-		// ethereum
+	if (!('skynetGateways' in oldSettings)) {
+		// create empty ethereum, ipfs and skynet gateways list
 		var ethereumGateways = new Gateways();
-		ethereumGateways.setDefaultGateways(gatewaysData.ethereumGateways);
 		ethereumGateways.setGatewayOptions("RANDOM");
 
-		// ipfs
 		var ipfsGateways = new Gateways();
-		ipfsGateways.setDefaultGateways(gatewaysData.ipfsGateways);
 		ipfsGateways.setGatewayOptions("RANDOM");
 
-		// TODO NEXT VERSION: TRANSFTER CUSTOM GATEWAYS
-		// TODO NEXT VERSION: FIX KEEPING FORCED AND OTHER GATEWAY WHEN UPGRADING IN NEXT VERSION
-
-		// skynet
 		var skynetGateways = new Gateways();
-		skynetGateways.setDefaultGateways(gatewaysData.skynetGateways);
 		skynetGateways.setGatewayOptions("RANDOM");
-		
-
-		var settings = {
-			metricsPermission: oldSettings.metricsPermission,
-			autoGatewaysUpdate: oldSettings.autoGatewaysUpdate,
-			ethereumGateways: ethereumGateways,
-			ipfsGateways: ipfsGateways,
-			skynetGateways: skynetGateways,
-			shortcuts: oldSettings.shortcuts
-		};
-
-	} else { // just update gateway lists
-		var settings = storage.settings;
-
-		settings.ethereumGateways = new Gateways(settings.ethereumGateways);
-		settings.ipfsGateways = new Gateways(settings.ipfsGateways);
-		settings.skynetGateways = new Gateways(settings.skynetGateways);
-
-		settings.ethereumGateways.setDefaultGateways(gatewaysData.ethereumGateways);
-		settings.ipfsGateways.setDefaultGateways(gatewaysData.ipfsGateways);
-		settings.skynetGateways.setDefaultGateways(gatewaysData.skynetGateways);
-
+	
+	} else {
+		// migrate ethereum, ipfs and skynet gateways list from old settings
+		var ethereumGateways = new Gateways(oldSettings.ethereumGateways);
+		var ipfsGateways = new Gateways(oldSettings.ipfsGateways);
+		var skynetGateways = new Gateways(oldSettings.skynetGateways);		
 	}
+
+	// update ethereum, ipfs and skynet default gateways list
+	ethereumGateways.setDefaultGateways(gatewaysData.ethereumGateways);	
+	ipfsGateways.setDefaultGateways(gatewaysData.ipfsGateways);
+	skynetGateways.setDefaultGateways(gatewaysData.skynetGateways);
+
+	// those setting variables were not in old versions of the extension, so we check if they exist
+	var autoGatewaysUpdate = ('autoGatewaysUpdate' in oldSettings)? oldSettings.autoGatewaysUpdate : true;
+	var rinkebyTestnet = ('rinkebyTestnet' in oldSettings)? oldSettings.rinkebyTestnet : false;
+
+	var settings = {
+		autoGatewaysUpdate: oldSettings.autoGatewaysUpdate,
+		rinkebyTestnet: rinkebyTestnet,
+		ethereumGateways: ethereumGateways,
+		ipfsGateways: ipfsGateways,
+		skynetGateways: skynetGateways,
+		shortcuts: oldSettings.shortcuts,
+		version: browser.runtime.getManifest().version
+	};
+
 
 	//reload session after settings update.
 	promisify(browser.storage.local, 'set', [{ settings }]);
@@ -158,15 +157,19 @@ function updateSettings(storage) {
 function loadSettingsSetSession(storage, updateGateway = true) {
 	let settings = storage.settings;
 
-	if ( (!settings || ('ipfs_gateway' in settings) || (Object.keys(settings).length === 0)) 
-			&& (reloadingEffortsNumber < REALOADINGEFFORTMAN) ) {
+	if ( (!settings || ('version' in settings) || (Object.keys(settings).length === 0) 
+		  || (settings.version != browser.runtime.getManifest().version)) 
+		  && (reloadingEffortsNumber < REALOADINGEFFORTMAN) ) {
 		reloadingEffortsNumber = reloadingEffortsNumber + 1;
 		loadSettings();
 		return;
 	}
 
-	metricsPermission = settings.metricsPermission;
 	autoGatewaysUpdate = settings.autoGatewaysUpdate;
+	rinkebyTestnet = settings.rinkebyTestnet;
+
+	if (rinkebyTestnet)
+		WEB3ENS.connectWeb3RinkebyTestnet(rinkebyTestnetInfuraNode);
 
 	//turn data into Gateways object 
 	settings.ethereumGateways = new Gateways(settings.ethereumGateways); 
