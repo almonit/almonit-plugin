@@ -39,10 +39,10 @@ var gatewaysDataJSON = `{
       "name": "Pinata",
       "address": "https://gateway.pinata.cloud"
     },
-    "hardbin.com": {
-      "key": "hardbin.com",
-      "name": "Hardbin",
-      "address": "https://hardbin.com"
+    "sloppyta.co": {
+      "key": "ipfs.sloppyta.co",
+      "name": "Sloppyta.co",
+      "address": "https://ipfs.sloppyta.co"
     },
     "ninetailed.ninja": {
       "key": "ninetailed.ninja",
