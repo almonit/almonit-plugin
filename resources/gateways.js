@@ -39,7 +39,7 @@ var gatewaysDataJSON = `{
       "name": "Pinata",
       "address": "https://gateway.pinata.cloud"
     },
-    "sloppyta.co": {
+    "ipfs.sloppyta.co": {
       "key": "ipfs.sloppyta.co",
       "name": "Sloppyta.co",
       "address": "https://ipfs.sloppyta.co"
