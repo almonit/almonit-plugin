@@ -176,10 +176,14 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
 	settings.skynetGateways = new Gateways(settings.skynetGateways);
 	
+	// if updateGateway is true and the gateway option is 'random' 
 	if (updateGateway) {
-		settings.ethereumGateways.setCurrentGateway();
-		settings.ipfsGateways.setCurrentGateway();
-		settings.skynetGateways.setCurrentGateway();
+		if (settings.ethereumGateways.option == 'random')
+			settings.ethereumGateways.setRandomGateway();
+		if (settings.ipfsGateways.option == 'random')
+			settings.ipfsGateways.setRandomGateway();
+		if (settings.skynetGateways.option == 'random')
+			settings.skynetGateways.setRandomGateway();
 	}
 
 

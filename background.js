@@ -161,7 +161,7 @@ function handleGatewayError(storage, gws, label, url, tab) {
 		let settings = storage.settings;
 		
 		// set a new current gateway and update settings storage
-		gws.setCurrentGateway();
+		gws.setRandomGateway();
 		settings[label] = gws;
 		promisify(browser.storage.local, 'set', [{ settings }]);
 

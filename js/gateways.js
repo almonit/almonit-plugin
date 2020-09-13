@@ -180,20 +180,13 @@ class Gateways {
 	}
 
 	/**
-	 * Sets current gateway]
-	 * @param {this.gatewayOptions} keyOrGateway if null sets random
+	 * Sets a new random gateway
 	 */
-	setCurrentGateway(keyOrGateway = null) {
-		if (keyOrGateway == null)
+	setRandomGateway() {
+		if (this.option == this.gatewayOptions['RANDOM'])
 			this.currentGateway = this.getRandom();
-		else if (keyOrGateway in this.custom) 
-			this.currentGateway = this.custom[keyOrGateway];
-		else if ( (keyOrGateway in this.default) && !(keyOrGateway in this.removed) ) 
-			this.currentGateway =  this.default[keyOrGateway];
-		else if (this.option == this.gatewayOptions['OTHER'])
-			this.currentGateway =  keyOrGateway;
 		else
-			throw "Error: bad function parameter";
+			throw "Error: gateways 'option' is not set to random";
 	}
 
 	getGatewaysList() {
@@ -231,7 +224,7 @@ class Gateways {
 		if (this.option !== this.gatewayOptions['OTHER'])
 			if (this.currentGateway.key in this.custom) {
 				this.option = this.gatewayOptions['RANDOM'];
-				this.setCurrentGateway();
+				this.setRandomGateway();
 			}
 	}
 }
