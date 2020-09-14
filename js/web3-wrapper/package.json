@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "bs58": "^4.0.1",
-    "web3": "1.0.0-beta.51",
+    "web3": "git+https://github.com/eyalron33/web3.js.git#1.0.0-beta.51-new-ENS-registry",
     "websocket": "^1.0.30"
   },
   "keywords": [],
