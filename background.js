@@ -65,8 +65,6 @@ function handleRequestComplete(e) {
 	let statusDigit = ('' + e.statusCode)[0];
 	if (!checkedforUpdates && statusDigit == 2 && autoGatewaysUpdate) {
 		let [domain, path] = urlDomain(e.url);
-
-		checkedforUpdates = true;
 		initSettingsUpgrade(domain);
 	}
 
@@ -88,6 +86,9 @@ function initSettingsUpgrade(domain) {
 }
 
 function settingsUpgrade(newSettings) {
+	// change flag of 'checkedforUpdates' to true
+	checkedforUpdates = true;
+
 	try {
 		newSettings = JSON.parse(newSettings);
 	} catch (e) {
