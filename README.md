@@ -14,16 +14,24 @@ For more information read our [introduction to Dwebsites](http://blog.almonit.et
 ## From source code
 
 ### Compile
-TBD
+Make sure you have nvm installed with node v10.14.2 available. Then enter the following commands.
 
-#### Firefox
+```
+nvm use v10.14.2
+cd js/web3-wrapper
+npm install
+npm run build
+```
+
+
+### Firefox installation (after compilation)
 In Firefox, enter `about:debugging`.
 
 Choose `Load Temporary Add-on...`
 
 From the folder of the plugin, choose `manifest.json`
 
-#### Chrome
+#### Chrome installation (after compilation)
 See instructions [here](https://thoughtbot.com/blog/how-to-make-a-chrome-extension#load-your-extension-into-chrome).
 
 ## Installation from extension store
