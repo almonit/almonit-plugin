@@ -3,6 +3,12 @@
  * IPFS, ENS, Swarm etc.
  */
 
+// every visit to UPDATESETTINGSUPDATETHRESHOLD dwebsites the extension 
+// updates settings from remote ipfs soure
+// see also 'settingsUrl' variable in background.js
+const UPDATESETTINGSUPDATETHRESHOLD = 10;
+
+
 function handleENSContenthash(address, ensDomain, ensPath) {
 	return redirectENStoIPFS(address.slice(14), ensDomain, ensPath);
 }
@@ -14,18 +20,11 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 
 	localENS[ipfsHash] = ensDomain;
 
-	// increase counter
-	// Note: counter is not used at the moment, it's counted (locally) for future features
+	// increase counter each visit
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
-			if (Object.entries(item).length != 0) {
-				// increate counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: item.usageCounter + 1 }]);
-			} else {
-				// init counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-			}
-
+			increaseUsageCounter(item.usageCounter);
+			
 			return {
 					redirectUrl: ipfsAddress
 			};
@@ -50,16 +49,10 @@ function redirectENStoSkynet(CID, ensDomain, ensPath) {
 
 	localENS[skynetAddress] = ensDomain;
 
-	// increate counter
+	// increase counter each visit
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
-			if (Object.entries(item).length != 0) {
-				// increate counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: item.usageCounter + 1 }]);
-			} else {
-				// init counter
-				promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
-			}
+			increaseUsageCounter(item.usageCounter);
 
 			return {
 					redirectUrl: ipfsAddress
@@ -87,4 +80,20 @@ function hextoIPFS(hex) {
 	let ipfsHash = Multihashes.toB58String(ipfsBuffer);
 
 	return ipfsHash;
+}
+
+function increaseUsageCounter(usageCounter) {
+	if (Object.entries(item).length != 0) {
+		// increase counter
+		let newCounter = item.usageCounter + 1;
+		
+		// we check for settings update each UPDATESETTINGSUPDATETHRESHOLD websites visits
+		if (newCounter % UPDATESETTINGSUPDATETHRESHOLD == 0)
+			checkforUpdates = true;
+		
+		promisify(browser.storage.local, 'set', [{ usageCounter: newCounter }]);
+	} else {
+		// init counter
+		promisify(browser.storage.local, 'set', [{ usageCounter: 1 }]);
+	}
 }

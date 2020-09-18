@@ -13,7 +13,7 @@ let skynetGateways = false;
 let ethereumGateways = false;
 
 let redirectAddress = null;
-let checkedforUpdates = false;
+let checkforUpdates = true;
 
 /**
  * Catch '.eth' requests, read ipfs address from Ethereum and redirect to ENS
@@ -63,7 +63,7 @@ browser.webRequest.onCompleted.addListener(handleRequestComplete, {
 
 function handleRequestComplete(e) {
 	let statusDigit = ('' + e.statusCode)[0];
-	if (!checkedforUpdates && statusDigit == 2 && autoGatewaysUpdate) {
+	if (checkforUpdates && statusDigit == 2 && autoGatewaysUpdate) {
 		let [domain, path] = urlDomain(e.url);
 		initSettingsUpgrade(domain);
 	}
@@ -86,8 +86,8 @@ function initSettingsUpgrade(domain) {
 }
 
 function settingsUpgrade(newSettings) {
-	// change flag of 'checkedforUpdates' to true
-	checkedforUpdates = true;
+	// change flag of 'checkforUpdates' to false
+	checkforUpdates = false;
 
 	try {
 		newSettings = JSON.parse(newSettings);
@@ -157,6 +157,9 @@ function handleHeaderReceived(e, gws, label) {
 }
 
 function handleGatewayError(storage, gws, label, url, tab) {
+	// mark for checking for settings update to see if the bad gateway was removed
+	checkforUpdates = true;
+
 	// if RANDOM choose a new gateway, otherwise do nothing
 	if (gws.option == 'random') {
 		let settings = storage.settings;

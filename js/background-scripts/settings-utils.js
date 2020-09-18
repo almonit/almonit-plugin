@@ -8,7 +8,7 @@ var rinkebyTestnet;
 var rinkebyTestnetInfuraNode = "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
 
 var reloadingEffortsNumber = 0;
-const REALOADINGEFFORTMAN = 100;
+const REALOADINGEFFORTMAX = 100;
 
 /**
  * Backgroud functions related to settings
@@ -159,7 +159,7 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 
 	if ( (!settings || ('version' in settings) || (Object.keys(settings).length === 0) 
 		  || (settings.version != browser.runtime.getManifest().version)) 
-		  && (reloadingEffortsNumber < REALOADINGEFFORTMAN) ) {
+		  && (reloadingEffortsNumber < REALOADINGEFFORTMAX) ) {
 		reloadingEffortsNumber = reloadingEffortsNumber + 1;
 		loadSettings();
 		return;
