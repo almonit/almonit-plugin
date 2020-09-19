@@ -23,7 +23,7 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 	// increase counter each visit
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
-			increaseUsageCounter(item.usageCounter);
+			increaseUsageCounter(item);
 			
 			return {
 					redirectUrl: ipfsAddress
@@ -52,7 +52,7 @@ function redirectENStoSkynet(CID, ensDomain, ensPath) {
 	// increase counter each visit
 	return promisify(browser.storage.local, 'get', ['usageCounter']).then(
 		function(item) {
-			increaseUsageCounter(item.usageCounter);
+			increaseUsageCounter(item);
 
 			return {
 					redirectUrl: ipfsAddress
@@ -82,7 +82,7 @@ function hextoIPFS(hex) {
 	return ipfsHash;
 }
 
-function increaseUsageCounter(usageCounter) {
+function increaseUsageCounter(item) {
 	if (Object.entries(item).length != 0) {
 		// increase counter
 		let newCounter = item.usageCounter + 1;
