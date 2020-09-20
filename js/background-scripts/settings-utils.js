@@ -133,7 +133,7 @@ function updateSettings(storage) {
 	// those setting variables were not in old versions of the extension, so we check if they exist
 	var autoGatewaysUpdate = ('autoGatewaysUpdate' in oldSettings)? oldSettings.autoGatewaysUpdate : true;
 	var rinkebyTestnet = ('rinkebyTestnet' in oldSettings)? oldSettings.rinkebyTestnet : false;
-
+	
 	var settings = {
 		autoGatewaysUpdate: oldSettings.autoGatewaysUpdate,
 		rinkebyTestnet: rinkebyTestnet,

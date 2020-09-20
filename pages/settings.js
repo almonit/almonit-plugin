@@ -82,6 +82,8 @@ function loadSettings() {
     function loadCurrentSettings(result) {
         settings = result.settings;
 
+        console.log("aadsfsaf");
+
         // init
         document.getElementById('ethereumOtherGateway').value = '';
         document.getElementById('ipfsOtherGateway').value = '';
@@ -113,7 +115,7 @@ function loadSettings() {
         skynetGateways = new Gateways(settings.skynetGateways);
 
         loadGateways(ethereumGateways, 'ethereum');
-        loadGateways(ipfsGateways, 'ipfs');
+        loadGateways(ipfsGateways,  'ipfs');
         loadGateways(skynetGateways, 'skynet');
 
         // shortcuts
@@ -153,6 +155,8 @@ function loadSettings() {
             selectbox.value = selectbox[0].id; //we show first value to keep box non-empty
 
         setCurrentGateway(gws, label);
+
+        document.getElementById(label + "NoNewRandomWhenSaving").checked = gws.noNewRandomWhenSaving;
     }
 
     let getSettings = promisify(browser.storage.local, 'get', ['settings']);
@@ -243,9 +247,13 @@ function restoreDefaultGateways(e, gws, label) {
  * [update object gws (Gatewys) with label 'label' based on data in the form]
  */
 function updateGatewaysValuesByForm(gws, label) {
+    gws.noNewRandomWhenSaving = document.getElementById(label + 'NoNewRandomWhenSaving').checked;
+
     switch (document.forms['settingsForm'][label].value) {
         case label + 'Random':
             gws.setGatewayOptions('RANDOM');
+            if (!gws.noNewRandomWhenSaving)
+                gws.currentGateway = gws.getRandom();
             break;
         case label + 'Force':
             let key = document.getElementById(label + 'Gateways').value;
@@ -627,6 +635,8 @@ function radioGroupListener(e, label) {
         e.target.value == label + 'Other' ||
         e.target.value == label + 'Random'
     ) {
+        document.getElementById(label + 'NoNewRandomWhenSaving').disabled = 
+            e.target.value !== label + 'Random';
         document.getElementById(label + 'Gateways').disabled =
             e.target.value !== label + 'Force';
         document.getElementById(label + 'OtherGateway').disabled =

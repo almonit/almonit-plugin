@@ -18,6 +18,7 @@ class Gateways {
 		
 		this.option = this.gatewayOptions['RANDOM'];
 		this.currentGateway = null;
+		this.noNewRandomWhenSaving = false;
 
 		if (data !== null)
 			this.loadData(data);
@@ -28,12 +29,13 @@ class Gateways {
 	 * @param  {Object} data [data of Gatways object]
 	 */
 	loadData(data) {
-		this.setDefaultGateways(data.default);
-		this.setCustomGateways(data.custom);
-		this.setRemovedGateways(data.removed);
+		if (data.default) {this.setDefaultGateways(data.default);}
+		if (data.custom) {this.setCustomGateways(data.custom);} 
+		if (data.removed) {this.setRemovedGateways(data.removed);}
 
-		this.option = data.option;
-		this.currentGateway = data.currentGateway;
+		if (data.option) {this.option = data.option;}
+		if (data.currentGateway) {this.currentGateway = data.currentGateway;}
+		if (!!data.noNewRandomWhenSaving) {this.noNewRandomWhenSaving = data.noNewRandomWhenSaving;}
 	}	
 
 	// overrides value if key already exists
