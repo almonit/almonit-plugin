@@ -87,5 +87,23 @@ var gatewaysDataJSON = `{
       "name": "Lightspeed Hosting",
       "address": "https://vault.lightspeedhosting.com"
     }
+  },
+
+  "ethereumTestnets": {
+    "rinkeby": {
+      "key": "rinkeby", 
+      "name": "Rinkeby", 
+      "address": "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17"
+    },
+    "ropsten": {
+      "key": "ropsten", 
+      "name": "Ropsten", 
+      "address": "https://ropsten.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17"
+    },
+    "goerli": {
+      "key": "goerli", 
+      "name": "Goerli", 
+      "address": "https://goerli.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17"
+    }
   }
 }`;

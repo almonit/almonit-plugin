@@ -4,8 +4,8 @@
 var ethereum;
 var autoGatewaysUpdate;
 
-var rinkebyTestnet;
-var rinkebyTestnetInfuraNode = "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
+var ethereumTestnet;
+var ethereumTestnetInfuraNode = "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
 
 var reloadingEffortsNumber = 0;
 const REALOADINGEFFORTMAX = 100;
@@ -69,6 +69,11 @@ function initSettings() {
 		skynetGateways.setDefaultGateways(gatewaysData.skynetGateways);
 		skynetGateways.setGatewayOptions("RANDOM");
 
+		// Ethereum testnets
+		let ethereumTestnets = new Gateways();
+		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);;
+		ethereumTestnets.setGatewayOptions("FORCE", Object.keys(ethereumTestnets.default)[0]);
+
 		let shortcuts = {
 			addressbar: 'Ctrl+Shift+T',
 			settings: 'Ctrl+Shift+O'
@@ -76,10 +81,11 @@ function initSettings() {
 
 		let settings = {
 			autoGatewaysUpdate: true,
-			rinkebyTestnet: false,
+			enableEteherumTestnet: false,
 			ethereumGateways: ethereumGateways,
 			ipfsGateways: ipfsGateways,
 			skynetGateways: skynetGateways,
+			ethereumTestnets: ethereumTestnets,
 			shortcuts: shortcuts,
 			version: browser.runtime.getManifest().version
 		};
@@ -91,9 +97,6 @@ function initSettings() {
 		}, 1000);
 }
 
-
-// TODO: fix this to remove metrics from settings
-// TODO: fix to add rinkebyTestnet here
 /**
  * [Update settings when extension version is updated]
  * @param  {[type]}
@@ -132,14 +135,24 @@ function updateSettings(storage) {
 
 	// those setting variables were not in old versions of the extension, so we check if they exist
 	var autoGatewaysUpdate = ('autoGatewaysUpdate' in oldSettings)? oldSettings.autoGatewaysUpdate : true;
-	var rinkebyTestnet = ('rinkebyTestnet' in oldSettings)? oldSettings.rinkebyTestnet : false;
+	var enableEteherumTestnet = ('enableEteherumTestnet' in oldSettings)? oldSettings.enableEteherumTestnet : false;
 	
+	// same goes for ethereumTestnets, but its treatment is longer than one line
+	if ('ethereumTestnets' in oldSettings)
+		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);	
+	else {
+		let ethereumTestnets = new Gateways();
+		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);
+		ethereumTestnets.setGatewayOptions("FORCE", Object.keys(ethereumTestnets.default)[0]);
+	}
+
 	var settings = {
 		autoGatewaysUpdate: oldSettings.autoGatewaysUpdate,
-		rinkebyTestnet: rinkebyTestnet,
+		enableEteherumTestnet: enableEteherumTestnet,
 		ethereumGateways: ethereumGateways,
 		ipfsGateways: ipfsGateways,
 		skynetGateways: skynetGateways,
+		ethereumTestnets: ethereumTestnets,
 		shortcuts: oldSettings.shortcuts,
 		version: browser.runtime.getManifest().version
 	};
@@ -165,18 +178,12 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 		return;
 	}
 
-	autoGatewaysUpdate = settings.autoGatewaysUpdate;
-	rinkebyTestnet = settings.rinkebyTestnet;
-
-	if (rinkebyTestnet)
-		WEB3ENS.connectWeb3RinkebyTestnet(rinkebyTestnetInfuraNode);
-
-	//turn data into Gateways object 
+	//handle gateways
 	settings.ethereumGateways = new Gateways(settings.ethereumGateways); 
 	settings.ipfsGateways = new Gateways(settings.ipfsGateways);
 	settings.skynetGateways = new Gateways(settings.skynetGateways);
 	
-	// if updateGateway is true and the gateway option is 'random' 
+	// choose a new gateway if updateGateway flag is set and the gateway option is 'random' 
 	if (updateGateway) {
 		if (settings.ethereumGateways.option == 'random')
 			settings.ethereumGateways.setRandomGateway();
@@ -184,19 +191,27 @@ function loadSettingsSetSession(storage, updateGateway = true) {
 			settings.ipfsGateways.setRandomGateway();
 		if (settings.skynetGateways.option == 'random')
 			settings.skynetGateways.setRandomGateway();
+
+		promisify(browser.storage.local, 'set', [{ settings }]);
 	}
-
-
-	promisify(browser.storage.local, 'set', [{ settings }]);
 
 	ethereumGateways = settings.ethereumGateways;
 	ipfsGateways = settings.ipfsGateways;
 	skynetGateways = settings.skynetGateways;
 
+	// connect to web3
 	WEB3ENS.connect_web3(ethereumGateways.currentGateway.address);
 
-	// catch webRequests to correct broken gateways
-	// we catch only 'default' gateways as there's permission only for these in manifest.json
+	autoGatewaysUpdate = settings.autoGatewaysUpdate;
+
+	// handle Ethereum testnets settings
+	enableEteherumTestnet = settings.enableEteherumTestnet;
+	ethereumTestnets = new Gateways(settings.ethereumTestnets);
+	if (enableEteherumTestnet)
+		WEB3ENS.connectWeb3Testnet(ethereumTestnets.currentGateway.address);
+
+	// handle catching webRequests in order to correct broken gateways
+	// we catch only 'default' gateways, since there is permission in manifest.json to catch only these
 	var ipfsGatewaystoCatch = [];
 	var skynetGatewaystoCatch = [];
 

@@ -228,7 +228,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 }
 
 /**
- * Catch '.teth' requests, from Ethereum Rinkeby ENS contract
+ * Catch '.teth' requests, from Ethereum testnet ENS contract
  */
 browser.webRequest.onBeforeRequest.addListener(
 	tethListener,
@@ -236,11 +236,11 @@ browser.webRequest.onBeforeRequest.addListener(
 	['blocking']
 );
 
-// tethListener is simpler than listener, since we allow in Rinkeby only ENS IPFS contenthash 
+// tethListener is simpler than listener, since we allow in testnet only ENS IPFS contenthash 
 function tethListener(details) {
 	let [tethDomain, tethPath] = urlDomain(details.url);
 
-	//replace .teth (that our extension uses) TLD to .test TLD (that ENS in Rinkeby is using)
+	//replace .teth (that our extension uses) TLD to .test TLD (that ENS in testnet is using)
 	tethDomain = tethDomain.replace(".teth", ".test")
 	
 	if (!isFirefox) {
@@ -248,7 +248,7 @@ function tethListener(details) {
 		return { redirectUrl: PAGE_REDIRECT };
 	}
 	
-	return WEB3ENS.getContenthashRinkebyTestnet(tethDomain)
+	return WEB3ENS.getContenthashTestnet(tethDomain)
 		.then(
 			function(address) {
 				if (address !== "0x")
