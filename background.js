@@ -241,7 +241,7 @@ function tethListener(details) {
 	let [tethDomain, tethPath] = urlDomain(details.url);
 
 	//replace .teth (that our extension uses) TLD to .test TLD (that ENS in testnet is using)
-	tethDomain = tethDomain.replace(".teth", ".test")
+	tethDomain = tethDomain.replace(".teth", ".eth");
 	
 	if (!isFirefox) {
 		redirectAddress = { tethDomain, tethPath };
