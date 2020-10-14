@@ -11,6 +11,7 @@ body {
 	color: var(--color-text);
 	font-family: "Montserrat", sans-serif;
 	overflow: hidden;
+	text-align: center;
 }
 
 center {
@@ -22,7 +23,7 @@ center {
 	justify-content: center;
 	align-items: center;
 	font-size: 10.5pt;
-	margin-top: 42px;
+	margin-bottom: 42px;
 }
 
 .pure-button {
@@ -30,8 +31,24 @@ center {
 }
 
 .almonit-song {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	margin-top: 28px;
-	font-size: 14pt;
+	font-size: 12pt;
+	font-weight: 500;
+	letter-spacing: .01em;
+	text-shadow: 1px 1px 1px white;
+    line-height: 1.4em;
+	text-align: center;
+	text-rendering: optimizeLegibility;
+	color: #424242;
+}
+
+.almonit-song__img {
+	width: 150px;
+	margin: 21px 0;
+	filter: drop-shadow(1px 10px 2px #808080);
 }
 
 .fadeInBottom {
