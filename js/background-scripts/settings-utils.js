@@ -138,12 +138,13 @@ function updateSettings(storage) {
 	var enableEteherumTestnet = ('enableEteherumTestnet' in oldSettings)? oldSettings.enableEteherumTestnet : false;
 	
 	// same goes for ethereumTestnets, but its treatment is longer than one line
-	if ('ethereumTestnets' in oldSettings)
-		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);	
-	else {
+	if (!('ethereumTestnets' in oldSettings)) {
 		let ethereumTestnets = new Gateways();
 		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);
 		ethereumTestnets.setGatewayOptions("FORCE", Object.keys(ethereumTestnets.default)[0]);
+	} else {
+		var ethereumTestnets = new Gateways(oldSettings.ethereumTestnets);
+		ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);	
 	}
 
 	var settings = {

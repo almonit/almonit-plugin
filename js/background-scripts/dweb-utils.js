@@ -9,6 +9,52 @@
 const UPDATESETTINGSUPDATETHRESHOLD = 10;
 
 
+/**
+ * RDNtoDS: redirected Decentralized Name to Decentralized storage
+ * @param {string} domain [decentralized name URL]
+ * @param {string} path   [path in the decentralized name]
+ */
+async function RDNtoDS(domain, path) {
+
+	let TLD = domain.split('.').pop();
+
+	switch (TLD) {
+		case "eth":
+			try { 
+				var address = await WEB3ENS.getContenthash(domain)
+
+				if (address !== "0x")
+					var redirect = await handleENSContenthash(address, domain, path);
+				else 
+					var redirect = await getSkynet(domain, path);
+			} catch(e) {
+				var redirect = notFound(domain, e);
+			}
+			break;
+		case "teth":
+		case "testeth":
+			// We transfer from the extension .teth and .testeth TLDs, to the testnet .eth and .test TLDs correspondingly
+			switch (TLD) {
+				case "teth":
+					domain = domain.replace(".teth", ".eth");
+					break;
+				case "testeth":
+					domain = domain.replace(".testeth", ".test");
+			}
+
+			try {
+				var address = await WEB3ENS.getContenthashTestnet(domain);
+
+				if (address !== "0x")
+					var redirect = await handleENSContenthash(address, domain, path);
+			} catch(e) {
+				var redirect = notFound(domain, e);
+			}
+	}
+
+	return redirect;
+}
+
 function handleENSContenthash(address, ensDomain, ensPath) {
 	return redirectENStoIPFS(address.slice(14), ensDomain, ensPath);
 }
@@ -34,13 +80,18 @@ function redirectENStoIPFS(hex, ensDomain, ensPath) {
 }
 
 // retrieve general ENS content field
-function getSkynet(ensDomain, ensPath) {
-	return WEB3ENS.getSkynet(ensDomain).then(function(content) {
+async function getSkynet(ensDomain, ensPath) {
+	try {
+		var  content = await WEB3ENS.getSkynet(ensDomain);
 		if (content == "") 
-			return;
+			var redirect = notFound(ensDomain,e);
 
-		return redirectENStoSkynet(content, ensDomain, ensPath);
-	}, notFound.bind(null, ensDomain));
+		var redirect = redirectENStoSkynet(content, ensDomain, ensPath);
+	} catch(e) { 
+		var redirect = notFound(ensDomain,e);
+	}
+
+	return redirect;
 }
 
 // create Skynet link and redicrect to it
@@ -55,7 +106,7 @@ function redirectENStoSkynet(CID, ensDomain, ensPath) {
 			increaseUsageCounter(item);
 
 			return {
-					redirectUrl: ipfsAddress
+					redirectUrl: skynetAddress
 			};
 		},
 		err

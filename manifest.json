@@ -32,6 +32,8 @@
     "https://*.eth/*",
     "http://*.teth/*",
     "https://*.teth/*",
+    "http://*.testeth/*",
+    "https://*.testeth/*",
     "https://ipfs.io/ipfs*",
     "https://ipfs.eternum.io/ipfs*",
     "https://ipfs.infura.io/ipfs*",
