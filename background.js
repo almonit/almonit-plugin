@@ -36,40 +36,6 @@ function listener(details) {
 	}
 
 	return RDNtoDS(domain, path);
-
-	// try {	
-	// 	var address = await WEB3ENS.getContenthash(ensDomain);
-
-	// 	if (address !== "0x")
-	// 			redirect = handleENSContenthash(address, ensDomain, ensPath);
-	// 	else {
-	// 		var redirect = getSkynet(ensDomain, ensPath);
-	// 	}
-	// } catch (e) {
-	// 	var redirect = notFound(ensDomain,e);
-	// }
-
-
-	// return redirect;
-
-	// return RDNtoDS(ensDomain, ensPath);
-}
-
-async function testRedirect(ensDomain, ensPath) {
-	try {	
-		var address = await WEB3ENS.getContenthash(ensDomain);
-
-		if (address !== "0x")
-				redirect = handleENSContenthash(address, ensDomain, ensPath);
-		else {
-			var redirect = getSkynet(ensDomain, ensPath);
-		}
-	} catch (e) {
-		var redirect = notFound(ensDomain,e);
-	}
-
-	return redirect;
-
 }
 
 /**
@@ -222,22 +188,6 @@ function messagefromFrontend(request, sender, sendResponse) {
 
 		RDNtoDS(domain, path).then( ({ redirectUrl }) => sendResponse(redirectUrl) );
 
-	// 	WEB3ENS.getContenthash(ensDomain)
-	// 		.then(
-	// 			function(address) {
-	// 				if (address !== "0x") {
-	// 					const resolvedUrl = handleENSContenthash(address, ensDomain, ensPath);
-	// 					resolvedUrl.then( ({ redirectUrl }) => sendResponse(redirectUrl) );
-	// 				}
-	// 				else {
-	// 					const resolvedUrl = getSkynet(ensDomain, ensPath);
-	// 					resolvedUrl.then( ({ redirectUrl }) => sendResponse(redirectUrl) );
-	// 				}
-	// 			}
-	// 		)
-	// 		.catch(() => { sendResponse(PAGE_404 + '?fallback=' + ensDomain);})
-	// 		.finally(() => { redirectAddress = null;});
-	}
 	return true;
 }
 
@@ -249,28 +199,6 @@ browser.webRequest.onBeforeRequest.addListener(
 	{ urls: ['http://*.teth/*', 'https://*.teth/*', 'http://*.testeth/*', 'https://*.testeth/*'], types: ['main_frame'] },
 	['blocking']
 );
-
-// tethListener is simpler than listener, since we allow in testnet only ENS IPFS contenthash 
-// function tethListener(details) {
-// 	let [tethDomain, tethPath] = urlDomain(details.url);
-// מי ת
-// 	//replace .teth (that our extension uses) TLD to .test TLD (that ENS in testnet is using)
-// 	tethDomain = tethDomain.replace(".teth", ".eth");
-	
-// 	if (!isFirefox) {
-// 		redirectAddress = { tethDomain, tethPath };
-// 		return { redirectUrl: PAGE_REDIRECT };
-// 	}
-	
-// 	return WEB3ENS.getContenthashTestnet(tethDomain)
-// 		.then(
-// 			function(address) {
-// 				if (address !== "0x")
-// 					return handleENSContenthash(address, tethDomain, tethPath);
-// 			}
-// 		)
-// 		.catch(notFound.bind(null, tethDomain));
-// }
 
 /**
  * auxillary functions
