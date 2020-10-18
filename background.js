@@ -187,6 +187,7 @@ function messagefromFrontend(request, sender, sendResponse) {
 		const { domain, path } = redirectAddress;
 
 		RDNtoDS(domain, path).then( ({ redirectUrl }) => sendResponse(redirectUrl) );
+	}
 
 	return true;
 }
