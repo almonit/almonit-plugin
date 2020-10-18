@@ -1,100 +1,83 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="../style/pure-min.css" />
-    <link href="../style/montserrat-font.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../style/icono.min.css" />
-    <link rel="stylesheet" href="almonit_popup.css" />
-  </head>
 
-  <body>
-    <header>
-      <div class="logo">
-        <a href="https://almonit.eth" rel="noopener noreferrer">
-          <img src="../resources/lion_header.png" alt="" />
-          <span>Almonit</span>
-        </a>
-      </div>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="../style/pure-min.css" />
+  <link href="../style/montserrat-font.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../style/icono.min.css" />
+  <link rel="stylesheet" href="almonit_popup.css" />
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="https://almonit.eth" rel="noopener noreferrer">
+        <img src="../resources/lion_header.png" alt="" />
+        <span>Almonit</span>
+      </a>
+    </div>
+    <div>
+      <a href="../pages/settings.html" target="settings_almonit"><span class="icono-sliders" /></a>
+    </div>
+  </header>
+  <main>
+    <section class="section-search">
+      <form class="pure-form">
+        <input type="text" id="SearchInput" class="pure-input input-seach" placeholder="Search Decentralized" autofocus
+          autocomplete="off" />
+        <button id="SearchBtn" class="button-search">
+          <span class="icono-search" />
+        </button>
+      </form>
+    </section>
+    <section class="section-info">
+      <h4>Gateway information</h4>
       <div>
-        <a href="../pages/settings.html" target="settings_almonit"
-          ><span class="icono-sliders"
-        /></a>
-      </div>
-    </header>
-    <main>
-      <section class="section-search">
-        <form class="pure-form">
-          <input
-            type="text"
-            id="SearchInput"
-            class="pure-input input-seach"
-            placeholder="Search Decentralized"
-            autofocus
-            autocomplete="off"
-          />
-          <button id="SearchBtn" class="button-search">
-            <span class="icono-search" />
-          </button>
-        </form>
-      </section>
-      <section class="section-info">
-        <h4>Gateway information</h4>
-        <div>
-          <div class="session-item">
-            <div class="session-brand">
-              <img
-                src="../resources/ethereum.svg"
-                alt="Ethereum"
-                class="gateway-icon"
-              />
-              <b>Ethereum:</b>
-            </div>
-            <div>
-              <span id="ethereumCurrentGateway" class="current-gateway"></span>
-              <span class="option_type">
-                (<span id="ethereumGatewayOption"></span>)
-              </span>
-            </div>
+        <div class="session-item">
+          <div class="session-brand">
+            <img src="../resources/ethereum.svg" alt="Ethereum" class="gateway-icon" />
+            <b>Ethereum:</b>
           </div>
-          <div class="session-item">
-            <div class="session-brand">
-              <img
-                src="../resources/ipfs.svg"
-                alt="IPFS"
-                class="gateway-icon"
-              />
-              <b>IPFS:</b>
-            </div>
-            <div>
-              <span id="ipfsCurrentGateway" class="current-gateway"></span>
-              <span class="option_type">
-                (<span id="ipfsGatewayOption"></span>)
-              </span>
-            </div>
-          </div>
-          <div class="session-item">
-            <div class="session-brand">
-              <img
-                src="../resources/siasky.svg"
-                alt="Sia Skynet"
-                class="gateway-icon"
-              />
-              <b>SiaSky:</b>
-            </div>
-            <div class="session-status">
-              <span id="siaCurrentGateway" class="current-gateway"></span>
-              <span class="option_type">
-                (<span id="siaGatewayOption"></span>)
-              </span>
-            </div>
+          <div>
+            <span id="ethereumCurrentGateway" class="current-gateway"></span>
+            <span class="option_type">
+              (<span id="ethereumGatewayOption"></span>)
+              <span id="testnetIndicator"></span>
+            </span>
           </div>
         </div>
-      </section>
-    </main>
-    <script src="../js/check-browser.js"></script>
-    <script src="../js/promisify.js"></script>
-    <script src="../js/shuffler.js"></script>
-    <script src="almonit_popup.js"></script>
-  </body>
+        <div class="session-item">
+          <div class="session-brand">
+            <img src="../resources/ipfs.svg" alt="IPFS" class="gateway-icon" />
+            <b>IPFS:</b>
+          </div>
+          <div>
+            <span id="ipfsCurrentGateway" class="current-gateway"></span>
+            <span class="option_type">
+              (<span id="ipfsGatewayOption"></span>)
+            </span>
+          </div>
+        </div>
+        <div class="session-item">
+          <div class="session-brand">
+            <img src="../resources/siasky.svg" alt="Sia Skynet" class="gateway-icon" />
+            <b>SiaSky:</b>
+          </div>
+          <div class="session-status">
+            <span id="siaCurrentGateway" class="current-gateway"></span>
+            <span class="option_type">
+              (<span id="siaGatewayOption"></span>)
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="../js/check-browser.js"></script>
+  <script src="../js/promisify.js"></script>
+  <script src="../js/shuffler.js"></script>
+  <script src="almonit_popup.js"></script>
+</body>
+
 </html>

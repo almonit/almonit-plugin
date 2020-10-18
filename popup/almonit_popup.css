@@ -191,8 +191,15 @@ main > section > a {
 }
 
 .option_type {
+	white-space: nowrap;
 	color: #bbb;
 	margin-left: 3.5px;
+}
+
+#testnetIndicator {
+	color:#bbb;
+	text-transform: capitalize;
+	border-radius: 7px;
 }
 
 footer {
