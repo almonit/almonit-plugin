@@ -4,6 +4,7 @@
 var ethereum;
 var autoGatewaysUpdate;
 
+var enableEteherumTestnet = false;
 var ethereumTestnet;
 var ethereumTestnetInfuraNode = "https://rinkeby.infura.io/v3/4ff76c15e5584ee4ad4d0c248ec86e17";
 
@@ -135,7 +136,7 @@ function updateSettings(storage) {
 
 	// those setting variables were not in old versions of the extension, so we check if they exist
 	var autoGatewaysUpdate = ('autoGatewaysUpdate' in oldSettings)? oldSettings.autoGatewaysUpdate : true;
-	var enableEteherumTestnet = ('enableEteherumTestnet' in oldSettings)? oldSettings.enableEteherumTestnet : false;
+	enableEteherumTestnet = ('enableEteherumTestnet' in oldSettings)? oldSettings.enableEteherumTestnet : false;
 	
 	// same goes for ethereumTestnets, but its treatment is longer than one line
 	if (!('ethereumTestnets' in oldSettings)) {

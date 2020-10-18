@@ -33,7 +33,11 @@ async function RDNtoDS(domain, path) {
 			break;
 		case "teth":
 		case "testeth":
-			// We transfer from the extension .teth and .testeth TLDs, to the testnet .eth and .test TLDs correspondingly
+			// if testnet is diabled, return nothing
+			if (!enableEteherumTestnet)
+				return {redirectUrl: "about:blank"};
+
+			// We transfer from the extension .teth and .testeth TLDs, to.eth and .test TLDs correspondingly
 			switch (TLD) {
 				case "teth":
 					domain = domain.replace(".teth", ".eth");
@@ -47,6 +51,8 @@ async function RDNtoDS(domain, path) {
 
 				if (address !== "0x")
 					var redirect = await handleENSContenthash(address, domain, path);
+				else 
+					var redirect = notFound(domain, e);
 			} catch(e) {
 				var redirect = notFound(domain, e);
 			}
