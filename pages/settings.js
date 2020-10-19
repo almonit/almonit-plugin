@@ -5,6 +5,7 @@ const tabPanels = document.querySelectorAll('.tab-panel');
 var ethereumGateways;
 var ipfsGateways;
 var skynetGateways;
+var ethereumTestnets;
 
 /**
  * Click events
@@ -62,6 +63,11 @@ document
     .getElementById('skynetRadioButtons')
     .addEventListener('click', e => radioGroupListener(e, 'skynet'));
 
+// enable/disable testnets select box when user enables/disables testnet support
+document.getElementById('ethereumTestnetCheckbox').onclick = function () {
+    document.getElementById('ethereumTestnets').disabled = !this.checked;
+}
+
 for (let tab of tabs) {
     tab.addEventListener('click', tabListener);
 }
@@ -82,8 +88,6 @@ function loadSettings() {
     function loadCurrentSettings(result) {
         settings = result.settings;
 
-        console.log("aadsfsaf");
-
         // init
         document.getElementById('ethereumOtherGateway').value = '';
         document.getElementById('ipfsOtherGateway').value = '';
@@ -91,22 +95,18 @@ function loadSettings() {
 
         // autoupdated (enabled by default)
         if (settings.autoGatewaysUpdate !== false) {
-            document.querySelector(
-                '#autoGatewaysUpdateCheckbox'
-            ).checked = true;
+            document.querySelector('#autoGatewaysUpdateCheckbox').checked = true;
         } else
-            document.querySelector(
-                '#autoGatewaysUpdateCheckbox'
-            ).checked = false;
+            document.querySelector('#autoGatewaysUpdateCheckbox').checked = false;
 
-        // Rinkeby testnet ENS support (disabled by default)
-        if (settings.rinkebyTestnet !== true) {
+        // Ethereum testnet ENS support (disabled by default)
+        if (settings.ethereumTestnet !== true) {
             document.querySelector(
-                '#rinkebyTestnetCheckbox'
+                '#ethereumTestnetCheckbox'
             ).checked = false;
         } else
             document.querySelector(
-                '#rinkebyTestnetCheckbox'
+                '#ethereumTestnetCheckbox'
             ).checked = true;
 
         // gateways settings
@@ -117,6 +117,9 @@ function loadSettings() {
         loadGateways(ethereumGateways, 'ethereum');
         loadGateways(ipfsGateways,  'ipfs');
         loadGateways(skynetGateways, 'skynet');
+
+        ethereumTestnets = new Gateways(settings.ethereumTestnets);
+        loadEthereumTestnets(ethereumTestnets, settings.enableEteherumTestnet);
 
         // shortcuts
         document.getElementById('shortcutBarInput').value =
@@ -159,6 +162,23 @@ function loadSettings() {
         document.getElementById(label + "NoNewRandomWhenSaving").checked = gws.noNewRandomWhenSaving;
     }
 
+    function loadEthereumTestnets(testnets, testnetEnabled) {
+        document.getElementById('ethereumTestnetCheckbox').checked = testnetEnabled;
+
+        let selectbox = document.getElementById('ethereumTestnets');
+
+        Object.keys(testnets.default).forEach(function(key, index) {
+            let option = document.createElement('option');
+            option.text = testnets.default[key].name;
+            option.value = key;
+            option.id = key;
+            selectbox.add(option);
+        });
+
+        selectbox.value = testnets.currentGateway.key;
+        selectbox.disabled = !testnetEnabled;
+    }
+
     let getSettings = promisify(browser.storage.local, 'get', ['settings']);
     getSettings.then(loadCurrentSettings, onError);
 }
@@ -179,9 +199,14 @@ function saveSettings(e) {
         '#autoGatewaysUpdateCheckbox'
     ).checked;
 
-    let RinkebyTestnet = document.querySelector(
-        '#rinkebyTestnetCheckbox'
+    let enableEteherumTestnet = document.querySelector(
+        '#ethereumTestnetCheckbox'
     ).checked;
+
+    if (enableEteherumTestnet) {
+        let key = document.getElementById('ethereumTestnets').value;
+        ethereumTestnets.setGatewayOptions("FORCE", key);
+    }
 
     let shortcuts = {
         addressbar: document.getElementById('shortcutBarInput').value,
@@ -191,7 +216,8 @@ function saveSettings(e) {
     // create, save and send 'reloadSettings' settings
     let settings = {
         autoGatewaysUpdate: AutoGatewaysUpdate,
-        rinkebyTestnet: RinkebyTestnet,
+        enableEteherumTestnet: enableEteherumTestnet,
+        ethereumTestnets: ethereumTestnets,
         ethereumGateways: ethereumGateways,
         ipfsGateways: ipfsGateways,
         skynetGateways: skynetGateways,

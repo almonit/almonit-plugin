@@ -1,55 +1,71 @@
 :root {
-	--color-text: #4a4a4a;
+  --color-text: #4a4a4a;
 }
 
 body {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	color: var(--color-text);
-	font-family: "Montserrat", sans-serif;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: var(--color-text);
+  font-family: "Montserrat", sans-serif;
+  overflow: hidden;
+  text-align: center;
 }
 
 center {
-	font-size: 14pt;
+  font-size: 14pt;
 }
 
 .panel__action {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 10.5pt;
-	margin-top: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10.5pt;
+  margin-bottom: 42px;
 }
 
 .pure-button {
-	margin: 0 10px;
+  margin: 0 10px;
 }
 
 .almonit-song {
-	margin-top: 28px;
-	font-size: 14pt;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 28px;
+  font-size: 12pt;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.4em;
+  text-align: center;
+  text-rendering: optimizeLegibility;
+  color: #424242;
+}
+
+.almonit-song__img {
+  width: 150px;
+  margin: 21px 0;
+  filter: drop-shadow(1px 10px 2px #808080);
 }
 
 .fadeInBottom {
-	animation-name: fadeInBottom;
-	animation-duration: 1.4s;
-	animation-fill-mode: both;
-	background: radial-gradient(#e2c87d95, #33333390);
-	background-size: 180% 100%;
+  animation-name: fadeInBottom;
+  animation-duration: 1.4s;
+  animation-fill-mode: both;
+  background: radial-gradient(#e2c87d95, #33333390);
+  background-size: 180% 100%;
 }
 
 @keyframes fadeInBottom {
-	from {
-		opacity: 0;
-		transform: translateY(10%);
-		background-position: 0% 50%;
-	}
-	to {
-		opacity: 1;
-		background-position: 100% 50%;
-	}
+  from {
+    opacity: 0;
+    transform: translateY(10%);
+    background-position: 0% 50%;
+  }
+  to {
+    opacity: 1;
+    background-position: 100% 50%;
+  }
 }

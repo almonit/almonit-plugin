@@ -1,449 +1,300 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="../style/pure-min.css" />
-    <link href="../style/montserrat-font.css" rel="stylesheet" />
-    <link rel="stylesheet" href="settings.css" />
-  </head>
 
-  <body>
-    <div class="header">
-      <img src="../resources/lion_header.png" alt="Almonit" />
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="../style/pure-min.css" />
+  <link href="../style/montserrat-font.css" rel="stylesheet" />
+  <link rel="stylesheet" href="settings.css" />
+</head>
 
-      <a
-        href="https://github.com/almonit/almonit-plugin/releases"
-        target="_blank"
-      >
-        <div class="header_name">
-          <h3>Almonit</h3>
-          <small id="appVersion" class="app-version"></small>
+<body>
+  <div class="header">
+    <img src="../resources/lion_header.png" alt="Almonit" />
+
+    <a href="https://github.com/almonit/almonit-plugin/releases" target="_blank">
+      <div class="header_name">
+        <h3>Almonit</h3>
+        <small id="appVersion" class="app-version"></small>
+      </div>
+    </a>
+    <img src="../resources/lion_header.png" alt="Almonit" style="transform: scaleX(-1);" />
+  </div>
+  <form id="settingsForm" class="panel">
+    <fieldset id="field_disabel_form">
+      <header>
+        <p>Control what Almonit serves for you.</p>
+      </header>
+      <div class="tabs">
+        <div id="general" class="tab active">
+          General
         </div>
-      </a>
-      <img
-        src="../resources/lion_header.png"
-        alt="Almonit"
-        style="transform: scaleX(-1);"
-      />
-    </div>
-    <form id="settingsForm" class="panel">
-      <fieldset id="field_disabel_form">
-        <header>
-          <p>Control what Almonit serves for you.</p>
-        </header>
-        <div class="tabs">
-          <div id="general" class="tab active">
-            General
-          </div>
-          <div id="ethereum" class="tab">
-            <img
-              src="../resources/ethereum.svg"
-              alt="Ethereum"
-              class="tab-icon"
-            />
-            Ethereum
-          </div>
-          <div id="ipfs" class="tab">
-            <img src="../resources/ipfs.svg" alt="IPFS" class="tab-icon" />
-            IPFS
-          </div>
-          <div id="skynet" class="tab">
-            <img
-              src="../resources/siasky.svg"
-              alt="Sia Skynet"
-              class="tab-icon"
-            />
-            Skynet
-          </div>
+        <div id="ethereum" class="tab">
+          <img src="../resources/ethereum.svg" alt="Ethereum" class="tab-icon" />
+          Ethereum
         </div>
-        <div class="tab-panels">
-          <div
-            id="generalTab"
-            class="tab-panel pure-form pure-form-aligned scrollable active"
-          >
-            <section>
-              <h3 class="settings__label">General</h3>
-              <div>
-                <label for="option-one" class="pure-checkbox">
-                  <input
-                    id="autoGatewaysUpdateCheckbox"
-                    type="checkbox"
-                    value=""
-                  />
-                  Enable automatic settings update
+        <div id="ipfs" class="tab">
+          <img src="../resources/ipfs.svg" alt="IPFS" class="tab-icon" />
+          IPFS
+        </div>
+        <div id="skynet" class="tab">
+          <img src="../resources/siasky.svg" alt="Sia Skynet" class="tab-icon" />
+          Skynet
+        </div>
+      </div>
+      <div class="tab-panels">
+        <div id="generalTab" class="tab-panel pure-form pure-form-aligned scrollable active">
+          <section>
+            <h3 class="settings__label">General</h3>
+            <div>
+              <label for="option-one" class="pure-checkbox">
+                <input id="autoGatewaysUpdateCheckbox" type="checkbox" value="" />
+                Enable automatic settings update
+              </label>
+
+              <label for="option-one" class="pure-checkbox">
+                <input id="ethereumTestnetCheckbox" type="checkbox" value="" />
+                Enable ENS testnet Dwebsites
+                <div class="help-tip">
+                  <p> With testnet enabled, <b>.teth</b> and <b>.testeth</b> domains are resolved as <b>.eth</b> and
+                    <b>.test</b>
+                    domains (in testnet) correspondingly.
+                    <br>
+                    <br>
+                    E.g., <b>almonit.teth</b> resolved to <b>almonit.eth</b> (in testnet) and <b>almonit.testeth</b>
+                    is resolved to <b>almonit.test</b> (in testnet)<br /><br />
+                    <b>Note: </b> .test TLD is available only in Rinkeby testnet.
+                  </p>
+                </div>
+              </label>
+              <div class="small_conmment">
+                <select id="ethereumTestnets" disabled></select>
+              </div>
+            </div>
+          </section>
+          <section style="display: none;">
+            <h3 class="settings__label">Shortcuts</h3>
+            <div>
+              <fieldset class="pure-control-group">
+                <label for="shortcutBarInput" class="label__shortcut">
+                  Toggle Address Bar
                 </label>
+                <input id="shortcutBarInput" type="text" value="Ctrl + Shift + T" readonly />
+                <button class="pure-button pure-button-primary" type="button" id="ModifyShortcutBarInput">
+                  Modify
+                </button>
+              </fieldset>
+              <fieldset class="pure-control-group">
+                <label for="shortcutSettingsInput" class="label__shortcut">
+                  Open Settings
+                </label>
+                <input id="shortcutSettingsInput" type="text" value="Ctrl + Shift + O" readonly />
+                <button class="pure-button pure-button-primary" type="button" id="ModifyShortcutSettingsInput">
+                  Modify
+                </button>
+              </fieldset>
+            </div>
+          </section>
+        </div>
+        <div id="ethereumTab" class="tab-panel pure-form pure-form-aligned scrollable">
+          <section>
+            <h3 class="settings__label">Ethereum</h3>
+            <div>
+              <fieldset class="pure-control-group">
+                <label for="gateways">Current Gateway:</label>
+                <b>
+                  <span id="ethereumCurrentGateway">
+                    Current gateway placeholder
+                  </span>
+                </b>
+              </fieldset>
+              <div class="action__gateway">
+                <button class="pure-button pure-button-primary" type="button" id="manageEthereumGatewaysButton">
+                  Manage Gateways
+                </button>
+                <button class="pure-button pure-button-secondary" type="button"
+                  id="restoreDefaultEthereumGatewaysButton">
+                  Restore Default Gateways
+                </button>
+              </div>
+              <br /><br />
+              <div id="ethereumRadioButtons">
+                <label for="ethereumGateway-one" class="pure-checkbox">
+                  <input id="ethereumGateway-one" type="radio" name="ethereum" value="ethereumRandom" checked />
+                  Use random gateway
 
-                <label for="option-one" class="pure-checkbox">
-                  <input
-                    id="rinkebyTestnetCheckbox"
-                    type="checkbox"
-                    value=""
-                  />
-                  Enable Dwebsites based on ENS in Rinkeby testnet (.test Dwebsites)
+                  <div class="help-tip">
+                    <p> A new random gateway is chosen every time the browser is restarted or the settings saved
+                      <br>
+                      <br>
+                      Mark the checkbox below in order to save settings without replacing the random gateway.</p>
+                  </div>
+
+                </label>
+                <div class="small_conmment">
+                  <input id="ethereumNoNewRandomWhenSaving" type="checkbox" value="" />
+                  Do not choose a new random gateway every time settings are saved
+                  </label>
+                </div>
+                <label for="ethereumGateway-two" class="pure-checkbox">
+                  <input id="ethereumGateway-two" type="radio" name="ethereum" value="ethereumForce" checked />
+                  Force gateway
+                  <br /><br />
+                  <select id="ethereumGateways" disabled></select>
+                </label>
+                <label for="ethereumGateway-three" class="pure-checkbox">
+                  <input id="ethereumGateway-three" type="radio" name="ethereum" value="ethereumOther" checked />
+                  Other (e.g., localhost)
+                  <br /><br />
+                  <input id="ethereumOtherGateway" placeholder="http://localhost:8545" type="text" disabled />
                 </label>
               </div>
-            </section>
-            <section style="display: none;">
-              <h3 class="settings__label">Shortcuts</h3>
-              <div>
-                <fieldset class="pure-control-group">
-                  <label for="shortcutBarInput" class="label__shortcut">
-                    Toggle Address Bar
-                  </label>
-                  <input
-                    id="shortcutBarInput"
-                    type="text"
-                    value="Ctrl + Shift + T"
-                    readonly
-                  />
-                  <button
-                    class="pure-button pure-button-primary"
-                    type="button"
-                    id="ModifyShortcutBarInput"
-                  >
-                    Modify
-                  </button>
-                </fieldset>
-                <fieldset class="pure-control-group">
-                  <label for="shortcutSettingsInput" class="label__shortcut">
-                    Open Settings
-                  </label>
-                  <input
-                    id="shortcutSettingsInput"
-                    type="text"
-                    value="Ctrl + Shift + O"
-                    readonly
-                  />
-                  <button
-                    class="pure-button pure-button-primary"
-                    type="button"
-                    id="ModifyShortcutSettingsInput"
-                  >
-                    Modify
-                  </button>
-                </fieldset>
+            </div>
+          </section>
+        </div>
+        <div id="ipfsTab" class="tab-panel pure-form pure-form-aligned scrollable">
+          <section>
+            <h3 class="settings__label">IPFS</h3>
+            <div>
+              <fieldset class="pure-control-group">
+                <label for="gateways">Current Gateway:</label>
+                <b>
+                  <span id="ipfsCurrentGateway">
+                    Current gateway placeholder
+                  </span>
+                </b>
+              </fieldset>
+              <div class="action__gateway">
+                <button class="pure-button pure-button-primary" type="button" id="manageIpfsGatewaysButton">
+                  Manage Gateways
+                </button>
+                <button class="pure-button pure-button-secondary" type="button" id="restoreDefaultIpfsGatewaysButton">
+                  Restore Default Gateways
+                </button>
               </div>
-            </section>
-          </div>
-          <div
-            id="ethereumTab"
-            class="tab-panel pure-form pure-form-aligned scrollable"
-          >
-            <section>
-              <h3 class="settings__label">Ethereum</h3>
-              <div>
-                <fieldset class="pure-control-group">
-                  <label for="gateways">Current Gateway:</label>
-                  <b>
-                    <span id="ethereumCurrentGateway">
-                      Current gateway placeholder
-                    </span>
-                  </b>
-                </fieldset>
-                <div class="action__gateway">
-                  <button
-                    class="pure-button pure-button-primary"
-                    type="button"
-                    id="manageEthereumGatewaysButton"
-                  >
-                    Manage Gateways
-                  </button>
-                  <button
-                    class="pure-button pure-button-secondary"
-                    type="button"
-                    id="restoreDefaultEthereumGatewaysButton"
-                  >
-                    Restore Default Gateways
-                  </button>
-                </div>
-                <br /><br />
-                <div id="ethereumRadioButtons">
-                  <label for="ethereumGateway-one" class="pure-checkbox">
-                    <input
-                      id="ethereumGateway-one"
-                      type="radio"
-                      name="ethereum"
-                      value="ethereumRandom"
-                      checked
-                    />
-                    Use random gateway
-                
+              <br /><br />
+              <div id="ipfsRadioButtons">
+                <label for="ipfsGateway-one" class="pure-checkbox">
+                  <input id="ipfsGateway-one" type="radio" name="ipfs" value="ipfsRandom" checked />
+                  Use random gateway
                   <div class="help-tip">
-                  <p> A new random gateway is chosen every time the browser is restarted or the settings saved
-                  <br> 
-                  <br>
-                  Mark the checkbox below in order to save settings without replacing the random gateway.</p>
+                    <p> A new random gateway is chosen every time the browser is restarted or the settings saved
+                      <br>
+                      <br>
+                      Mark the checkbox below in order to save settings without replacing the random gateway.</p>
                   </div>
-                   
-                  </label>
-                  <div class="small_conmment">
-                  <input
-                    id="ethereumNoNewRandomWhenSaving"
-                    type="checkbox"
-                    value=""
-                  />
+
+                </label>
+                <div class="small_conmment">
+                  <input id="ipfsNoNewRandomWhenSaving" type="checkbox" value="" />
                   Do not choose a new random gateway every time settings are saved
                   </label>
                 </div>
-                  <label for="ethereumGateway-two" class="pure-checkbox">
-                    <input
-                      id="ethereumGateway-two"
-                      type="radio"
-                      name="ethereum"
-                      value="ethereumForce"
-                      checked
-                    />
-                    Force gateway
-                    <br /><br />
-                    <select id="ethereumGateways" disabled></select>
-                  </label>
-                  <label for="ethereumGateway-three" class="pure-checkbox">
-                    <input
-                      id="ethereumGateway-three"
-                      type="radio"
-                      name="ethereum"
-                      value="ethereumOther"
-                      checked
-                    />
-                    Other (e.g., localhost)
-                    <br /><br />
-                    <input
-                      id="ethereumOtherGateway"
-                      placeholder="http://localhost:8545"
-                      type="text"
-                      disabled
-                    />
-                  </label>
-                </div>
+                <label for="ipfsGateway-two" class="pure-checkbox">
+                  <input id="ipfsGateway-two" type="radio" name="ipfs" value="ipfsForce" checked />
+                  Force gateway
+                  <br /><br />
+                  <select id="ipfsGateways" disabled></select>
+                </label>
+                <label for="ipfsGateway-three" class="pure-checkbox">
+                  <input id="ipfsGateway-three" type="radio" name="ipfs" value="ipfsOther" checked />
+                  Other (e.g., localhost)
+                  <br /><br />
+                  <input id="ipfsOtherGateway" placeholder="http://localhost:8080/" type="text" disabled />
+                </label>
               </div>
-            </section>
-          </div>
-          <div
-            id="ipfsTab"
-            class="tab-panel pure-form pure-form-aligned scrollable"
-          >
-            <section>
-              <h3 class="settings__label">IPFS</h3>
-              <div>
-                <fieldset class="pure-control-group">
-                  <label for="gateways">Current Gateway:</label>
-                  <b>
-                    <span id="ipfsCurrentGateway">
-                      Current gateway placeholder
-                    </span>
-                  </b>
-                </fieldset>
-                <div class="action__gateway">
-                  <button
-                    class="pure-button pure-button-primary"
-                    type="button"
-                    id="manageIpfsGatewaysButton"
-                  >
-                    Manage Gateways
-                  </button>
-                  <button
-                    class="pure-button pure-button-secondary"
-                    type="button"
-                    id="restoreDefaultIpfsGatewaysButton"
-                  >
-                    Restore Default Gateways
-                  </button>
-                </div>
-                <br /><br />
-                <div id="ipfsRadioButtons">
-                  <label for="ipfsGateway-one" class="pure-checkbox">
-                    <input
-                      id="ipfsGateway-one"
-                      type="radio"
-                      name="ipfs"
-                      value="ipfsRandom"
-                      checked
-                    />
-                    Use random gateway 
-                  <div class="help-tip">
-                  <p> A new random gateway is chosen every time the browser is restarted or the settings saved
-                  <br> 
-                  <br>
-                  Mark the checkbox below in order to save settings without replacing the random gateway.</p>
-                  </div>
-                   
-                  </label>
-                  <div class="small_conmment">
-                  <input
-                    id="ipfsNoNewRandomWhenSaving"
-                    type="checkbox"
-                    value=""
-                  />
-                  Do not choose a new random gateway every time settings are saved
-                  </label>
-                  </div>
-                  <label for="ipfsGateway-two" class="pure-checkbox">
-                    <input
-                      id="ipfsGateway-two"
-                      type="radio"
-                      name="ipfs"
-                      value="ipfsForce"
-                      checked
-                    />
-                    Force gateway
-                    <br /><br />
-                    <select id="ipfsGateways" disabled></select>
-                  </label>
-                  <label for="ipfsGateway-three" class="pure-checkbox">
-                    <input
-                      id="ipfsGateway-three"
-                      type="radio"
-                      name="ipfs"
-                      value="ipfsOther"
-                      checked
-                    />
-                    Other (e.g., localhost)
-                    <br /><br />
-                    <input
-                      id="ipfsOtherGateway"
-                      placeholder="http://localhost:8080/"
-                      type="text"
-                      disabled
-                    />
-                  </label>
-                </div>
+            </div>
+          </section>
+        </div>
+        <div id="skynetTab" class="tab-panel pure-form pure-form-aligned scrollable">
+          <section>
+            <h3 class="settings__label">Skynet</h3>
+            <div>
+              <fieldset class="pure-control-group">
+                <label for="gateways">Current Gateway:</label>
+                <b>
+                  <span id="skynetCurrentGateway">
+                    Current gateway placeholder
+                  </span>
+                </b>
+              </fieldset>
+              <div class="action__gateway">
+                <button class="pure-button pure-button-primary" type="button" id="manageSkynetGatewaysButton">
+                  Manage Gateways
+                </button>
+                <button class="pure-button pure-button-secondary" type="button" id="restoreDefaultSkynetGatewaysButton">
+                  Restore Default Gateways
+                </button>
               </div>
-            </section>
-          </div>
-          <div
-            id="skynetTab"
-            class="tab-panel pure-form pure-form-aligned scrollable"
-          >
-            <section>
-              <h3 class="settings__label">Skynet</h3>
-              <div>
-                <fieldset class="pure-control-group">
-                  <label for="gateways">Current Gateway:</label>
-                  <b>
-                    <span id="skynetCurrentGateway">
-                      Current gateway placeholder
-                    </span>
-                  </b>
-                </fieldset>
-                <div class="action__gateway">
-                  <button
-                    class="pure-button pure-button-primary"
-                    type="button"
-                    id="manageSkynetGatewaysButton"
-                  >
-                    Manage Gateways
-                  </button>
-                  <button
-                    class="pure-button pure-button-secondary"
-                    type="button"
-                    id="restoreDefaultSkynetGatewaysButton"
-                  >
-                    Restore Default Gateways
-                  </button>
-                </div>
-                <br /><br />
-                <div id="skynetRadioButtons">
-                  <label for="skynetGateway-one" class="pure-checkbox">
-                    <input
-                      id="skynetGateway-one"
-                      type="radio"
-                      name="skynet"
-                      value="skynetRandom"
-                      checked
-                    />
-                    Use random gateway 
+              <br /><br />
+              <div id="skynetRadioButtons">
+                <label for="skynetGateway-one" class="pure-checkbox">
+                  <input id="skynetGateway-one" type="radio" name="skynet" value="skynetRandom" checked />
+                  Use random gateway
                   <div class="help-tip">
-                  <p> A new random gateway is chosen every time the browser is restarted or the settings saved
-                  <br> 
-                  <br>
-                  Mark the checkbox below in order to save settings without replacing the random gateway.</p>
+                    <p> A new random gateway is chosen every time the browser is restarted or the settings saved
+                      <br>
+                      <br>
+                      Mark the checkbox below in order to save settings without replacing the random gateway.</p>
                   </div>
-                   
-                  </label>
-                  <div class="small_conmment">
-                  <input
-                    id="skynetNoNewRandomWhenSaving"
-                    type="checkbox"
-                    value=""
-                  />
+
+                </label>
+                <div class="small_conmment">
+                  <input id="skynetNoNewRandomWhenSaving" type="checkbox" value="" />
                   Do not choose a new random gateway every time settings are saved
                   </label>
                 </div>
 
-                  <label for="skynetGateway-two" class="pure-checkbox">
-                    <input
-                      id="skynetGateway-two"
-                      type="radio"
-                      name="skynet"
-                      value="skynetForce"
-                      checked
-                    />
-                    Force gateway
-                    <br /><br />
-                    <select id="skynetGateways" disabled></select>
-                  </label>
-                  <label for="skynetGateway-three" class="pure-checkbox">
-                    <input
-                      id="skynetGateway-three"
-                      type="radio"
-                      name="skynet"
-                      value="skynetOther"
-                      checked
-                    />
-                    Other (e.g., localhost)
-                    <br /><br />
-                    <input
-                      id="skynetOtherGateway"
-                      placeholder="Your Skynet Gateway"
-                      type="text"
-                      disabled
-                    />
-                  </label>
-                </div>
+                <label for="skynetGateway-two" class="pure-checkbox">
+                  <input id="skynetGateway-two" type="radio" name="skynet" value="skynetForce" checked />
+                  Force gateway
+                  <br /><br />
+                  <select id="skynetGateways" disabled></select>
+                </label>
+                <label for="skynetGateway-three" class="pure-checkbox">
+                  <input id="skynetGateway-three" type="radio" name="skynet" value="skynetOther" checked />
+                  Other (e.g., localhost)
+                  <br /><br />
+                  <input id="skynetOtherGateway" placeholder="Your Skynet Gateway" type="text" disabled />
+                </label>
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
         </div>
-        <footer class="panel__action">
-          <button
-            class="pure-button pure-button-primary button-submit"
-            type="submit"
-            id="saveSettings"
-          >
-            Save
-          </button>
-        </footer>
-      </fieldset>
-    </form>
-
-    <div id="gatewayModal" class="modal-container">
-      <div id="gatewayModalPanel" class="modal">
-        <h4>Manage Gateways</h4>
-        <div class="list-panel">
-          <div id="addGatewayPanel" class="add-gateway-button">
-            <span id="addGatewayButton"> + Add new gateway</span>
-          </div>
-          <ul id="modalGatewaysList"></ul>
-        </div>
-        <button
-          class="pure-button pure-button-primary button-submit"
-          type="submit"
-          id="DoneModifyingGateway"
-        >
-          Done
+      </div>
+      <footer class="panel__action">
+        <button class="pure-button pure-button-primary button-submit" type="submit" id="saveSettings">
+          Save
         </button>
-      </div>
-    </div>
+      </footer>
+    </fieldset>
+  </form>
 
-    <div id="SettingsMessage" class="modal-container">
-      <div id="SettingsMessageDiv" class="modal-saved_msg">
-        <h4>Settings saved</h4>
+  <div id="gatewayModal" class="modal-container">
+    <div id="gatewayModalPanel" class="modal">
+      <h4>Manage Gateways</h4>
+      <div class="list-panel">
+        <div id="addGatewayPanel" class="add-gateway-button">
+          <span id="addGatewayButton"> + Add new gateway</span>
+        </div>
+        <ul id="modalGatewaysList"></ul>
       </div>
+      <button class="pure-button pure-button-primary button-submit" type="submit" id="DoneModifyingGateway">
+        Done
+      </button>
     </div>
-  </body>
-  <script src="../js/gateways.js"></script>
-  <script src="../js/check-browser.js"></script>
-  <script src="../js/promisify.js"></script>
-  <script src="settings.js"></script>
+  </div>
+
+  <div id="SettingsMessage" class="modal-container">
+    <div id="SettingsMessageDiv" class="modal-saved_msg">
+      <h4>Settings saved</h4>
+    </div>
+  </div>
+</body>
+<script src="../js/gateways.js"></script>
+<script src="../js/check-browser.js"></script>
+<script src="../js/promisify.js"></script>
+<script src="settings.js"></script>
+
 </html>
