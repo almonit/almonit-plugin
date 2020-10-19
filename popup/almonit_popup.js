@@ -36,7 +36,6 @@ getSettings.then(loadCurrentSettings, onError);
 
 function loadCurrentSettings(result) {
   let settings = result.settings;
-  console.log("settings", settings);
 
   document.getElementById(
     "testnetIndicator"

@@ -147,7 +147,7 @@ function updateSettings(storage) {
 
   // same goes for ethereumTestnets, but its treatment is longer than one line
   if (!("ethereumTestnets" in oldSettings)) {
-    let ethereumTestnets = new Gateways();
+    var ethereumTestnets = new Gateways();
     ethereumTestnets.setDefaultGateways(gatewaysData.ethereumTestnets);
     ethereumTestnets.setGatewayOptions(
       "FORCE",
