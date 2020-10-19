@@ -349,7 +349,7 @@ select {
 .help-tip {
   position: relative;
   text-align: center;
-  background-color: #bcdbea;
+  background-color: #51a0c8;
   border-radius: 50%;
   top: -5px;
   width: 14px;
@@ -363,7 +363,7 @@ select {
 .help-tip:before {
   content: "?";
   font-weight: bold;
-  font-size: 7pt;
+  font-size: 9pt;
   color: #fff;
 }
 
