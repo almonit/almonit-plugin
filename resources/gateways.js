@@ -13,12 +13,6 @@ var gatewaysDataJSON = `{
       "name": "Ipfs",
       "address": "https://ipfs.io"
     },
-
-    "ipfs.eternum.io": {
-      "key": "ipfs.eternum.io",
-      "name": "Eternum",
-      "address": "https://ipfs.eternum.io"
-    },
     "ipfs.infura.io": { 
       "key": "ipfs.infura.io",
       "name": "Infura",
@@ -44,10 +38,10 @@ var gatewaysDataJSON = `{
       "name": "Sloppyta.co",
       "address": "https://ipfs.sloppyta.co"
     },
-    "ninetailed.ninja": {
-      "key": "ninetailed.ninja",
-      "name": "Nine Tailed Ninja",
-      "address": "https://ninetailed.ninja"
+    "dweb.link": {
+      "key": "dweb.link",
+      "name": "Dweb.link",
+      "address": "https://dweb.link"
     }
   },
 
