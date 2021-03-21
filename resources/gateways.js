@@ -23,11 +23,6 @@ var gatewaysDataJSON = `{
       "name": "Cloudflare",
       "address": "https://cloudflare-ipfs.com"
     },
-    "gateway.temporal.cloud": {
-      "key": "gateway.temporal.cloud",
-      "name": "Temporal",
-      "address": "https://gateway.temporal.cloud"
-    },
     "gateway.pinata.cloud": { 
       "key": "gateway.pinata.cloud",
       "name": "Pinata",

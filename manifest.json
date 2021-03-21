@@ -38,7 +38,6 @@
     "https://ipfs.eternum.io/ipfs*",
     "https://ipfs.infura.io/ipfs*",
     "https://cloudflare-ipfs.com/ipfs*",
-    "https://gateway.temporal.cloud/ipfs*",
     "https://gateway.pinata.cloud/ipfs*",
     "https://hardbin.com/ipfs*",
     "https://dweb.link/ipfs*",
