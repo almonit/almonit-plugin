@@ -57,14 +57,31 @@ async function RDNtoDS(domain, path) {
 }
 
 function handleENSContenthash(address, ensDomain, ensPath) {
-  return redirectENStoIPFS(address.slice(14), ensDomain, ensPath);
+  const codecHex = address.slice(0, 8);
+  const codec = getCodec(codecHex);
+  return redirectENStoIPFS(address.slice(14), ensDomain, ensPath, codec);
+}
+
+function getCodec(hex) {
+  /* @see https://github.com/multiformats/js-multicodec/blob/bdd592607c0e8ceb33cc03c9107b9fb156d3dd68/src/generated-table.js */
+  let codec = null;
+  switch(true) {
+    case hex.startsWith("0xe5"):
+      codec = { name: "ipns-ns", protocol: "/ipns/"}
+      break;
+    case hex.startsWith("0xe3"):
+      codec = { name: "ipfs-ns", protocol: "/ipfs/"}
+      break;
+  }
+  if (!codec) throw `Unknown codec ${codecHex}`;
+  return codec;
 }
 
 // create IPFS link and redicrect to it
-function redirectENStoIPFS(hex, ensDomain, ensPath) {
+function redirectENStoIPFS(hex, ensDomain, ensPath, codec = { protocol: "/ipfs/" }) {
   let ipfsHash = hextoIPFS(hex);
   let ipfsAddress =
-    ipfsGateways.currentGateway.address + "/ipfs/" + ipfsHash + ensPath;
+    ipfsGateways.currentGateway.address + codec.protocol + ipfsHash + ensPath;
 
   localENS[ipfsHash] = ensDomain;
 
