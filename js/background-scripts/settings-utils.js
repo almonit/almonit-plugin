@@ -86,7 +86,7 @@ function initSettings() {
 
   let settings = {
     autoGatewaysUpdate: true,
-    enableEteherumTestnet: false,
+    enableEteherumTestnet: true,
     ethereumGateways: ethereumGateways,
     ipfsGateways: ipfsGateways,
     skynetGateways: skynetGateways,
